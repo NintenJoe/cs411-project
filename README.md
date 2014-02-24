@@ -1,4 +1,4 @@
-# CS467 Team 16 Commons Visualization #
+# CS411 Team 1 Project #
 
 ## Required Software ##
 - [Python v2.7.6][py]
