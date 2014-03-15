@@ -1,0 +1,19 @@
+/**
+ * @file cs411-proj.css
+ * @author Joseph Ciurej
+ * @date Spring 2014
+ *
+ * Container file for supplementary CSS for the CS411 project website.
+ *
+ * @TODO
+ * - Fill out any necessary extra CSS information in this file!
+ */
+
+
+/* Main Page Styling */
+
+body {
+	padding-top: 30px;
+	width: 100%;
+}
+

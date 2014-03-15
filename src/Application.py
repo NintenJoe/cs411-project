@@ -33,6 +33,9 @@ class Application( tornado.web.Application ):
 
         page_handlers = [
             ( r"/", HomeHandler ),
+            ( r"/register", RegistrationHandler ),
+            ( r"/user", UserProfileHandler ),
+            ( r"/edit", UserEditHandler ),
         ]
         app_settings = {
             # URL Settings #
@@ -40,8 +43,13 @@ class Application( tornado.web.Application ):
             "asset_path" : asset_path,
             "static_path" : join_paths( asset_path, "static" ),
             "template_path" : join_paths( asset_path, "template" ),
+            # Security Settings #
+            "cookie_secret" : "datbigcuke",
+            "login_url" : "/",
             # Module/Render Settings #
-            # "ui_modules" : { "SourceAuth" : SourceAuthModule, },
+            "ui_modules" : {
+                "CourseSummary" : CourseSummaryModule,
+            },
             # Miscellaneous Settings #
             "debug" : True,
         }

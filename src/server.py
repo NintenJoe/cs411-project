@@ -20,16 +20,13 @@ from Application import Application
 #   instantiates the backend to listen for API requests.
 def main():
     # Global Option Configuration #
-    tornado.options.define( "listen_port", default=9999,
-                            help="Server Listen Port", type=int )
-    tornado.options.define( "listen_address", default='',
-                            help="Server Listen Address", type=str )
+    tornado.options.define( "listen_port", default=9999, help="Server Listen Port", type=int )
+    tornado.options.define( "listen_address", default='', help="Server Listen Address", type=str )
 
     # Start-Up Logic #
     tornado.options.parse_command_line()
     server = tornado.httpserver.HTTPServer( Application() )
-    server.listen( tornado.options.options.listen_port,
-		   address=tornado.options.options.listen_address )
+    server.listen( tornado.options.options.listen_port, address=tornado.options.options.listen_address )
     tornado.ioloop.IOLoop.instance().start()
 
 
