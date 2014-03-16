@@ -1,0 +1,5 @@
+"""Server-wide configuration."""
+
+listen_port = 9999
+listen_address = ''
+db_config = 'config/db.py'

@@ -1,5 +1,13 @@
+ifdef COMPILER
+ifndef INTERPRETER
+INTERPRETER = $(COMPILER)
+endif
+else ifdef INTERPRETER
+COMPILER = $(INTERPRETER)
+else
 COMPILER = python
 INTERPRETER = python
+endif
 COMPILER_FLAGS = 
 TEST_FLAGS = -m unittest
 
