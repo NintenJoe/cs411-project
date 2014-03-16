@@ -20,7 +20,6 @@ if __name__ != '__main__':
 
 # prepare python loader with proper PYTHONPATH
 project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-print project_root
 sys.path.insert(1, project_root)
 
 # server module finally can be imported
