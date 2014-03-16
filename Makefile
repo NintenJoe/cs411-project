@@ -5,31 +5,35 @@ endif
 else ifdef INTERPRETER
 COMPILER = $(INTERPRETER)
 else
-COMPILER = python
-INTERPRETER = python
+COMPILER = python2.7
+INTERPRETER = python2.7
 endif
 COMPILER_FLAGS = 
 TEST_FLAGS = -m unittest
 
-ASSET_DIR = ./assets
-SRC_DIR = ./src
-TEST_DIR = ./test
-CONFIG_DIR = ./config
-MAIN_SCRIPT = $(SRC_DIR)/server.py
+PROJECT_ROOT = .
+PACKAGE_ROOT = $(PROJECT_ROOT)/datbigcuke
+ASSET_DIR = $(PROJECT_ROOT)/assets
+BIN_DIR = $(PROJECT_ROOT)/bin
+TEST_DIR = $(PACKAGE_ROOT)/test
+CONFIG_DIR = $(PROJECT_ROOT)/config
+MAIN_SCRIPT = $(BIN_DIR)/datbigcuke-server
 SERVER_OPTS = --config=$(CONFIG_DIR)/server.conf
 
-.PHONY : server tests clean
+.PHONY : server tests test clean
 
 all : server
 
-server : $(MAIN_SCRIPT) $(wildcard $(SRC_DIR)/*.py)
-	$(INTERPRETER) $(COMPILER_FLAGS) $(MAIN_SCRIPT) $(SERVER_OPTS)
+server : $(MAIN_SCRIPT)
+	$(MAIN_SCRIPT) $(SERVER_OPTS)
 
-tests : $(wildcard $(SRC_DIR)/*.py) $(wildcard $(TEST_DIR)/*.py)
-	$(INTERPRETER) $(TEST_FLAGS) discover -s $(TEST_DIR) -p '*Test.py'
+test : tests
+tests :
+	$(INTERPRETER) $(TEST_FLAGS) discover -s $(PROJECT_ROOT) -p '*Test.py'
 
-%Test : $(TEST_DIR)/%Test.py $(SRC_DIR)/%.py
-	$(INTERPRETER) $(TEST_FLAGS) discover -s $(TEST_DIR) -p '$@.py'
+%Test : $(TEST_DIR)/%Test.py $(PACKAGE_ROOT)/%.py
+	$(INTERPRETER) $(TEST_FLAGS) discover -s $(PROJECT_ROOT) -p '$@.py'
 
 clean :
-	-rm -rf $(SRC_DIR)/*.pyc $(TEST_DIR)/*.pyc
+	-find "$(PROJECT_ROOT)" -name '*.pyc' | xargs rm -f
+	-find "$(PROJECT_ROOT)" -name __pycache__ | xargs rm -rf

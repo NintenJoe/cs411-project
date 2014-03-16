@@ -17,7 +17,7 @@ from tornado.options import options as tornopts
 from os.path import realpath as get_realpath
 from os.path import dirname as get_path
 from os.path import join as join_paths
-from PageHandlers import *
+from datbigcuke.PageHandlers import *
 
 ##  The central application type for the CS411 project backend, which 
 #   contains all website global information and specifies handlers for 

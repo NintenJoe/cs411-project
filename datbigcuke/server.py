@@ -12,8 +12,8 @@ import tornado.httpserver
 import tornado.options
 import tornado.ioloop
 import tornado.web
-import db
-from Application import Application
+import datbigcuke.db
+from datbigcuke.Application import Application
 
 # Global Option Configuration #
 _parse_config = lambda path: tornado.options.parse_config_file(path, final=False)
