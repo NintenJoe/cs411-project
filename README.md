@@ -7,6 +7,7 @@
 ## Additional Software ##
 - [D3 v3.0][d3]
 - [Twitter Bootstrap v3.0][bootstrap]
+- [Mock][mock] (for testing)
 
 ## Installation Instructions ##
 There are two ways to install all the required dependencies for this
@@ -42,3 +43,4 @@ at the University of Illinois Urbana-Champaign.
 [d3]: http://d3js.org/
 [bootstrap]: http://getbootstrap.com/
 [localhost]: http://localhost:9999
+[mock]: http://www.voidspace.org.uk/python/mock/
