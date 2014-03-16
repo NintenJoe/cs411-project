@@ -1,7 +1,7 @@
 """Application database configuration."""
 
 # MySQL provider factory. Must represent a valid Python callable.
-mysql_provider = 'db.conn.mysql'
+mysql_provider = 'datbigcuke.db.conn.mysql.oursql'
 # MySQL server hostname for default connection
 mysql_hostname = 'localhost'
 # MySQL server port for default connection
