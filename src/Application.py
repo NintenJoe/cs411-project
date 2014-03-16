@@ -35,7 +35,8 @@ class Application( tornado.web.Application ):
             ( r"/", HomeHandler ),
             ( r"/register", RegistrationHandler ),
             ( r"/user", UserProfileHandler ),
-            ( r"/edit", UserEditHandler ),
+            ( r"/edit", ProfileEditHandler ),
+            ( r"/logout", LogoutHandler ),
         ]
         app_settings = {
             # URL Settings #
