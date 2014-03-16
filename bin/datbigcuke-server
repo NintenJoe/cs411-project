@@ -24,5 +24,18 @@ sys.path.insert(1, project_root)
 
 # server module finally can be imported
 import datbigcuke.server
+# if --config= or --db_config= are explicitly passed, make them absolute path
+def absolutify(arg):
+  enabled_options = ['--config=', '--db_config=']
+  for opt in enabled_options:
+    if arg.startswith(opt):
+      path = arg[len(opt):]
+      return opt + os.path.abspath(path)
+
+  return arg
+
+sys.argv = list(map(absolutify, sys.argv))
+# chdir into the project root, so chain-loading works for default configurations
+os.chdir(project_root)
 # run the server
 datbigcuke.server.main()
