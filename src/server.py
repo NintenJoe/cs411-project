@@ -12,14 +12,17 @@ import tornado.httpserver
 import tornado.options
 import tornado.ioloop
 import tornado.web
+import db
 from Application import Application
 
 # Global Option Configuration #
+_parse_config = lambda path: tornado.options.parse_config_file(path, final=False)
+tornado.options.define( "config", callback=_parse_config,
+                        help="Master configuration file", type=str )
 tornado.options.define( "listen_port", default=9999,
                         help="Server Listen Port", type=int )
 tornado.options.define( "listen_address", default='',
                         help="Server Listen Address", type=str )
-
 ### Primary Entry Point ###
 
 ##  The primary entry point function for the CS411 project backend, which 
@@ -29,8 +32,8 @@ def main():
     # Start-Up Logic #
     tornado.options.parse_command_line()
     server = tornado.httpserver.HTTPServer( Application() )
-    server.listen( tornado.options.options.listen_port,
-		   address=tornado.options.options.listen_address )
+    opts = tornado.options.options
+    server.listen( opts.listen_port, address=opts.listen_address )
     tornado.ioloop.IOLoop.instance().start()
 
 
