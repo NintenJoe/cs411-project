@@ -35,6 +35,7 @@ at the University of Illinois Urbana-Champaign.
 - Joshua Halstead (halstea2)
 - Thomas Bogue (tbogue2)
 - Joseph Ciurej (ciurej2)
+- Kyle Nusbaum (kjnusba2)
 
 
 [py]: http://www.python.org/download/releases/2.7.6/ 
