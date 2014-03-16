@@ -14,8 +14,9 @@ TEST_FLAGS = -m unittest
 ASSET_DIR = ./assets
 SRC_DIR = ./src
 TEST_DIR = ./test
+CONFIG_DIR = ./config
 MAIN_SCRIPT = $(SRC_DIR)/server.py
-SERVER_OPTS = 
+SERVER_OPTS = --config=$(CONFIG_DIR)/server.conf
 
 .PHONY : server tests clean
 

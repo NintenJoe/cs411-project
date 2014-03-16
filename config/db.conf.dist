@@ -1,0 +1,14 @@
+"""Application database configuration."""
+
+# MySQL provider factory. Must represent a valid Python callable.
+mysql_provider = 'db.conn.mysql'
+# MySQL server hostname for default connection
+mysql_hostname = 'localhost'
+# MySQL server port for default connection
+mysql_port = 3306
+# default username for MySQL connections
+mysql_username = ''
+# default password for MySQL connections
+mysql_password = ''
+# default database name for MySQL connections
+mysql_database = 'datbigcuke'

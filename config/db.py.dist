@@ -1,5 +1,0 @@
-"""Application database configuration."""
-
-mysql_provider = 'db.conn.mysql'
-mysql_username = ''
-mysql_password = ''
