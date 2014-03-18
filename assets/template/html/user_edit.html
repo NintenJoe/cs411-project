@@ -40,7 +40,7 @@
 					<label for="available_groups">Available Groups:</label>
 					<select multiple class="form-control" name="available_groups">
 						{% for group in available_groups %}
-							<option value="{{ group }}">{{ group }}</option>
+							<option value="{{ group.id }}">{{ group.name }}</option>
 						{% end %}
 					</select>
 				</div>
@@ -48,7 +48,7 @@
 					<label for="user_groups">Current Groups:</label>
 					<select multiple class="form-control" name="user_groups">
 						{% for group in user_groups %}
-							<option value="{{ group }}">{{ group }}</option>
+							<option value="{{ group.id }}">{{ group.name }}</option>
 						{% end %}
 					</select>
 				</div>

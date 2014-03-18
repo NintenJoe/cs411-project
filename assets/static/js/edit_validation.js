@@ -16,9 +16,10 @@ function main()
 	// TODO: Refactor this code... there's a lot of duplication here.
 	$( "input[name=add_group]" ).click( function() {
 		var added_group = $( "select[name=available_groups] :selected" );
+    var added_group_id = added_group.attr( "value" );
 		var added_group_name = added_group.text();
 		var new_group_element = $( "<option> </option>" )
-			.attr( "value", added_group_name )
+			.attr( "value", added_group_id )
 			.text( added_group_name ); 
 
 		$( "select[name=user_groups]" ).append( new_group_element );
@@ -26,9 +27,10 @@ function main()
 	} );
 	$( "input[name=rem_group]" ).click( function() {
 		var removed_group = $( "select[name=user_groups] :selected" );
+		var removed_group_id = removed_group.attr( "value" );
 		var removed_group_name = removed_group.text();
 		var new_group_element = $( "<option> </option>" )
-			.attr( "value", removed_group_name )
+			.attr( "value", removed_group_id )
 			.text( removed_group_name ); 
 
 		$( "select[name=available_groups]" ).append( new_group_element );
