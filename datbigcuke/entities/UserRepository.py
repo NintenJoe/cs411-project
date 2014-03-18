@@ -56,6 +56,9 @@ class UserRepository(AbstractRepository):
         self._update_group_membership(user)
 
     def _update_group_membership(self, user):
+        if not user.groups:
+            return
+
         # TODO(roh7): reconsider whether this is the right place
         with self._conn.cursor() as cursor:
             cursor.execute('DELETE FROM `group_membership`'
