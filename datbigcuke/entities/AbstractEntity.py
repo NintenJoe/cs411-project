@@ -22,7 +22,7 @@ class AbstractEntity(object):
         if name in self._ATTRIB_TO_DATA:
             # see whether this rolls back any previous changes
             key = self._ATTRIB_TO_DATA[name]
-            if value == self.__data[key]:
+            if key in self.__data and value == self.__data[key]:
                 if name in self.__dict__:
                     super(AbstractEntity, self).__delattr__(name)
                 # return here so we don't add the attribute back
