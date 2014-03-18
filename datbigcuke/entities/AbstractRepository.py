@@ -60,8 +60,9 @@ class AbstractRepository(object):
 
     def _create_entity(self, data):
         assert 'id' in data
-        entity = self._obj_cache.get(data['id'], None)
-        if not entity:
+        #entity = self._obj_cache.get(data['id'], None)
+        #if not entity:
+        if True:
             entity = self._obj_type(data=data)
-            self._obj_cache[data['id']] = entity
+            #self._obj_cache[data['id']] = entity
         return entity
