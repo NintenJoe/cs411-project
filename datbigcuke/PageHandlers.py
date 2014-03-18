@@ -176,8 +176,9 @@ class ProfileEditHandler( PageHandler ):
         g_repo = GroupRepository()
         all_groups = g_repo.fetch_all()
         user_groups = set(g_repo.get_groups_of_user(user.id))
+        user_group_ids = map(lambda g: g.id, user_groups)
         g_repo.close()
-        available_groups = [g for g in all_groups if g not in user_groups]
+        available_groups = [g for g in all_groups if g.id not in user_group_ids]
 
         self.render( self.get_url(), user_email=user.email, user_nickname=user.name,
             user_groups=user_groups, available_groups=available_groups )
