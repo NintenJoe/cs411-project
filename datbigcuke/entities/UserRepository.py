@@ -24,6 +24,8 @@ class UserRepository(AbstractRepository):
 
         delta = user.get_delta()
         delta.pop('id', None)  # make sure id does not exist
+        # TODO(roh7): improve delta handling for iterables
+        delta.pop('groups', None)  # make sure id does not exist
         if user.id is None:
             # new user object
             with self._conn.cursor() as cursor:
@@ -50,7 +52,19 @@ class UserRepository(AbstractRepository):
                     cursor.execute('UPDATE `user` '
                                    'SET {} WHERE `id`=?'.format(query),
                                    args)
-            
+
+        self._update_group_membership(user)
+
+    def _update_group_membership(self, user):
+        # TODO(roh7): reconsider whether this is the right place
+        with self._conn.cursor() as cursor:
+            cursor.execute('DELETE FROM `group_membership`'
+                           'WHERE `member_id`=?', (user.id,))
+            cursor.executemany('INSERT INTO `group_membership`'
+                               '(`group_id`, `member_id`)'
+                               'VALUES (?,?)',
+                               ((gid, user.id) for gid in user.groups))
+
     def fetch(self, user_id):
         with self._conn.cursor() as cursor:
             cursor.execute('SELECT `id`, `email`, `name`, `password`, `salt` '
@@ -64,7 +78,7 @@ class UserRepository(AbstractRepository):
             cursor.execute('SELECT `id`, `email`, `name`, `password`, `salt` '
                            'FROM `user`')
             for result in self._fetch_all_dict(cursor):
-                user_list.append(User(data=result))
+                user_list.append(self._create_entity(data=result))
 
         return user_list
         
@@ -78,4 +92,4 @@ class UserRepository(AbstractRepository):
     def _fetch_user(self, cursor):
         result = self._fetch_dict(cursor)
         if result is not None:
-            return User(data=result)
+            return self._create_entity(data=result)

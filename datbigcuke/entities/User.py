@@ -17,6 +17,7 @@ class User(AbstractEntity):
         '_name' : 'name',
         '_hashedPassword' : 'password',
         '_salt' : 'salt',
+        '_groups' : 'groups',
     }
 
     def __init__(self, data=None):
@@ -62,6 +63,14 @@ class User(AbstractEntity):
     def match_password(self, password):
         hashedPassword = hashlib.sha1(self._salt + password).hexdigest()
         return self._hashedPassword == hashedPassword
+
+    @property
+    def groups(self):
+        return self._groups
+
+    @groups.setter
+    def groups(self, value):
+        self._groups = list(value)
 
     def validate(self):
         # TODO(roh7): implement proper validation

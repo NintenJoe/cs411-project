@@ -14,6 +14,10 @@ import tornado.auth
 import os
 from os.path import join as join_paths
 from os.path import exists as file_exists
+from datbigcuke.entities import User
+from datbigcuke.entities import UserRepository
+from datbigcuke.entities import Group
+from datbigcuke.entities import GroupRepository
 
 ### Helper Classes ###
 
@@ -40,17 +44,24 @@ class WebResource():
 class PageHandler( tornado.web.RequestHandler, WebResource ):
     ### User Handling Methods ###
 
-    ##  @return The identifying email address for the user currently logged
+    ##  @return The entities.User object for the user currently logged
     #   into the website or "None" if no such user exists.
     def get_current_user( self ):
-        return self.get_secure_cookie( self.cookie_name )
+        user_id_str = self.get_secure_cookie(self.cookie_name)
+        if user_id_str is None:
+            return None
+        user_id = long(user_id_str)
+        repo = UserRepository()
+        user = repo.fetch(user_id)
+        repo.close()
+        return user
 
-    ##  @param user_email The email address for the user to be logged into the
-    #   website.  If this parameter is set the "None", the current user will
+    ##  @param user_email The unique identifier for the user to be logged into
+    #   the website.  If this parameter is set the "None", the current user will
     #   be removed.
-    def set_current_user( self, user_email ):
-        if user_email:
-            self.set_secure_cookie( self.cookie_name, user_email )
+    def set_current_user( self, user_id ):
+        if user_id:
+            self.set_secure_cookie( self.cookie_name, unicode(user_id) )
         else:
             self.clear_cookie( self.cookie_name )
 
@@ -87,10 +98,13 @@ class HomeHandler( PageHandler ):
         user_email = self.get_argument( "user_email" )
         user_password = self.get_argument( "user_password" )
 
-        # TODO: Verify that the user name exists.
-        pass
-
-        self.set_current_user( user_email )
+        repo = UserRepository()
+        user = repo.get_user_by_email(user_email)
+        repo.close()
+        if user is not None:
+            # user exists. does the password match?
+            if user.match_password(user_password):
+                self.set_current_user(user.id)
 
         self.redirect( "/user" )
 
@@ -112,8 +126,15 @@ class RegistrationHandler( PageHandler ):
         user_nickname = self.get_argument( "user_nickname" )
         user_password = self.get_argument( "user_password" )
 
-        # TODO: Add this user to the database.
-        pass
+        # add this user to the database.
+        user = User()
+        user.email = self.get_argument("user_email")
+        user.name = self.get_argument("user_nickname")
+        user.password = self.get_argument("user_password")
+
+        repo = UserRepository()
+        repo.persist(user)
+        repo.close()
 
         self.redirect( "/" )
 
@@ -128,14 +149,13 @@ class UserProfileHandler( PageHandler ):
     ##  @override
     @tornado.web.authenticated
     def get( self ):
-        user_email = self.get_current_user()
-        # TODO: Retrieve nickname information based on email.
-        user_nickname = user_email
-        # TODO: Retrieve group information based on email.  Use the names of the
-        # groups in this array.
-        user_groups = []
+        user = self.get_current_user()
+        g_repo = GroupRepository()
+        all_groups = g_repo.fetch_all()
+        user_groups = set(g_repo.get_groups_of_user(user.id))
+        g_repo.close()
 
-        self.render( self.get_url(), user=user_nickname, groups=user_groups )
+        self.render( self.get_url(), user=user.name, groups=user_groups )
 
     ##  @override
     @WebResource.resource_url.getter
@@ -148,36 +168,48 @@ class ProfileEditHandler( PageHandler ):
     ##  @override
     @tornado.web.authenticated
     def get( self ):
-        user_email = self.get_current_user()
-        # TODO: Retrieve nickname information based on email.
-        user_nickname = user_email
-        # Note: The information in the arrays below is sample data for front-end testing.
-        # Please remove it when necessary.
-        # TODO: Retrieve group information based on email.
-        user_groups = [ "cgroup1", "cgroup2", "cgroup3" ]
-        # TODO: Retrieve all available groups (prune groups that the user is in).
-        available_groups = [ "group1", "group2", "group3" ]
+        user = self.get_current_user()
 
-        self.render( self.get_url(), user_email=user_email, user_nickname=user_nickname,
+        if not user:
+            self.redirect( "/" )
+
+        g_repo = GroupRepository()
+        all_groups = g_repo.fetch_all()
+        user_groups = set(g_repo.get_groups_of_user(user.id))
+        g_repo.close()
+        available_groups = [g for g in all_groups if g not in user_groups]
+
+        self.render( self.get_url(), user_email=user.email, user_nickname=user.name,
             user_groups=user_groups, available_groups=available_groups )
 
     ##  @override
     @tornado.web.authenticated
     def post( self ):
-        user_email = self.get_current_user()
+        user = self.get_current_user()
 
         # Note: These values will be empty strings if they shouldn't be updated.
         new_user_email = self.get_argument( "user_email" )
         new_user_nickname = self.get_argument( "user_nickname" )
         new_user_password = self.get_argument( "user_password" )
 
-        # Note: This value will be a list of strings where each string is a group name.
+        # Note: This value will be a list of strings where each string is a group id.
         new_groups_string = self.get_argument( "new_user_groups" )
         new_user_groups = new_groups_string.split( "~" ) if new_groups_string else []
-        new_user_groups = map( lambda s: s.encode( "ascii", "ignore" ), new_user_groups )
+        new_user_groups = map( long, new_user_groups )
 
-        # TODO: Update this user's information in the database.
-        pass
+        user.groups = new_user_groups
+            
+        if new_user_email:
+            user.email = new_user_email
+        if new_user_nickname:
+            user.name = new_user_nickname
+        if new_user_password:
+            user.password = new_user_password
+
+        # TODO: improve error handling
+        repo = UserRepository()
+        repo.persist(user)
+        repo.close()
 
         self.redirect( "/user" )
 
