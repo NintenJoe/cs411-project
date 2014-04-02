@@ -104,7 +104,13 @@ class HomeHandler( PageHandler ):
         if user is not None:
             # user exists. does the password match?
             if user.match_password(user_password):
-                self.set_current_user(user.id)
+                # password is correct. Has user confirmed their email?
+                if user.confirmed():
+                    self.set_current_user(user.id)
+                else:
+                    print "User is not confirmed."
+            else:
+                print "Password does not match."
 
         self.redirect( "/user" )
 

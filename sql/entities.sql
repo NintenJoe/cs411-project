@@ -19,6 +19,7 @@ CREATE TABLE IF NOT EXISTS `user` (
   `name` CHAR(70) NOT NULL,
   `password` CHAR(40), -- users may not log on with NULL password
   `salt` CHAR(40) NOT NULL,
+  `confirmed` BOOLEAN NOT NULL DEFAULT False,
 
   FOREIGN KEY (`id`)
   REFERENCES `membership_entity`(`id`)

@@ -17,6 +17,7 @@ class User(AbstractEntity):
         '_name' : 'name',
         '_hashedPassword' : 'password',
         '_salt' : 'salt',
+        '_confirmed' : 'confirmed',
         '_groups' : 'groups',
     }
 
@@ -51,6 +52,9 @@ class User(AbstractEntity):
     @property
     def password(self):
         return self._plainPassword
+
+    def confirmed(self):
+        return self._confirmed
 
     @password.setter
     def password(self, value):

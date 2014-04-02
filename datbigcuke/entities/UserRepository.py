@@ -87,7 +87,7 @@ class UserRepository(AbstractRepository):
         
     def get_user_by_email(self, email):
         with self._conn.cursor() as cursor:
-            cursor.execute('SELECT `id`, `email`, `name`, `password`, `salt` '
+            cursor.execute('SELECT `id`, `email`, `name`, `password`, `salt`, `confirmed` '
                            'FROM `user`'
                            'WHERE `email`=?', (email,))
             return self._fetch_user(cursor)
