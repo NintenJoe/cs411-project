@@ -18,6 +18,7 @@ class User(AbstractEntity):
         '_hashedPassword' : 'password',
         '_salt' : 'salt',
         '_confirmed' : 'confirmed',
+        '_confirmUUID' : 'confirmUUID',
         '_groups' : 'groups',
     }
 

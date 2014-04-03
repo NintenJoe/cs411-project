@@ -35,10 +35,10 @@ class UserRepository(AbstractRepository):
                 # not throw an exception itself?
                 assert cursor.lastrowid != 0
                 cursor.execute('INSERT INTO `user`'
-                               '(`id`, `email`, `name`, `password`, `salt`) '
-                               'VALUES (?, ?, ?, ?, ?)',
+                               '(`id`, `email`, `name`, `password`, `salt`, `confirmUUID`) '
+                               'VALUES (?, ?, ?, ?, ?, ?)',
                                (cursor.lastrowid, delta['email'], delta['name'],
-                                delta['password'], delta['salt']))
+                                delta['password'], delta['salt'], delta['confirmUUID']))
                 
         else:
             # old user object
@@ -91,6 +91,12 @@ class UserRepository(AbstractRepository):
                            'FROM `user`'
                            'WHERE `email`=?', (email,))
             return self._fetch_user(cursor)
+
+    def mark_verified(self, unique):
+        with self._conn.cursor() as cursor:
+            cursor.execute('UPDATE `user` '
+                           'SET confirmed = true '
+                           'WHERE `confirmUUID`=?', (unique,))
 
     def _fetch_user(self, cursor):
         result = self._fetch_dict(cursor)

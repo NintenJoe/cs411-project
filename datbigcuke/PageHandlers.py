@@ -10,6 +10,7 @@
 
 import tornado.web
 import tornado.auth
+import uuid
 
 import os
 from os.path import join as join_paths
@@ -18,6 +19,8 @@ from datbigcuke.entities import User
 from datbigcuke.entities import UserRepository
 from datbigcuke.entities import Group
 from datbigcuke.entities import GroupRepository
+from datbigcuke.cukemail import CukeMail
+
 
 ### Helper Classes ###
 
@@ -119,6 +122,20 @@ class HomeHandler( PageHandler ):
     def resource_url( self ):
         return "home.html"
 
+## Page handler for the "/verify" (verification) web page.
+class VerifyHandler( PageHandler ):
+    
+    ## @override
+    def get(self, unique):
+        repo = UserRepository()
+        repo.mark_verified(unique)
+
+        self.redirect("/")
+
+    ##  @override
+    @WebResource.resource_url.getter
+    def resource_url( self ):
+        return "verify.html"
 
 ##  Page handler for the "/register" (registration) web page.
 class RegistrationHandler( PageHandler ):
@@ -128,6 +145,8 @@ class RegistrationHandler( PageHandler ):
 
     ##  @override
     def post( self ):
+        unique = str(uuid.uuid4())
+        
         user_email = self.get_argument( "user_email" )
         user_nickname = self.get_argument( "user_nickname" )
         user_password = self.get_argument( "user_password" )
@@ -137,10 +156,15 @@ class RegistrationHandler( PageHandler ):
         user.email = self.get_argument("user_email")
         user.name = self.get_argument("user_nickname")
         user.password = self.get_argument("user_password")
+        user._confirmUUID = unique
 
         repo = UserRepository()
         repo.persist(user)
         repo.close()
+
+        ## Send a verification email to the user
+        m = CukeMail()
+        m.send_verification(unique, user.email)
 
         self.redirect( "/" )
 
