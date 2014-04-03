@@ -1,3 +1,5 @@
+"""Module used for sending big cuke emails"""
+
 import smtplib
 import ConfigParser
 
@@ -27,12 +29,15 @@ class CukeMail():
 
         self.logged_in = True
 
+    ## Set the subject for a message
     def subject(self, subj):
         self.subject = subj
 
+    ## Set the message content for a message
     def message(self, mess):
         self.message = mess
 
+    ## Send the message to an email address
     def send(self, address):
         if self.logged_in:
             message = "subject: " + self.subject + "\n"
@@ -41,6 +46,7 @@ class CukeMail():
             message = message + self.message
             self.smtp_server.sendmail(self.parser.get(self.section, 'address'), address, message)
 
+    ## Setup and send a verification email
     def send_verification(self, unique, email):
         self.subject("Verify your email")
         self.message("Please follow this link to verify your email address:\n" + self.parser.get('General', 'site_host') + "/verify/" + unique)

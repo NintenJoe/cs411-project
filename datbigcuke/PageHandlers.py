@@ -108,12 +108,8 @@ class HomeHandler( PageHandler ):
             # user exists. does the password match?
             if user.match_password(user_password):
                 # password is correct. Has user confirmed their email?
-                if user.confirmed():
+                if user.confirmed:
                     self.set_current_user(user.id)
-                else:
-                    print "User is not confirmed."
-            else:
-                print "Password does not match."
 
         self.redirect( "/user" )
 
@@ -156,7 +152,7 @@ class RegistrationHandler( PageHandler ):
         user.email = self.get_argument("user_email")
         user.name = self.get_argument("user_nickname")
         user.password = self.get_argument("user_password")
-        user._confirmUUID = unique
+        user.confirmUUID = unique
 
         repo = UserRepository()
         repo.persist(user)
