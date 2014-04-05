@@ -24,7 +24,7 @@ class CukeMail():
         if(self.smtp_server.starttls()[0] != 220):
             return
 
-        if(self.smtp_server.login('bigdatacuke@gmail.com', 'cKgYm0R4')[0] != 235):
+        if(self.smtp_server.login(self.parser.get(self.section, 'address'), self.parser.get(self.section, 'password'))[0] != 235):
             return
 
         self.logged_in = True
