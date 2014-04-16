@@ -199,7 +199,7 @@ class ProfileEditHandler( PageHandler ):
         new_user_groups = map( long, new_user_groups )
 
         user.groups = new_user_groups
-            
+
         if new_user_email:
             user.email = new_user_email
         if new_user_nickname:
@@ -248,3 +248,4 @@ class CourseSummaryModule( PageModule ):
     ##  @override
     def resource_url( self ):
         return "course_summary.html"
+
