@@ -17,6 +17,8 @@ class User(AbstractEntity):
         '_name' : 'name',
         '_hashedPassword' : 'password',
         '_salt' : 'salt',
+        '_confirmed' : 'confirmed',
+        '_confirmUUID' : 'confirmUUID',
         '_groups' : 'groups',
     }
 
@@ -52,6 +54,18 @@ class User(AbstractEntity):
     def password(self):
         return self._plainPassword
 
+    @property
+    def confirmed(self):
+        return self._confirmed
+
+    @property
+    def confirmUUID(self):
+        return self._confirmUUID
+
+    @confirmUUID.setter
+    def confirmUUID(self, value):
+        self._confirmUUID = value
+    
     @password.setter
     def password(self, value):
         # passwords are hashed with random 40-digit hexadecimal salt 
