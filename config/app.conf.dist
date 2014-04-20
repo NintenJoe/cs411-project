@@ -1,0 +1,7 @@
+[General]
+site_host=localhost:9999
+
+[Mail]
+smtp_server=smtp.gmail.com
+address=datbigcuke@gmail.com
+password=

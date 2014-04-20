@@ -17,7 +17,7 @@ class CukeMail():
         self.parser.read('./config/app.conf')
 
         self.smtp_server = smtplib.SMTP(self.parser.get(self.section, 'smtp_server'))
-    
+
         if(self.smtp_server.ehlo()[0] != 250):
             return
 
