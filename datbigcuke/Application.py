@@ -17,8 +17,8 @@ from tornado.options import options as tornopts
 from os.path import realpath as get_realpath
 from os.path import dirname as get_path
 from os.path import join as join_paths
-from datbigcuke.PageHandlers import *
-from datbigcuke.AsyncHandlers import *
+from datbigcuke.handlers import *
+
 
 ##  The central application type for the CS411 project backend, which 
 #   contains all website global information and specifies handlers for 
@@ -48,12 +48,6 @@ class Application( tornado.web.Application ):
 
             # Miscellaneous Handlers #
             ( r"/logout", LogoutHandler ),
-
-            # Legacy Handlers #
-            # TODO: Convert the functionality of these handlers to the new
-            # user information handlers.
-            ( r"/user", OldProfileHandler ),
-            ( r"/edit", OldProfileEditHandler ),
         ]
 
         app_settings = {
