@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block heading %}
+	<div class="navbar navbar-default" role="navigation">
+		<div class="container-fluid">
+			<div class="navbar-header">
+				<!-- NOTE: This functionality supports collapsable navigation bar. -->
+				<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+					<span class="sr-only">Toggle navigation</span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+				</button>
+				<a class="navbar-brand" href="/main"><strong>DatBigCuke</strong></a>
+			</div>
+			<div class="navbar-collapse collapse">
+				<ul class="nav navbar-nav">
+					<li><a href="/main">Main</a></li>
+					<li><a href="/profile">Profile</a></li>
+					<li><a href="/group/0">Groups</a></li>
+				</ul>
+				<ul class="nav navbar-nav navbar-right">
+					<a class="btn btn-default navbar-btn" href="/logout">Logout</a>
+				</ul>
+			</div>
+		</div>
+	</div>
+{% end %}
+

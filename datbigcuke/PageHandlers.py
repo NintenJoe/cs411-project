@@ -87,14 +87,16 @@ class PageHandler( tornado.web.RequestHandler, WebResource ):
         return "datbigcuke_user"
 
 
-##  Page handler for the "/" (home) web page.
-class HomeHandler( PageHandler ):
+## User Login/Registration Handlers ##
+
+##  Page handler for the "/" (home) web page, which facilitates user login.
+class LoginHandler( PageHandler ):
     ##  @override
     def get( self ):
         if not self.get_current_user():
             self.render( self.get_url() )
         else:
-            self.redirect( "/user" )
+            self.redirect( "/main" )
 
     ##  @override
     def post( self ):
@@ -111,27 +113,13 @@ class HomeHandler( PageHandler ):
                 if user.confirmed:
                     self.set_current_user(user.id)
 
-        self.redirect( "/user" )
+        self.redirect( "/main" )
 
     ##  @override
     @WebResource.resource_url.getter
     def resource_url( self ):
-        return "home.html"
+        return "login.html"
 
-## Page handler for the "/verify" (verification) web page.
-class VerifyHandler( PageHandler ):
-    
-    ## @override
-    def get(self, unique):
-        repo = UserRepository()
-        repo.mark_verified(unique)
-
-        self.redirect("/")
-
-    ##  @override
-    @WebResource.resource_url.getter
-    def resource_url( self ):
-        return "verify.html"
 
 ##  Page handler for the "/register" (registration) web page.
 class RegistrationHandler( PageHandler ):
@@ -142,7 +130,7 @@ class RegistrationHandler( PageHandler ):
     ##  @override
     def post( self ):
         unique = str(uuid.uuid4())
-        
+
         user_email = self.get_argument( "user_email" )
         user_nickname = self.get_argument( "user_nickname" )
         user_password = self.get_argument( "user_password" )
@@ -170,8 +158,72 @@ class RegistrationHandler( PageHandler ):
         return "register.html"
 
 
-##  Page handler for the "/user" (user profile) web page.
+## Page handler for the "/verify" (verification) web page.
+class VerifyHandler( PageHandler ):
+    ## @override
+    def get(self, unique):
+        repo = UserRepository()
+        repo.mark_verified(unique)
+
+        self.redirect("/")
+
+    ##  @override
+    @WebResource.resource_url.getter
+    def resource_url( self ):
+        return "verify.html"
+
+
+## User Information Handlers ##
+
+##  Page handler for the "/main" web page, which is the primary interface
+#   for the user (main deadlines, group information, et cetera).
+class UserMainHandler( PageHandler ):
+    ##  @override
+    @tornado.web.authenticated
+    def get( self ):
+        user = self.get_current_user()
+
+        self.render( self.get_url(), user=user.name )
+
+    ##  @override
+    @WebResource.resource_url.getter
+    def resource_url( self ):
+        return "main.html"
+
+
+##  Page handler for the "/profile" web page, which displays the profile
+#   information for the user (user information, group information, Gcalender).
 class UserProfileHandler( PageHandler ):
+    ##  @override
+    @tornado.web.authenticated
+    def get( self ):
+        self.render( self.get_url() )
+
+    ##  @override
+    @WebResource.resource_url.getter
+    def resource_url( self ):
+        return "profile.html"
+
+
+##  Page handler for the "/group" web page, which contains all the information
+#   for the user group being requested (i.e. i in "/group/i/").
+class UserGroupHandler( PageHandler ):
+    ##  @override
+    @tornado.web.authenticated
+    def get( self, group_id ):
+        print group_id
+        self.render( self.get_url() )
+
+    ##  @override
+    @WebResource.resource_url.getter
+    def resource_url( self ):
+        return "group.html"
+
+
+## Legacy Handlers (TODO: Remove these handlers.) ##
+
+##  Page handler for the "/user" (user profile) web page.
+class OldProfileHandler( PageHandler ):
     ##  @override
     @tornado.web.authenticated
     def get( self ):
@@ -190,7 +242,7 @@ class UserProfileHandler( PageHandler ):
 
 
 ##  Page handler for the "/edit" (user information editing) web page.
-class ProfileEditHandler( PageHandler ):
+class OldProfileEditHandler( PageHandler ):
     ##  @override
     @tornado.web.authenticated
     def get( self ):
@@ -245,6 +297,8 @@ class ProfileEditHandler( PageHandler ):
     def resource_url( self ):
         return "user_edit.html"
 
+
+## Miscellaneous Handlers ##
 
 ##  Page handler for the "/logout" (user logout) web page.
 class LogoutHandler( PageHandler ):

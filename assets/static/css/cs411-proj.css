@@ -13,11 +13,17 @@
 /* Main Page Styling */
 
 body {
-	padding-top: 30px;
 	width: 100%;
+	padding-top: 0px;
 }
 
 textarea {
 	resize: none;
+}
+
+/* Miscellaneous Styling */
+
+.content-container {
+	margin-top: 20px;
 }
 

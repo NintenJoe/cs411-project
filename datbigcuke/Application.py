@@ -32,26 +32,42 @@ class Application( tornado.web.Application ):
         asset_path = join_paths( project_path, "assets" )
 
         page_handlers = [
-            ( r"/", HomeHandler ),
+            # User Login/Registration Handlers #
+            ( r"/", LoginHandler ),
             ( r"/register", RegistrationHandler ),
-            ( r"/user", UserProfileHandler ),
-            ( r"/edit", ProfileEditHandler ),
-            ( r"/logout", LogoutHandler ),
             ( r"/verify/(.*)", VerifyHandler),
+
+            # User Information Handlers #
+            ( r"/main", UserMainHandler ),
+            ( r"/profile", UserProfileHandler ),
+            ( r"/group/([0-9]+)", UserGroupHandler ),
+
+            # Miscellaneous Handlers #
+            ( r"/logout", LogoutHandler ),
+
+            # Legacy Handlers #
+            # TODO: Convert the functionality of these handlers to the new
+            # user information handlers.
+            ( r"/user", OldProfileHandler ),
+            ( r"/edit", OldProfileEditHandler ),
         ]
+
         app_settings = {
             # URL Settings #
             "project_path" : project_path,
             "asset_path" : asset_path,
             "static_path" : join_paths( asset_path, "static" ),
             "template_path" : join_paths( asset_path, "template" ),
+
             # Security Settings #
             "cookie_secret" : "datbigcuke",
             "login_url" : "/",
+
             # Module/Render Settings #
             "ui_modules" : {
                 "CourseSummary" : CourseSummaryModule,
             },
+
             # Miscellaneous Settings #
             "debug" : True,
         }
