@@ -2,5 +2,24 @@
 
 {% block content %}
 	<p>User Profile Page</p>
+    <button onclick="(
+        function (e, obj) {
+            var data = {};
+            data['josh'] = 'cs411';
+            data['joe'] = 'cs467';
+            $.ajax(
+                {type: 'POST',
+                url: '/async-request',
+                <!--data: {'data': JSON.stringify(data)},-->
+                dataType: 'json',
+                success: function(data) {
+                    console.log(data);
+                },
+                error: function(data) {
+                    console.log(data);
+                }
+            });
+        }
+    )(event, this)">Test Async</button>
 {% end %}
 

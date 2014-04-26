@@ -43,11 +43,13 @@ class Application( tornado.web.Application ):
             ( r"/profile", UserProfileHandler ),
             ( r"/group/([0-9]+)", UserGroupHandler ),
 
-            # Aynchronous Request Handlers #
+            # Asynchronous Request Handlers #
             # TODO: Populate this list as needed.
+            # Test async handler
+            ( r"/async-request", TestHandler ),
 
             # Miscellaneous Handlers #
-            ( r"/logout", LogoutHandler ),
+            ( r"/logout", LogoutHandler )
         ]
 
         app_settings = {
