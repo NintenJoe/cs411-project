@@ -63,7 +63,9 @@ class Application( tornado.web.Application ):
 
             # Module/Render Settings #
             "ui_modules" : {
-                "CourseSummary" : CourseSummaryModule,
+                "DeadlineList" : DeadlineListModule,
+                "MemberList" : MemberListModule,
+                "GroupTree" : GroupTreeModule,
             },
 
             # Miscellaneous Settings #

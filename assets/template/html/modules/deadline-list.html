@@ -1,0 +1,17 @@
+<div class="row">
+	<div class="deadline-list-container col-md-10 col-md-offset-1">
+		<ul class="deadline-list">
+			{% for deadline in deadlines %}
+			<li>
+				<strong>{{ deadline["group"] }}: {{ deadline["name"] }}</strong>
+				<small>{{ deadline["time"] }}</small>
+				<p style="display: none;">
+					</br>
+					Hello, world!
+				</p>
+			</li>
+			{% end %}
+		</ul>
+	</div>
+</div>
+

@@ -3,16 +3,12 @@
 {% block content %}
 	<div class="col-md-6 well well-sm">
 		<h2>Deadlines:</h2>
-		<p>
-			TODO: Insert the deadline information here!
-		</p>
+		{% module DeadlineList( deadlines ) %}
 	</div>
 
 	<div class="col-md-6 well well-sm">
-		<h3>Groups:</h3>
-		<p>
-			TODO: Insert the groups information here!
-		</p>
+		<h2>Groups:</h2>
+		<!-- TODO: Insert logic to render a group tree module. -->
 	</div>
 {% end %}
 

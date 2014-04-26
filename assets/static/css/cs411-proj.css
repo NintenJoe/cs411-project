@@ -21,6 +21,21 @@ textarea {
 	resize: none;
 }
 
+/* Item Listing Styling */
+
+ul.deadline-list {
+	padding: 0px;
+	margin: 0px;
+}
+
+ul.deadline-list li {
+	margin-top: 5px;
+	margin-bottom: 5px;
+	padding: 5px;
+	border: 1px solid #cccccc;
+	background: #eeeeee;
+}
+
 /* Miscellaneous Styling */
 
 .content-container {

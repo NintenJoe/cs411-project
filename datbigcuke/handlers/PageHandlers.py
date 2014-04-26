@@ -15,8 +15,10 @@ import tornado.auth
 import uuid
 
 import os
+import datetime
 from os.path import join as join_paths
 from os.path import exists as file_exists
+from datetime import datetime
 from datbigcuke.handlers.BaseHandlers import WebResource
 from datbigcuke.handlers.BaseHandlers import WebModule
 from datbigcuke.handlers.BaseHandlers import PageRequestHandler
@@ -123,7 +125,11 @@ class UserMainHandler( PageRequestHandler ):
     def get( self ):
         user = self.get_current_user()
 
-        self.render( self.get_url(), user=user.name )
+        # NOTE: The deadlines are assumed to be sorted by time.
+        # TODO: Retrieve the deadlines associated with the user here.
+        deadline_list = []
+
+        self.render( self.get_url(), user=user.name, deadlines=deadline_list )
 
     ##  @override
     @WebResource.resource_url.getter
@@ -151,7 +157,6 @@ class UserGroupHandler( PageRequestHandler ):
     ##  @override
     @tornado.web.authenticated
     def get( self, group_id ):
-        print group_id
         self.render( self.get_url() )
 
     ##  @override
@@ -173,13 +178,72 @@ class LogoutHandler( PageRequestHandler ):
 
 ### UI Modules ###
 
-##  Rendering module for the summary segments for courses.
-class CourseSummaryModule( WebModule ):
+##  Rendering module for the listing of deadlines associated with a particular
+#   user and/or group.
+class DeadlineListModule( WebModule ):
     ##  @override
-    def render( self, course ):
-        return self.render_string( self.get_url() )
+    #
+    #   @param deadline_list A listing of deadline entity objects.
+    def render( self, deadline_list ):
+        # TODO: Add pre-processing at this stage.
+        note_example = "This is an example of a longer note.  It's long!"
+        deadlines = [
+            {
+                "name": "Final Project",
+                "group": "CS411",
+                "time": datetime( 2014, 4, 27, 23, 59 ).strftime( "%A %B %m, %I:%M %p" ),
+                "notes": note_example
+            },
+            {
+                "name": "Final Project",
+                "group": "CS467",
+                "time": datetime( 2014, 5, 1, 9, 0, 0 ).strftime( "%A %B %m, %I:%M %p" ),
+                "notes": note_example
+            },
+        ]
+
+        for i in range(3):
+            deadlines += deadlines
+
+        return self.render_string( self.get_url(), deadlines=deadlines )
 
     ##  @override
+    @WebResource.resource_url.getter
     def resource_url( self ):
-        return "course_summary.html"
+        return "deadline-list.html"
+
+
+##  Rendering module for the listing of members associated with a particular
+#   course or group.
+class MemberListModule( WebModule ):
+    ##  @override
+    #
+    #   @param deadline_list A listing of user entity objects.
+    def render( self, deadline_list ):
+        # TODO: Add pre-processing at this stage.
+        members = member_list
+
+        return self.render_string( self.get_url(), members=members )
+
+    ##  @override
+    @WebResource.resource_url.getter
+    def resource_url( self ):
+        return "member-list.html"
+
+##  Rendering module for a hierarchy of groups associated with a particular
+#   user and/or group.
+class GroupTreeModule( WebModule ):
+    ##  @override
+    #
+    #   @param group_list A listing of group entity objects.
+    def render( self, group_list ):
+        # TODO: Add pre-processing at this stage.
+        courses = course_list
+
+        return self.render_string( self.get_url(), courses=courses )
+
+    ##  @override
+    @WebResource.resource_url.getter
+    def resource_url( self ):
+        return "group-tree.html"
 

@@ -9,14 +9,12 @@
 		{% block img_imports %}{% end %}
 
 		<link rel="stylesheet" href="{{ static_url( "css/bootstrap.css" ) }}">
-		<!-- <link rel="stylesheet" href="{{ static_url( "css/bootstrap-theme.css" ) }}"> -->
 		<link rel="stylesheet" href="{{ static_url( "css/cs411-proj.css" ) }}">
 		{% block css_imports %}{% end %}
 
-		<script src="https://code.jquery.com/jquery-1.10.2.min.js"></script>
+		<script src="{{ static_url( "js/jquery-1.11.0.min.js" ) }}"></script>
 		<script src="{{ static_url( "js/bootstrap.min.js" ) }}"></script>
-		<script src="{{ static_url( "js/d3.v3.min.js" ) }}"></script>
-		<script src="{{ static_url( "js/Class.js" ) }}"></script>
+		<script src="{{ static_url( "js/setup.js" ) }}"></script>
 		{% block js_imports %}{% end %}
 	</head>
 
@@ -27,3 +25,4 @@
 		</div>
 	</body>
 </html>
+
