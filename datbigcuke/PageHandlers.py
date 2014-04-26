@@ -3,7 +3,9 @@
 #   @date Winter 2014
 #
 #   Cotainer module for all classes related to handling web page requests
-#   from clients (see https://github.com/facebook/tornado/blob/master/demos).
+#   from clients.
+#
+#   @see https://github.com/facebook/tornado/blob/master/demos
 #
 #   @TODO
 #   - 

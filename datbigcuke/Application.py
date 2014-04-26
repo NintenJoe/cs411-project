@@ -18,6 +18,7 @@ from os.path import realpath as get_realpath
 from os.path import dirname as get_path
 from os.path import join as join_paths
 from datbigcuke.PageHandlers import *
+from datbigcuke.AsyncHandlers import *
 
 ##  The central application type for the CS411 project backend, which 
 #   contains all website global information and specifies handlers for 
@@ -41,6 +42,9 @@ class Application( tornado.web.Application ):
             ( r"/main", UserMainHandler ),
             ( r"/profile", UserProfileHandler ),
             ( r"/group/([0-9]+)", UserGroupHandler ),
+
+            # Aynchronous Request Handlers #
+            # TODO: Populate this list as needed.
 
             # Miscellaneous Handlers #
             ( r"/logout", LogoutHandler ),
