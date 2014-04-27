@@ -19,6 +19,7 @@ import tornado.httpclient
 from datbigcuke.handlers.BaseHandlers import WebResource
 from datbigcuke.handlers.BaseHandlers import WebModule
 from datbigcuke.handlers.BaseHandlers import AsyncRequestHandler
+from datbigcuke.handlers.BaseHandlers import WebRequestHandler
 from datbigcuke.entities import User
 from datbigcuke.entities import UserRepository
 from datbigcuke.entities import Group
@@ -405,3 +406,43 @@ class UpdateEmailHandler(AsyncRequestHandler):
         m = CukeMail()
         m.send_verification(unique, user.email)
         self.clear_cookie(self.cookie_name)
+
+# - receives the request from the client to authenticate the users calender
+# - Server-side Checks:
+#   - This is a valid user
+class GoogleAuthHandler( WebRequestHandler ):
+    
+    @tornado.web.authenticated
+    def post( self ):
+        user = self.get_current_user()
+
+        # 'Logged-in' user must be defined
+        if not user:
+            return
+
+        http_client = tornado.httpclient.AsyncHTTPClient()
+
+        endpoint = "https://accounts.google.com/o/oauth2/auth?"
+        request =  "redirect_uri=" + auth_redirect_api + "&"
+        request += "response_type=code&"
+        request += "client_id=" + client_id + "&"
+        request += "scope=https://www.googleapis.com/auth/calendar.readonly&"
+        request += "access_type=offline&"
+        request += "state=" + user.id
+
+        http_client.fetch(endpoint + urllib.urlencode(request))
+
+# - receives the response from Google
+# - Server-side Checks:
+#   - If the result is an error
+#   - If not, uses the authentication code to get a refresh key, and stores it
+class GoogleResponseHandler( WebRequestHandler ):
+    
+    def get( self ):
+
+        if self.get_query_argument("error"):
+            print "Google auth returned an error: " + self.get_query_argument("error")
+            return
+
+        print "code = " + self.get_query_argument("code")
+        print "state = " + self.get_query_argument("state")

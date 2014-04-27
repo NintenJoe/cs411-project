@@ -10,7 +10,7 @@
 			<div class="col-md-9">
 				<h2>
 					<strong>Nickname:</strong>
-					<a href="#" class="editable-field" name="name" 
+					<a href="#" class="editable-field" data-name="name" 
 					data-type="text" data-url="/update-name" data-title="Enter New Nickname">
 						{{ user.name }}
 					</a>
@@ -24,12 +24,9 @@
 				</h2>
 				<h2>
 					<strong>Calendar Integration:</strong> 
-					<i class="glyphicon glyphicon-ok-circle"></i>
+					<i class="glyphicon glyphicon-ok-circle" id="google_auth"></i>
 				</h2>
 			</div>
-		</div>
-		<div class="row">
-			
 		</div>
 	</div>
 {% end %}

@@ -51,6 +51,10 @@ class Application( tornado.web.Application ):
             # @TODO(halstea2) Remove test async handler
             ( r"/async-request", TestHandler ),
 
+            # Google authentication handlers #
+            ( r"/google-auth-request", GoogleAuthHandler),
+            ( r"/oauth2callback", GoogleResponseHandler),
+
             # Miscellaneous Handlers #
             ( r"/logout", LogoutHandler )
         ]
