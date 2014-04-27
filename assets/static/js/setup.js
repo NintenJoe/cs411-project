@@ -22,6 +22,10 @@ function main()
 	$( ".deadline-entry" ).click( function() {
 		$( this ).find( ".deadline-notes" ).slideToggle( "slow" );
 	} );
+
+	// Setup the Datetime Picker Modules //
+	$( ".timepicker-form" ).datetimepicker();
+	//$( "#derp" ).datetimepicker( {language: "pt-br"} );
 }
 
 

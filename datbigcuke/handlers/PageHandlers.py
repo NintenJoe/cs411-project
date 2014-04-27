@@ -263,6 +263,36 @@ class LogoutHandler( PageRequestHandler ):
 
 ### UI Modules ###
 
+##  Rendering module for modal rendering (implemented primarily to eliminate code
+#   duplication.
+class ModalModule( WebModule ):
+    ##  @override
+    #
+    #   @param modal_type The type of modal given as a string.
+    def render( self, modal_type ):
+        modal_id = modal_type
+        modal_title = None
+
+        if modal_id == "schedule":
+            modal_title = "Schedule a Group Meeting"
+        elif modal_id == "add-member":
+            modal_title = "Add a Group Member"
+        elif modal_id == "add-subgroup":
+            modal_title = "Add a Group Subgroup"
+        elif modal_id == "add-deadline":
+            modal_title = "Add a Group Deadline"
+
+        return self.render_string( self.get_url(),
+            modal_id = modal_type,
+            modal_title = modal_title,
+        )
+
+    ##  @override
+    @WebResource.resource_url.getter
+    def resource_url( self ):
+        return "modal.html"
+
+
 ##  Rendering module for the listing of deadlines associated with a particular
 #   user and/or group.
 class DeadlineListModule( WebModule ):
