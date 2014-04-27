@@ -12,6 +12,7 @@ import urllib
 
 
 class User(AbstractEntity):
+    # @TODO(halstea2) Add maintainer mapping to this dictionary.
     _ATTRIB_TO_DATA = {
         '_id' : 'id',
         '_email' : 'email',

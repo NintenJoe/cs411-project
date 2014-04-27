@@ -31,6 +31,17 @@ class Group(AbstractEntity):
         self._name = value
 
     @property
+    def maintainer(self):
+        # @TODO(halstea2) Add maintainer to database and return
+        # a User object (or None)
+        return None
+
+    @maintainer.setter
+    def maintainer(self, value):
+        # @TODO(halstea2) Add maintainer to database
+        pass
+
+    @property
     def description(self):
         return self._description
 
