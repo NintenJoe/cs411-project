@@ -29,6 +29,10 @@ from datbigcuke.entities import Group
 from datbigcuke.entities import GroupRepository
 from datbigcuke.cukemail import CukeMail
 
+# TODO: Remove.
+import hashlib
+import urllib
+
 
 ### User Login/Registration Handlers ###
 
@@ -160,9 +164,9 @@ class UserMainHandler( PageRequestHandler ):
         group_list = GroupRepository().get_groups_of_user(user.id)
 
         self.render( self.get_url(),
-             user = user,
-             deadlines = deadline_list,
-             groups = group_list
+            user = user,
+            deadlines = deadline_list,
+            groups = group_list
         )
 
     ##  @override
@@ -193,8 +197,8 @@ class UserProfileHandler( PageRequestHandler ):
         group_list = []
 
         self.render( self.get_url(),
-             user = user,
-             groups = group_list
+            user = user,
+            groups = group_list
         )
 
     ##  @override
@@ -214,6 +218,46 @@ class UserGroupHandler( PageRequestHandler ):
     ##  @override
     @tornado.web.authenticated
     def get( self, group_id ):
+        # TODO: 404 if the user is not a member of the group.
+        user = self.get_current_user()
+
+
+        # TODO: Retrieve the group associated with the given group ID.
+        group = None
+
+        ## TODO: Accumulate the parent groups for the given group.
+        supergroup_list = []
+
+        # NOTE: The groups are assumed to be sorted alphabetically.
+        # TODO: Retrieve the groups associated with the group here.
+        subgroup_list = []
+
+        # TODO: Determine if the group is public or not (equivalent to there
+        # not being a maintainer).
+        group_is_public = False
+
+        # TODO: Determine if the user is the maintainer of the current group.
+        user_is_maintainer = True
+
+
+        # NOTE: The members are assumed to be sorted alphabetically.
+        # TODO: Retrieve the members for the given group here.
+        member_list = []
+
+        # NOTE: The deadlines are assumed to be sorted by time.
+        # TODO: Retrieve the deadlines associated with the user here.
+        deadline_list = []
+
+        self.render( self.get_url(),
+            group = group,
+            supergroups = supergroup_list,
+            subgroups = subgroup_list,
+            group_is_public = group_is_public,
+            user_is_maintainer = user_is_maintainer,
+            members = member_list,
+            deadlines = deadline_list,
+        )
+
         self.render( self.get_url() )
 
     ##  @override
@@ -224,7 +268,8 @@ class UserGroupHandler( PageRequestHandler ):
     ##  @override
     @WebResource.resource_url.getter
     def resource_url( self ):
-        return "group.html"
+        # TODO: Update this variable once DB is integrated!
+        return "grouptest.html"
 
 
 ### Miscellaneous Handlers ###
@@ -239,6 +284,36 @@ class LogoutHandler( PageRequestHandler ):
 
 
 ### UI Modules ###
+
+##  Rendering module for modal rendering (implemented primarily to eliminate code
+#   duplication.
+class ModalModule( WebModule ):
+    ##  @override
+    #
+    #   @param modal_type The type of modal given as a string.
+    def render( self, modal_type ):
+        modal_id = modal_type
+        modal_title = None
+
+        if modal_id == "schedule":
+            modal_title = "Schedule a Group Meeting"
+        elif modal_id == "add-member":
+            modal_title = "Add a Group Member"
+        elif modal_id == "add-subgroup":
+            modal_title = "Add a Group Subgroup"
+        elif modal_id == "add-deadline":
+            modal_title = "Add a Group Deadline"
+
+        return self.render_string( self.get_url(),
+            modal_id = modal_type,
+            modal_title = modal_title,
+        )
+
+    ##  @override
+    @WebResource.resource_url.getter
+    def resource_url( self ):
+        return "modal.html"
+
 
 ##  Rendering module for the listing of deadlines associated with a particular
 #   user and/or group.
@@ -279,10 +354,24 @@ class DeadlineListModule( WebModule ):
 class MemberListModule( WebModule ):
     ##  @override
     #
-    #   @param deadline_list A listing of user entity objects.
-    def render( self, deadline_list ):
+    #   @param member_list A listing of user entity objects.
+    def render( self, member_list ):
         # TODO: Add pre-processing at this stage.
-        members = member_list
+        members = [
+            { "name":  "Kyle Nusbaum", "email": "kjnusba@illinois.edu" },
+            { "name":  "Eunsoo Roh", "email": "roh7@illinois.edu" },
+            { "name":  "Josh Halstead", "email": "jhalstead85@gmail.com" },
+            { "name":  "Tom Bogue", "email": "tbogue2@illinois.edu" },
+            { "name":  "Joe Ciurej", "email": "jciurej@gmail.com" },
+        ]
+
+        for member in members:
+            url = 'http://www.gravatar.com/avatar/'
+            url += hashlib.md5(member["email"].strip().lower().encode()).hexdigest() + '?'
+            url += urllib.urlencode({ 's': "20" })
+            member[ "icon-url" ] = url
+
+        members += members
 
         return self.render_string( self.get_url(), members = members )
 
