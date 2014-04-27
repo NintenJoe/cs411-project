@@ -13,7 +13,11 @@
  */
 function main()
 {
-	console.log( "Setting up the page..." );
+	// Setup the Deadline List Modules //
+	$( ".deadline-notes" ).hide();
+	$( ".deadline-entry" ).click( function() {
+		$( this ).find( ".deadline-notes" ).slideToggle( "slow" );
+	} );
 }
 
 

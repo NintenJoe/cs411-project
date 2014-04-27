@@ -28,12 +28,27 @@ ul.deadline-list {
 	margin: 0px;
 }
 
-ul.deadline-list li {
+li.deadline-entry {
 	margin-top: 5px;
 	margin-bottom: 5px;
 	padding: 5px;
 	border: 1px solid #cccccc;
 	background: #eeeeee;
+}
+
+li.deadline-entry:hover {
+	cursor: pointer;
+}
+
+ul.deadline-notes {
+	list-style-type: none;
+	padding: 0px;
+	margin: 0px;
+}
+
+ul.deadline-notes li {
+	padding: 0px;
+	margin: 0px;
 }
 
 /* Miscellaneous Styling */

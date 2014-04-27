@@ -187,6 +187,9 @@ class DeadlineListModule( WebModule ):
     def render( self, deadline_list ):
         # TODO: Add pre-processing at this stage.
         note_example = "This is an example of a longer note.  It's long!"
+        for i in range(3):
+            note_example += note_example
+
         deadlines = [
             {
                 "name": "Final Project",
@@ -202,7 +205,7 @@ class DeadlineListModule( WebModule ):
             },
         ]
 
-        for i in range(3):
+        for i in range(4):
             deadlines += deadlines
 
         return self.render_string( self.get_url(), deadlines=deadlines )
