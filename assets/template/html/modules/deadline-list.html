@@ -1,12 +1,14 @@
 <div class="content-container row">
-	<div class="nested-content-container col-md-10 col-md-offset-1">
+	<div class="nested-content-container col-md-11">
 		<ul class="deadline-list">
 			{% for deadline in deadlines %}
 			<li class="deadline-entry">
-				<strong>{{ deadline["group"] }}: {{ deadline["name"] }}</strong>
-				<small>{{ deadline["time"] }}</small>
+				<h5 class="inner-heading">
+					{{ deadline["group"] }}: {{ deadline["name"] }} <small>{{ deadline["time"] }}</small>
+				</h5>
+
 				<ul class="deadline-notes">
-					<li>{{ deadline["notes"] }}</li>
+					<li><small>{{ deadline["notes"] }}</small></li>
 				</ul>
 			</li>
 			{% end %}
