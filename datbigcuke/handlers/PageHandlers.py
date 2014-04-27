@@ -28,6 +28,10 @@ from datbigcuke.entities import Group
 from datbigcuke.entities import GroupRepository
 from datbigcuke.cukemail import CukeMail
 
+# TODO: Remove.
+import hashlib
+import urllib
+
 
 ### User Login/Registration Handlers ###
 
@@ -139,9 +143,9 @@ class UserMainHandler( PageRequestHandler ):
         group_list = []
 
         self.render( self.get_url(),
-             user = user,
-             deadlines = deadline_list,
-             groups = group_list
+            user = user,
+            deadlines = deadline_list,
+            groups = group_list
         )
 
     ##  @override
@@ -172,8 +176,8 @@ class UserProfileHandler( PageRequestHandler ):
         group_list = []
 
         self.render( self.get_url(),
-             user = user,
-             groups = group_list
+            user = user,
+            groups = group_list
         )
 
     ##  @override
@@ -193,6 +197,45 @@ class UserGroupHandler( PageRequestHandler ):
     ##  @override
     @tornado.web.authenticated
     def get( self, group_id ):
+        user = self.get_current_user()
+
+        # TODO: Retrieve the group associated with the given group ID.
+        group = None
+
+        # TODO: 404 if the user is not a member of the group.
+
+        # TODO: Determine if the user is the maintainer of the current group.
+        accessor_is_maintainer = True
+
+        # TODO: Determine if the group can be deleted by the user.
+        # Requirements: User is the maintainer, user contains no members.
+        group_is_private = False
+
+        # NOTE: The members are assumed to be sorted alphabetically.
+        # TODO: Retrieve the members for the given group here.
+        member_list = []
+
+        ## TODO: Accumulate the parent groups for the given group.
+        supergroup_list = []
+
+        # NOTE: The groups are assumed to be sorted alphabetically.
+        # TODO: Retrieve the groups associated with the group here.
+        subgroup_list = []
+
+        # NOTE: The deadlines are assumed to be sorted by time.
+        # TODO: Retrieve the deadlines associated with the user here.
+        deadline_list = []
+
+        self.render( self.get_url(),
+            group = group,
+            group_is_private = group_is_private,
+            accessor_is_maintainer = accessor_is_maintainer,
+            members = member_list,
+            supergroups = supergroup_list,
+            subgroups = subgroup_list,
+            deadlines = deadline_list,
+        )
+
         self.render( self.get_url() )
 
     ##  @override
@@ -203,7 +246,8 @@ class UserGroupHandler( PageRequestHandler ):
     ##  @override
     @WebResource.resource_url.getter
     def resource_url( self ):
-        return "group.html"
+        # TODO: Update this variable once DB is integrated!
+        return "grouptest.html"
 
 
 ### Miscellaneous Handlers ###
@@ -258,10 +302,24 @@ class DeadlineListModule( WebModule ):
 class MemberListModule( WebModule ):
     ##  @override
     #
-    #   @param deadline_list A listing of user entity objects.
-    def render( self, deadline_list ):
+    #   @param member_list A listing of user entity objects.
+    def render( self, member_list ):
         # TODO: Add pre-processing at this stage.
-        members = member_list
+        members = [
+            { "name":  "Kyle Nusbaum", "email": "kjnusba@illinois.edu" },
+            { "name":  "Eunsoo Roh", "email": "roh7@illinois.edu" },
+            { "name":  "Josh Halstead", "email": "jhalstead85@gmail.com" },
+            { "name":  "Tom Bogue", "email": "tbogue2@illinois.edu" },
+            { "name":  "Joe Ciurej", "email": "jciurej@gmail.com" },
+        ]
+
+        for member in members:
+            url = 'http://www.gravatar.com/avatar/'
+            url += hashlib.md5(member["email"].strip().lower().encode()).hexdigest() + '?'
+            url += urllib.urlencode({ 's': "20" })
+            member[ "icon-url" ] = url
+
+        members += members
 
         return self.render_string( self.get_url(), members = members )
 
