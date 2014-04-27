@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS `membership_entity` (
 );
 
 CREATE TABLE IF NOT EXISTS `user` (
-  `id` INT UNIQUE NOT NULL,
+  `id` INT PRIMARY KEY,
   `email` CHAR(255) UNIQUE NOT NULL,
   `name` CHAR(70) NOT NULL,
   `password` CHAR(40), -- users may not log on with NULL password
@@ -29,7 +29,7 @@ CREATE TABLE IF NOT EXISTS `user` (
 );
 
 CREATE TABLE IF NOT EXISTS `group` (
-  `id` INT UNIQUE NOT NULL,
+  `id` INT PRIMARY KEY,
   `name` CHAR(70) NOT NULL,
   `description` TEXT,
   `type` INT NOT NULL,
@@ -56,5 +56,6 @@ CREATE TABLE IF NOT EXISTS `group_membership` (
   FOREIGN KEY (`member_id`)
   REFERENCES `membership_entity`(`id`)
   ON DELETE CASCADE
-  ON UPDATE CASCADE
+  ON UPDATE CASCADE,
+  UNIQUE INDEX `idx_group_membership` (`group_id`, `member_id`)
 )
