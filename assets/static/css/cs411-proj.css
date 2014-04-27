@@ -12,13 +12,32 @@
 
 /* Main Page Styling */
 
+html {
+	height: 100%;
+}
+
 body {
 	width: 100%;
+	height: 100%;
 	padding-top: 0px;
 }
 
 textarea {
 	resize: none;
+}
+
+.main-content-container {
+	margin-top: 20px;
+	height: 80%;
+}
+
+.content-container {
+	height: 100%;
+}
+
+.nested-content-container {
+	height: 90%;
+	overflow-y: auto;
 }
 
 /* Item Listing Styling */
@@ -51,9 +70,4 @@ ul.deadline-notes li {
 	margin: 0px;
 }
 
-/* Miscellaneous Styling */
-
-.content-container {
-	margin-top: 20px;
-}
 
