@@ -95,27 +95,30 @@ class PageRequestHandler( WebRequestHandler, WebResource ):
 ##  The base asynchronous request handling type, which serves as the base
 #   for all DBC handlers that handle asynchronous (i.e. AJAX) requests.
 class AsyncRequestHandler( WebRequestHandler ):
-
-    @tornado.gen.coroutine
+#    @tornado.gen.coroutine
     @tornado.web.authenticated
     def post( self ):
-        print "async handler"
         user = self.get_current_user()
-        data = self.get_arguments("data", None)
-        print data
+        name = self.get_arguments("name", None)
+        values = self.get_arguments("value", None)
 
         # 'Logged-in' user must be defined
         if not user:
             return
 
-        # Data must be defined
-        if not data:
+        # Name list must not be empty
+        if not name:
             return
 
-        if not self._valid_request(user, data):
+        # Value list must be defined
+        if not values:
             return
 
-        yield self._perform_request(user, data)
+        name = name[0].decode("utf-8")
+        if not self._valid_request(user, name, values):
+            return
+
+        self._perform_request(user, name, values)
 
     def _valid_request(self, user, data):
         raise Exception("AsyncRequestHandler._valid_request must be overriden.")

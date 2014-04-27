@@ -24,7 +24,7 @@ CREATE TABLE IF NOT EXISTS `institution` (
 );
 
 CREATE TABLE IF NOT EXISTS `term` (
-  `id` INT PRIMARY KEY,
+  `id` INT UNIQUE NOT NULL,
   -- institution
   `institution_id` INT NOT NULL,
   -- calendar year of the term start
@@ -35,12 +35,12 @@ CREATE TABLE IF NOT EXISTS `term` (
   -- human-readable term name e.g. Fall 2014
   `name` CHAR(32) NOT NULL,
 
+  -- combinations of institution, year, and sequence index is the primary key
+  PRIMARY KEY (`institution_id`, `year`, `sindex`),
   FOREIGN KEY (`institution_id`)
   REFERENCES `institution`(`id`)
   ON DELETE CASCADE
-  ON UPDATE CASCADE,
-  -- combinations of institution, year, and sequence index must be unique
-  UNIQUE INDEX `idx_inst_year_sindex` (`institution_id`, `year`, `sindex`)
+  ON UPDATE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS `course` (
@@ -68,8 +68,8 @@ CREATE TABLE IF NOT EXISTS `course` (
   REFERENCES `term`(`id`)
   ON DELETE RESTRICT
   ON UPDATE CASCADE,
-  UNIQUE INDEX `idx_course` (`institution_id`, `term_id`, `subject`, `cnumber`),
-  UNIQUE INDEX `idx_course_name` (`institution_id`, `term_id`, `name`)
+  UNIQUE INDEX `idx_course` (`term_id`, `subject`, `cnumber`),
+  UNIQUE INDEX `idx_course_name` (`term_id`, `name`)
 );
 
 CREATE TABLE IF NOT EXISTS `section` (
@@ -123,6 +123,6 @@ CREATE TABLE IF NOT EXISTS `class` (
   REFERENCES `course`(`id`)
   ON DELETE RESTRICT
   ON UPDATE CASCADE,
-  UNIQUE INDEX `idx_class_search_name` (`class_name`, `name`, `title`),
+  UNIQUE INDEX `idx_class_search_name` (`term_id`, `class_name`, `name`, `title`),
   UNIQUE INDEX `idx_unique_class` (`course_id`, `title`)
 );

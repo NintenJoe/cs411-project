@@ -13,6 +13,7 @@
 import tornado.web
 import tornado.auth
 import uuid
+import urllib
 
 import os
 import datetime
@@ -39,10 +40,20 @@ import urllib
 class LoginHandler( PageRequestHandler ):
     ##  @override
     def get( self ):
+        errors = {}
+        if self.get_argument('unconfirmed', default=None) != None:
+            errors['email'] = "You must validate your email."
+        if self.get_argument('baduser', default=None) != None:
+            errors['email'] = "Bad Email." 
+
+        if self.get_argument('badpass', default=None) != None:
+            errors['badpass'] = "Bad Password"
+
         if not self.get_current_user():
-            self.render( self.get_url() )
+            self.render( self.get_url(), errors = errors )
         else:
             self.redirect( "/main" )
+
 
     ##  @override
     def post( self ):
@@ -52,12 +63,22 @@ class LoginHandler( PageRequestHandler ):
         repo = UserRepository()
         user = repo.get_user_by_email(user_email)
         repo.close()
+        params = {}
         if user is not None:
             # user exists. does the password match?
             if user.match_password(user_password):
                 # password is correct. Has user confirmed their email?
                 if user.confirmed:
                     self.set_current_user(user.id)
+                else:
+                    params["unconfirmed"] = True
+                    self.redirect( "/?"  + urllib.urlencode(params) )
+            else:
+                params["badpass"] = True
+                self.redirect( "/?"  + urllib.urlencode(params) )
+        else:
+            params["baduser"] = True
+            self.redirect( "/?"  + urllib.urlencode(params) )
 
         self.redirect( "/main" )
 

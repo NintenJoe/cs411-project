@@ -45,11 +45,15 @@ class Application( tornado.web.Application ):
 
             # Asynchronous Request Handlers #
             ( r"/leave-group", LeaveGroupHandler ),
-            ( r"/update-name", UpdateNameHandler ),
-            ( r"/update-email", UpdateEmailHandler ),
+            ( r"/update-user-name", UpdateNameHandler ),
+            ( r"/update-user-email", UpdateEmailHandler ),
 
             # @TODO(halstea2) Remove test async handler
             ( r"/async-request", TestHandler ),
+
+            # Google authentication handlers #
+            ( r"/google-auth-request", GoogleAuthHandler),
+            ( r"/oauth2callback", GoogleResponseHandler),
 
             # Miscellaneous Handlers #
             ( r"/logout", LogoutHandler )

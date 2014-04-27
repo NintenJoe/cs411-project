@@ -10,17 +10,23 @@
 			Log in by entering your credentials in the form below.  If you're not
 			a member yet, please <a href="/register">click here to register</a>!
 		</p>
-
 		<form role="form" action="/" method="post">
 			<div class="row">
-				<div class="col-md-5 form-group">
+				<div class="col-md-5 form-group {% if errors.get('email', None) != None %} has-error {% end %}">
 					<label for="user_email">Email</label>
+                                        {% if errors.get('email', None) %}
+                                        <label class="control-label" for="inputError1">{{ errors['email'] }}</label>
+                                        {% end %}
+
 					<input type="email" class="form-control" name="user_email" 
 					placeholder="Email">
 				</div>
-				<div class="col-md-5 form-group">
+				<div class="col-md-5 form-group {% if errors.get('badpass', None) %} has-error {% end %}">
 					<label for="user_password">Password</label>
-					<input type="password" class="form-control" name="user_password" 
+					 {% if errors.get('badpass', None) %}
+                                        <label class="control-label" for="inputError1">{{ errors['badpass'] }}</label>
+                                        {% end %}
+                                        <input type="password" class="form-control" name="user_password" 
 					placeholder="Password">
 				</div>
 				<div class="col-md-2 form-group">

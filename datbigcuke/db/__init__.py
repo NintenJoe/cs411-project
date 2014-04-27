@@ -13,7 +13,7 @@ _parse_config = lambda path: tornado.options.parse_config_file(path, final=False
 
 # module level options
 tornado.options.define('db_config', type=str, callback=_parse_config)
-tornado.options.define('mysql_provider', default='db.conn.mysql', type=str)
+tornado.options.define('mysql_provider', default='datbigcuke.db.conn.mysql.oursql', type=str)
 tornado.options.define('mysql_hostname', default='localhost', type=str)
 tornado.options.define('mysql_port', default=3306, type=int)
 tornado.options.define('mysql_username', type=str)  # required

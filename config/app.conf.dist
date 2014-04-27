@@ -1,5 +1,8 @@
 [General]
 site_host=localhost:9999
+client_id=
+client_secret=
+auth_redirect_api=
 
 [Mail]
 smtp_server=smtp.gmail.com

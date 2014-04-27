@@ -25,6 +25,11 @@ function main()
 
 	// Setup the Datetime Picker Modules //
 	$( ".timepicker-form" ).datetimepicker();
+
+	// Setup the Google Authentication Button //
+	$( "#google_auth" ).click( function() {
+		$.post("google-auth-request");
+	} );
 }
 
 
