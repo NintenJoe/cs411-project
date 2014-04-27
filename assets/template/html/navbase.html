@@ -15,9 +15,15 @@
 			</div>
 			<div class="navbar-collapse collapse">
 				<ul class="nav navbar-nav">
-					<li><a href="/main">Main</a></li>
-					<li><a href="/profile">Profile</a></li>
-					<li><a href="/group/1">Groups</a></li>
+					<li class="{{ 'active' if 'Main' in handler.page_title else '' }}">
+						<a href="/main">Main</a>
+					</li>
+					<li class="{{ 'active' if 'Profile' in handler.page_title else '' }}">
+						<a href="/profile">Profile</a>
+					</li>
+					<li class="{{ 'active' if 'Group' in handler.page_title else '' }}">
+						<a href="/group/1">Groups</a>
+					</li>
 				</ul>
 				<ul class="nav navbar-nav navbar-right">
 					<a class="btn btn-default navbar-btn" href="/logout">Logout</a>

@@ -95,6 +95,11 @@ class RegistrationHandler( PageRequestHandler ):
         self.redirect( "/" )
 
     ##  @override
+    @PageRequestHandler.page_title.getter
+    def page_title( self ):
+        return "Registration"
+
+    ##  @override
     @WebResource.resource_url.getter
     def resource_url( self ):
         return "register.html"
@@ -132,6 +137,11 @@ class UserMainHandler( PageRequestHandler ):
         self.render( self.get_url(), user=user.name, deadlines=deadline_list )
 
     ##  @override
+    @PageRequestHandler.page_title.getter
+    def page_title( self ):
+        return "Main Page"
+
+    ##  @override
     @WebResource.resource_url.getter
     def resource_url( self ):
         return "main.html"
@@ -146,6 +156,11 @@ class UserProfileHandler( PageRequestHandler ):
         self.render( self.get_url() )
 
     ##  @override
+    @PageRequestHandler.page_title.getter
+    def page_title( self ):
+        return "Profile Page"
+
+    ##  @override
     @WebResource.resource_url.getter
     def resource_url( self ):
         return "profile.html"
@@ -158,6 +173,11 @@ class UserGroupHandler( PageRequestHandler ):
     @tornado.web.authenticated
     def get( self, group_id ):
         self.render( self.get_url() )
+
+    ##  @override
+    @PageRequestHandler.page_title.getter
+    def page_title( self ):
+        return "Group Page"
 
     ##  @override
     @WebResource.resource_url.getter
