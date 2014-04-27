@@ -134,7 +134,15 @@ class UserMainHandler( PageRequestHandler ):
         # TODO: Retrieve the deadlines associated with the user here.
         deadline_list = []
 
-        self.render( self.get_url(), user=user.name, deadlines=deadline_list )
+        # NOTE: The groups are assumed to be sorted alphabetically.
+        # TODO: Retrieve the groups associated with the user here.
+        group_list = []
+
+        self.render( self.get_url(),
+             user = user.name,
+             deadlines = deadline_list,
+             groups = group_list
+        )
 
     ##  @override
     @PageRequestHandler.page_title.getter
@@ -207,9 +215,6 @@ class DeadlineListModule( WebModule ):
     def render( self, deadline_list ):
         # TODO: Add pre-processing at this stage.
         note_example = "This is an example of a longer note.  It's long!"
-        for i in range(3):
-            note_example += note_example
-
         deadlines = [
             {
                 "name": "Final Project",
@@ -224,11 +229,10 @@ class DeadlineListModule( WebModule ):
                 "notes": note_example
             },
         ]
-
         for i in range(4):
             deadlines += deadlines
 
-        return self.render_string( self.get_url(), deadlines=deadlines )
+        return self.render_string( self.get_url(), deadlines = deadlines )
 
     ##  @override
     @WebResource.resource_url.getter
@@ -246,7 +250,7 @@ class MemberListModule( WebModule ):
         # TODO: Add pre-processing at this stage.
         members = member_list
 
-        return self.render_string( self.get_url(), members=members )
+        return self.render_string( self.get_url(), members = members )
 
     ##  @override
     @WebResource.resource_url.getter
@@ -261,12 +265,42 @@ class GroupTreeModule( WebModule ):
     #   @param group_list A listing of group entity objects.
     def render( self, group_list ):
         # TODO: Add pre-processing at this stage.
-        courses = course_list
 
-        return self.render_string( self.get_url(), courses=courses )
+        group_forest = [
+            { "name": "CS411", "gid": 1, "maintainer": "Ryan Cunningham", "subgroups": [
+                { "name": "DBC", "gid": 2, "maintainer": "Eunsoo Roh", "subgroups": [] },
+                { "name": "Phuong", "gid": 3, "maintainer": "Phuong", "subgroups": [] },
+            ] },
+            { "name": "CS428", "gid": 4, "maintainer": "Darko Marinov", "subgroups": [
+                { "name": "Cosmin", "gid": 5, "maintainer": "Cosmin", "subgroups": [] },
+                { "name": "Zol", "gid": 6, "maintainer": "Joe Ciurej", "subgroups": [] },
+            ] },
+            { "name": "CS467", "gid": 7, "maintainer": "Karrie Karahalios", "subgroups": [
+                { "name": "Team 2", "gid": 8, "maintainer": "Efe Karakus", "subgroups": [] },
+            ] },
+            { "name": "CS210", "gid": 8, "maintainer": "Alex Kirlik", "subgroups": [] },
+        ]
+        group_forest += group_forest
+
+        return self.render_string( self.get_url(), group_forest = group_forest )
 
     ##  @override
     @WebResource.resource_url.getter
     def resource_url( self ):
         return "group-tree.html"
+
+
+##  Recursive helper rendering module for 'GroupTree' UI module.
+class GroupForestModule( WebModule ):
+    ##  @override
+    #
+    #   @param group_list A list of groups which contain their inner group
+    #    information as nested lists (see 'GroupTreeModule').
+    def render( self, group_forest ):
+        return self.render_string( self.get_url(), level_groups = group_forest )
+
+    ##  @override
+    @WebResource.resource_url.getter
+    def resource_url( self ):
+        return "group-forest.html"
 

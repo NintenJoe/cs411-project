@@ -1,0 +1,12 @@
+<ul class="group-forest">
+	{% for group in level_groups %}
+	<li>
+		<a href="/group/{{ group["gid"] }}">
+			<strong>{{ group["name"] }}</strong> 
+			<small>{{ group["maintainer"] }}</small>
+		</a>
+		{% module GroupForest( group["subgroups"] ) %}
+	</li>
+	{% end %}
+</ul>
+

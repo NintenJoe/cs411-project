@@ -47,7 +47,13 @@ ul.deadline-list {
 	margin: 0px;
 }
 
-li.deadline-entry {
+ul.deadline-notes, ul.group-forest {
+	list-style-type: none;
+	padding: 0px;
+	margin: 0px;
+}
+
+li.deadline-entry, ul.group-forest li {
 	margin-top: 5px;
 	margin-bottom: 5px;
 	padding: 5px;
@@ -57,12 +63,6 @@ li.deadline-entry {
 
 li.deadline-entry:hover {
 	cursor: pointer;
-}
-
-ul.deadline-notes {
-	list-style-type: none;
-	padding: 0px;
-	margin: 0px;
 }
 
 ul.deadline-notes li {

@@ -65,7 +65,9 @@ class Application( tornado.web.Application ):
             "ui_modules" : {
                 "DeadlineList" : DeadlineListModule,
                 "MemberList" : MemberListModule,
+
                 "GroupTree" : GroupTreeModule,
+                "GroupForest" : GroupForestModule,
             },
 
             # Miscellaneous Settings #
