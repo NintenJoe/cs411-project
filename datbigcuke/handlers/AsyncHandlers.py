@@ -160,26 +160,38 @@ class GetGroupDeadlinesHandler(AsyncRequestHandler):
     def get(self):
         pass
 
+## - Schedule endpoint
+class ScheduleHandler(AsyncRequestHandler):
+    pass
+
+
 # ../profile
 # Required Handlers
 # - Edit Name
 #   - Data: Name
 #   - Server-side Checks: None
-
-# - 
-#   - Data: Group ID
 class UpdateNameHandler(AsyncRequestHandler):
     """Async Handler for updating a user's name"""
 
-    def _valid_request(self, user, data):
+    # Assumptions: User is authenticated. attr is string (decoded to utf-8).
+    def _valid_request(self, user, attr, value):
         """Verify that the 'update name' request is valid"""
-        print "update name handler"
-        return "name" in data
+        if not hasattr(user, attr):
+            return False
 
-    def _perform_request(self, user, data):
-        """Update the user's name"""
-        user.name = data["name"]
-        print user.name
+        if len(value) != 1:
+            return False
+
+        return True
+
+    # Assumption: User is authenticated. attr exists. Value is list of length 1
+    def _perform_request(self, user, attr, value):
+        """Perform the update request. For simple (read: single attribute
+        updates the 'name' is the attribute and the 'value' is a list of len 1
+        containing the value. This isn't the case for multi-attribute edits."""
+
+        value = value[0].decode("utf-8")
+        setattr(user, attr, value)
         self._persist_user(user)
 
 
@@ -187,26 +199,37 @@ class UpdateNameHandler(AsyncRequestHandler):
 #   - Data: Email
 #   - Server-side Checks:
 #       - Require email activation
+#       - Clear cookies
 class UpdateEmailHandler(AsyncRequestHandler):
     """Async Handler for updating a user's email"""
 
-    def _valid_request(self, user, data):
+    # Assumptions: User is authenticated. attr is string (decoded to utf-8).
+    def _valid_request(self, user, attr, value):
         """Verify that the 'update email' request is valid"""
+        if not hasattr(user, attr):
+            return False
 
-        return "email" in data
+        if len(value) != 1:
+            return False
 
-    def _perform_request(self, user, data):
-        """Update the user's name"""
+        return True
+
+    # Assumption: User is authenticated. attr exists. Value is list of length 1
+    def _perform_request(self, user, attr, value):
+        """Perform the update request. For simple (read: single attribute
+        updates the 'name' is the attribute and the 'value' is a list of len 1
+        containing the value. This isn't the case for multi-attribute edits."""
+
+        value = value[0].decode("utf-8")
+        setattr(user, attr, value)
+
         unique = str(uuid.uuid4())
-
-        user.email = data["email"]
         user.confirmed = False
         user.confirmUUID = unique
+
         self._persist_user(user)
 
         ## Send a verification email to the user
         m = CukeMail()
         m.send_verification(unique, user.email)
-
-#@TODO(halstea2) - implement this?
-# - Gravatar?
+        self.clear_cookie(self.cookie_name)
