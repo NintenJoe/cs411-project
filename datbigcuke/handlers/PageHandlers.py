@@ -197,23 +197,12 @@ class UserGroupHandler( PageRequestHandler ):
     ##  @override
     @tornado.web.authenticated
     def get( self, group_id ):
+        # TODO: 404 if the user is not a member of the group.
         user = self.get_current_user()
+
 
         # TODO: Retrieve the group associated with the given group ID.
         group = None
-
-        # TODO: 404 if the user is not a member of the group.
-
-        # TODO: Determine if the user is the maintainer of the current group.
-        accessor_is_maintainer = True
-
-        # TODO: Determine if the group can be deleted by the user.
-        # Requirements: User is the maintainer, user contains no members.
-        group_is_private = False
-
-        # NOTE: The members are assumed to be sorted alphabetically.
-        # TODO: Retrieve the members for the given group here.
-        member_list = []
 
         ## TODO: Accumulate the parent groups for the given group.
         supergroup_list = []
@@ -222,17 +211,29 @@ class UserGroupHandler( PageRequestHandler ):
         # TODO: Retrieve the groups associated with the group here.
         subgroup_list = []
 
+        # TODO: Determine if the group is public or not (equivalent to there
+        # not being a maintainer).
+        group_is_public = False
+
+        # TODO: Determine if the user is the maintainer of the current group.
+        user_is_maintainer = True
+
+
+        # NOTE: The members are assumed to be sorted alphabetically.
+        # TODO: Retrieve the members for the given group here.
+        member_list = []
+
         # NOTE: The deadlines are assumed to be sorted by time.
         # TODO: Retrieve the deadlines associated with the user here.
         deadline_list = []
 
         self.render( self.get_url(),
             group = group,
-            group_is_private = group_is_private,
-            accessor_is_maintainer = accessor_is_maintainer,
-            members = member_list,
             supergroups = supergroup_list,
             subgroups = subgroup_list,
+            group_is_public = group_is_public,
+            user_is_maintainer = user_is_maintainer,
+            members = member_list,
             deadlines = deadline_list,
         )
 

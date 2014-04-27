@@ -25,7 +25,6 @@ function main()
 
 	// Setup the Datetime Picker Modules //
 	$( ".timepicker-form" ).datetimepicker();
-	//$( "#derp" ).datetimepicker( {language: "pt-br"} );
 }
 
 
