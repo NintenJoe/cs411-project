@@ -14,7 +14,7 @@
 function main()
 {
 	// Setup the Editable Fields //
-	$.fn.editable.defaults.mode = "inline";
+	$.fn.editable.defaults.mode = "popup";
 	$( ".editable-field" ).editable();
 
 	// Setup the Deadline List Modules //

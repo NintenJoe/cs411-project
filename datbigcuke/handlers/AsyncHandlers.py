@@ -173,11 +173,13 @@ class UpdateNameHandler(AsyncRequestHandler):
 
     def _valid_request(self, user, data):
         """Verify that the 'update name' request is valid"""
+        print "update name handler"
         return "name" in data
 
     def _perform_request(self, user, data):
         """Update the user's name"""
         user.name = data["name"]
+        print user.name
         self._persist_user(user)
 
 

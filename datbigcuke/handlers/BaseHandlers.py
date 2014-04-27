@@ -99,8 +99,10 @@ class AsyncRequestHandler( WebRequestHandler ):
     @tornado.gen.coroutine
     @tornado.web.authenticated
     def post( self ):
+        print "async handler"
         user = self.get_current_user()
         data = self.get_arguments("data", None)
+        print data
 
         # 'Logged-in' user must be defined
         if not user:
