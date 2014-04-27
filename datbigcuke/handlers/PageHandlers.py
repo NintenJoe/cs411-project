@@ -139,7 +139,7 @@ class UserMainHandler( PageRequestHandler ):
         group_list = []
 
         self.render( self.get_url(),
-             user = user.name,
+             user = user,
              deadlines = deadline_list,
              groups = group_list
         )
@@ -161,7 +161,20 @@ class UserProfileHandler( PageRequestHandler ):
     ##  @override
     @tornado.web.authenticated
     def get( self ):
-        self.render( self.get_url() )
+        user = self.get_current_user()
+
+        # NOTE: The deadlines are assumed to be sorted by time.
+        # TODO: Retrieve the deadlines associated with the user here.
+        deadline_list = []
+
+        # NOTE: The groups are assumed to be sorted alphabetically.
+        # TODO: Retrieve the groups associated with the user here.
+        group_list = []
+
+        self.render( self.get_url(),
+             user = user,
+             groups = group_list
+        )
 
     ##  @override
     @PageRequestHandler.page_title.getter

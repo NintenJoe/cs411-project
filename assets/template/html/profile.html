@@ -1,6 +1,36 @@
 {% extends "navbase.html" %}
 
 {% block content %}
-	<p>User Profile Page</p>
+	<div class="jumbotron col-md-12">
+		<div class="row">
+			<div class="col-md-3">
+				<img src="{{ user.iconBigURL }}" alt="Icon" 
+				class="img-responsive center-block">
+			</div>
+			<div class="col-md-9">
+				<h2>
+					<strong>Nickname:</strong>
+					<a href="#" class="editable-field" name="user.name" 
+					data-type="text" data-url="/" data-title="Enter New Nickname">
+						{{ user.name }}
+					</a>
+				</h2>
+				<h2>
+					<strong>Email Address:</strong>
+					<a href="#" class="editable-field" name="user.email" 
+					data-type="text" data-url="/" data-title="Enter New Nickname">
+						{{ user.email }}
+					</a>
+				</h2>
+				<h2>
+					<strong>Calendar Integration:</strong> 
+					<i class="glyphicon glyphicon-ok-circle"></i>
+				</h2>
+			</div>
+		</div>
+		<div class="row">
+			
+		</div>
+	</div>
 {% end %}
 

@@ -13,6 +13,10 @@
  */
 function main()
 {
+	// Setup the Editable Fields //
+	$.fn.editable.defaults.mode = "inline";
+	$( ".editable-field" ).editable();
+
 	// Setup the Deadline List Modules //
 	$( ".deadline-notes" ).hide();
 	$( ".deadline-entry" ).click( function() {
