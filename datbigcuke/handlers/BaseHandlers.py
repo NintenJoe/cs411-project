@@ -15,6 +15,8 @@ from os.path import join as join_paths
 from os.path import exists as file_exists
 from datbigcuke.entities import User
 from datbigcuke.entities import UserRepository
+from datbigcuke.entities import Group
+from datbigcuke.entities import GroupRepository
 
 
 ##  An abstract base class for types that correspond to particular web
@@ -93,7 +95,42 @@ class PageRequestHandler( WebRequestHandler, WebResource ):
 ##  The base asynchronous request handling type, which serves as the base
 #   for all DBC handlers that handle asynchronous (i.e. AJAX) requests.
 class AsyncRequestHandler( WebRequestHandler ):
-    ##  @override
+
+    @tornado.gen.coroutine
+    @tornado.web.authenticated
     def post( self ):
+        user = self.get_current_user()
+        data = self.get_arguments("data", None)
+
+        # 'Logged-in' user must be defined
+        if not user:
+            return
+
+        # Data must be defined
+        if not data:
+            return
+
+        if not self._valid_request(user, data):
+            return
+
+        yield self._perform_request(user, data)
+
+    def _valid_request(self, user, data):
+        raise Exception("AsyncRequestHandler._valid_request must be overriden.")
         pass
 
+    def _perform_request(self, user, data):
+        raise Exception("AsyncRequestHandler._update must be overriden.")
+        pass
+
+    def _persist_user(self, user):
+        """Save any user changes to the database"""
+        user_repo = UserRepository()
+        user_repo.persist(user)
+        user_repo.close()
+
+    def _persist_group(self, group):
+        """Save any group changes to the database"""
+        group_repo = GroupRepository()
+        group_repo.persist(group)
+        group_repo.close()
