@@ -98,12 +98,9 @@ class AsyncRequestHandler( WebRequestHandler ):
 #    @tornado.gen.coroutine
     @tornado.web.authenticated
     def post( self ):
-        print "async handler"
         user = self.get_current_user()
         name = self.get_arguments("name", None)
         values = self.get_arguments("value", None)
-        print "name: " + str(name)
-        print "values: " + str(values)
 
         # 'Logged-in' user must be defined
         if not user:
@@ -119,7 +116,6 @@ class AsyncRequestHandler( WebRequestHandler ):
 
         name = name[0].decode("utf-8")
         if not self._valid_request(user, name, values):
-            print "Invalid request"
             return
 
         self._perform_request(user, name, values)
