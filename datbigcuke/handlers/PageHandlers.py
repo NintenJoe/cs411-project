@@ -265,7 +265,6 @@ class GroupTreeModule( WebModule ):
     #   @param group_list A listing of group entity objects.
     def render( self, group_list ):
         # TODO: Add pre-processing at this stage.
-
         group_forest = [
             { "name": "CS411", "gid": 1, "maintainer": "Ryan Cunningham", "subgroups": [
                 { "name": "DBC", "gid": 2, "maintainer": "Eunsoo Roh", "subgroups": [] },
@@ -290,7 +289,8 @@ class GroupTreeModule( WebModule ):
         return "group-tree.html"
 
 
-##  Recursive helper rendering module for 'GroupTree' UI module.
+##  Rendering module for a listing of group trees (i.e. a group forest).  This
+#   modules acts as a recursive helper rendering module for 'GroupTree' UI module.
 class GroupForestModule( WebModule ):
     ##  @override
     #
