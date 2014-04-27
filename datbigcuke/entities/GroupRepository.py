@@ -86,6 +86,24 @@ class GroupRepository(AbstractRepository):
                 group_list.append(self._create_entity(data=result))
 
         return group_list
+        
+    def get_subgroups_of_group(self, group_id):
+        group_list = []
+        with self._conn.cursor() as cursor:
+            cursor.execute('SELECT `g`.`id` AS `id`, `g`.`name` AS `name`,'
+                           '`g`.`description` AS `description`, `g`.`type` AS `type`'
+                           'FROM `group` AS `gr`'
+                           'JOIN `group_membership` AS `m`'
+                           '    ON (`m`.`group_id` = `gr`.`id`)'
+                           'JOIN `group` AS `g`'
+                           '    ON (`g`.`id` = `m`.`member_id`)'
+                           'WHERE `gr`.`id` =?', (group_id,))
+            for result in self._fetch_all_dict(cursor):
+                group_list.append(self._create_entity(data=result))
+            
+        for group in group_list:
+            group.subgroups = self.get_subgroups_of_group(group.id)
+        return group_list
 
     def _fetch_group(self, cursor):
         result = self._fetch_dict(cursor)

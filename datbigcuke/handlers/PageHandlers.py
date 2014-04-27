@@ -157,7 +157,7 @@ class UserMainHandler( PageRequestHandler ):
 
         # NOTE: The groups are assumed to be sorted alphabetically.
         # TODO: Retrieve the groups associated with the user here.
-        group_list = []
+        group_list = GroupRepository().get_groups_of_user(user.id)
 
         self.render( self.get_url(),
              user = user,
@@ -299,22 +299,12 @@ class GroupTreeModule( WebModule ):
     #   @param group_list A listing of group entity objects.
     def render( self, group_list ):
         # TODO: Add pre-processing at this stage.
-        group_forest = [
-            { "name": "CS411", "gid": 1, "maintainer": "Ryan Cunningham", "subgroups": [
-                { "name": "DBC", "gid": 2, "maintainer": "Eunsoo Roh", "subgroups": [] },
-                { "name": "Phuong", "gid": 3, "maintainer": "Phuong", "subgroups": [] },
-            ] },
-            { "name": "CS428", "gid": 4, "maintainer": "Darko Marinov", "subgroups": [
-                { "name": "Cosmin", "gid": 5, "maintainer": "Cosmin", "subgroups": [] },
-                { "name": "Zol", "gid": 6, "maintainer": "Joe Ciurej", "subgroups": [] },
-            ] },
-            { "name": "CS467", "gid": 7, "maintainer": "Karrie Karahalios", "subgroups": [
-                { "name": "Team 2", "gid": 8, "maintainer": "Efe Karakus", "subgroups": [] },
-            ] },
-            { "name": "CS210", "gid": 8, "maintainer": "Alex Kirlik", "subgroups": [] },
-        ]
-        group_forest += group_forest
+        group_forest = group_list
 
+        gr = GroupRepository()
+        for group in group_forest:
+            group.subgroups = gr.get_subgroups_of_group(group.id)
+        
         return self.render_string( self.get_url(), group_forest = group_forest )
 
     ##  @override
