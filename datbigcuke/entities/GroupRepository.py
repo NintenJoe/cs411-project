@@ -14,6 +14,7 @@ from datbigcuke.entities.AbstractRepository import AbstractRepository
 import datbigcuke.db
 import operator
 
+# @TODO(halstea2) Add 'remove' method for deleting a user.
 
 class GroupRepository(AbstractRepository):
 

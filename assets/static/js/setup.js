@@ -13,10 +13,18 @@
  */
 function main()
 {
+	// Setup the Editable Fields //
+	$.fn.editable.defaults.mode = "popup";
+	$( ".editable-field" ).editable();
+
 	// Setup the Deadline List Modules //
 	$( ".deadline-notes" ).hide();
 	$( ".deadline-entry" ).click( function() {
 		$( this ).find( ".deadline-notes" ).slideToggle( "slow" );
+	} );
+
+	$( "#google_auth" ).click( function() {
+		$.post("google-auth-request");
 	} );
 }
 

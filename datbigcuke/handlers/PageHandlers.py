@@ -13,6 +13,7 @@
 import tornado.web
 import tornado.auth
 import uuid
+import urllib
 
 import os
 import datetime
@@ -35,10 +36,20 @@ from datbigcuke.cukemail import CukeMail
 class LoginHandler( PageRequestHandler ):
     ##  @override
     def get( self ):
+        errors = {}
+        if self.get_argument('unconfirmed', default=None) != None:
+            errors['email'] = "You must validate your email."
+        if self.get_argument('baduser', default=None) != None:
+            errors['email'] = "Bad Email." 
+
+        if self.get_argument('badpass', default=None) != None:
+            errors['badpass'] = "Bad Password"
+
         if not self.get_current_user():
-            self.render( self.get_url() )
+            self.render( self.get_url(), errors = errors )
         else:
             self.redirect( "/main" )
+
 
     ##  @override
     def post( self ):
@@ -48,12 +59,22 @@ class LoginHandler( PageRequestHandler ):
         repo = UserRepository()
         user = repo.get_user_by_email(user_email)
         repo.close()
+        params = {}
         if user is not None:
             # user exists. does the password match?
             if user.match_password(user_password):
                 # password is correct. Has user confirmed their email?
                 if user.confirmed:
                     self.set_current_user(user.id)
+                else:
+                    params["unconfirmed"] = True
+                    self.redirect( "/?"  + urllib.urlencode(params) )
+            else:
+                params["badpass"] = True
+                self.redirect( "/?"  + urllib.urlencode(params) )
+        else:
+            params["baduser"] = True
+            self.redirect( "/?"  + urllib.urlencode(params) )
 
         self.redirect( "/main" )
 
@@ -139,7 +160,7 @@ class UserMainHandler( PageRequestHandler ):
         group_list = []
 
         self.render( self.get_url(),
-             user = user.name,
+             user = user,
              deadlines = deadline_list,
              groups = group_list
         )
@@ -161,7 +182,20 @@ class UserProfileHandler( PageRequestHandler ):
     ##  @override
     @tornado.web.authenticated
     def get( self ):
-        self.render( self.get_url() )
+        user = self.get_current_user()
+
+        # NOTE: The deadlines are assumed to be sorted by time.
+        # TODO: Retrieve the deadlines associated with the user here.
+        deadline_list = []
+
+        # NOTE: The groups are assumed to be sorted alphabetically.
+        # TODO: Retrieve the groups associated with the user here.
+        group_list = []
+
+        self.render( self.get_url(),
+             user = user,
+             groups = group_list
+        )
 
     ##  @override
     @PageRequestHandler.page_title.getter
@@ -265,7 +299,6 @@ class GroupTreeModule( WebModule ):
     #   @param group_list A listing of group entity objects.
     def render( self, group_list ):
         # TODO: Add pre-processing at this stage.
-
         group_forest = [
             { "name": "CS411", "gid": 1, "maintainer": "Ryan Cunningham", "subgroups": [
                 { "name": "DBC", "gid": 2, "maintainer": "Eunsoo Roh", "subgroups": [] },
@@ -290,7 +323,8 @@ class GroupTreeModule( WebModule ):
         return "group-tree.html"
 
 
-##  Recursive helper rendering module for 'GroupTree' UI module.
+##  Rendering module for a listing of group trees (i.e. a group forest).  This
+#   modules acts as a recursive helper rendering module for 'GroupTree' UI module.
 class GroupForestModule( WebModule ):
     ##  @override
     #

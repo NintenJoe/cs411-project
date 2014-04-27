@@ -8,9 +8,12 @@ __email__ = 'roh7@illinois.edu'
 from datbigcuke.entities.AbstractEntity import AbstractEntity
 import os
 import hashlib
+import urllib
 
 
 class User(AbstractEntity):
+    # @TODO(halstea2) Add maintainer mapping to this dictionary.
+    # Add cal_token and other_token
     _ATTRIB_TO_DATA = {
         '_id' : 'id',
         '_email' : 'email',
@@ -46,6 +49,43 @@ class User(AbstractEntity):
     def name(self, value):
         self._name = value
 
+# @TODO(halstea2) I don't know if we need these
+    @property
+    def cal_token(self):
+        return self._cal_token
+
+    @cal_token.setter
+    def cal_token(self, value):
+        self._cal_token = value
+
+    @property
+    def other_token(self):
+        return self._other_token
+
+    @other_token.setter
+    def other_token(self, value):
+        self._other_token = value
+
+    @property
+    def iconBigURL(self):
+        # NOTE(ciurej2): Added this function to simply gravatar icon calculation.
+        # Can be moved or changed as needed.
+        # SEE: https://en.gravatar.com/site/implement/hash/
+        url = 'http://www.gravatar.com/avatar/'
+        url += hashlib.md5(self.email.strip().lower().encode()).hexdigest() + '?'
+        url += urllib.urlencode({ 's': "180" })
+
+        return url
+
+    @property
+    def iconSmallURL(self):
+        # TODO(ciurej2): Refactor this functionality to eliminate duplication.
+        url = 'http://www.gravatar.com/avatar/'
+        url += hashlib.md5(self.email.strip().lower().encode()).hexdigest() + '?'
+        url += urllib.urlencode({ 's': "40" })
+
+        return url
+
     @property
     def hashedPassword(self):
         return self._hashedPassword
@@ -58,6 +98,10 @@ class User(AbstractEntity):
     def confirmed(self):
         return self._confirmed
 
+    @confirmed.setter
+    def confirmed(self, value):
+        self._confirmed = value
+
     @property
     def confirmUUID(self):
         return self._confirmUUID
@@ -65,7 +109,7 @@ class User(AbstractEntity):
     @confirmUUID.setter
     def confirmUUID(self, value):
         self._confirmUUID = value
-    
+
     @password.setter
     def password(self, value):
         # passwords are hashed with random 40-digit hexadecimal salt 
@@ -89,3 +133,4 @@ class User(AbstractEntity):
     def validate(self):
         # TODO(roh7): implement proper validation
         return True
+

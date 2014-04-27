@@ -26,6 +26,17 @@ textarea {
 	resize: none;
 }
 
+.container hr {
+	margin: 2px 0;
+}
+
+.inner-heading {
+	margin: 2px;
+	padding: 0px;
+}
+
+/* Content Container Styling */
+
 .main-content-container {
 	margin-top: 20px;
 	height: 80%;
@@ -42,12 +53,7 @@ textarea {
 
 /* Item Listing Styling */
 
-ul.deadline-list {
-	padding: 0px;
-	margin: 0px;
-}
-
-ul.deadline-notes, ul.group-forest {
+ul.deadline-list, ul.deadline-notes, ul.group-forest {
 	list-style-type: none;
 	padding: 0px;
 	margin: 0px;

@@ -43,11 +43,20 @@ class Application( tornado.web.Application ):
             ( r"/profile", UserProfileHandler ),
             ( r"/group/([0-9]+)", UserGroupHandler ),
 
-            # Aynchronous Request Handlers #
-            # TODO: Populate this list as needed.
+            # Asynchronous Request Handlers #
+            ( r"/leave-group", LeaveGroupHandler ),
+            ( r"/update-user-name", UpdateNameHandler ),
+            ( r"/update-user-email", UpdateEmailHandler ),
+
+            # @TODO(halstea2) Remove test async handler
+            ( r"/async-request", TestHandler ),
+
+            # Google authentication handlers #
+            ( r"/google-auth-request", GoogleAuthHandler),
+            ( r"/oauth2callback", GoogleResponseHandler),
 
             # Miscellaneous Handlers #
-            ( r"/logout", LogoutHandler ),
+            ( r"/logout", LogoutHandler )
         ]
 
         app_settings = {
