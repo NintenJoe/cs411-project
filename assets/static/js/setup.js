@@ -54,26 +54,50 @@ function main()
 			});
 		} );
 
-		// Setup the Group Page Buttons //
-		$( "#leave_group" ).click( function() {
-			var groupid = getGroupID();
-			alert( "Leaving group #" + groupid + "!" );
-			$.post( "/" );
-		} );
-
+        $( "#leave_group" ).click( function () {
+            var data1 = {};
+            data1['group_id'] = getGroupID();
+            $.ajax({
+                type: 'POST',
+                url: '/leave-group',
+                data: {'data': JSON.stringify(data1)},
+                dataType: 'application/json',
+                complete: function(msg) {
+                    window.location.reload();
+                },
+                fail: function(data) {
+                    alert("Failed to leave group.");
+                }
+            });
+        });
+ 
 		$( "#delete_group" ).click( function() {
 			alert( "Deleting group" );
 			$.post( "/" );
 		} );
+        
+        $( "#add-member-submit" ).click( function () {
+            var data1 = {};
+            data1['group_id'] = getGroupID();
 
-		// Setup Group Page Modal Submission Buttons //
+            // Input element has no ID tag defined 
+            data1['user_email'] = $('[name="user_email"]').val();
+            $.ajax({
+                type: 'POST',
+                url: '/add-member',
+                data: {'data': JSON.stringify(data1)},
+                dataType: 'application/json',
+                complete: function(msg) {
+                    $('#add-member-modal').modal('hide');
+                },
+                fail: function(data) {
+                    alert("Failed to add user to group.");
+                }
+            });
+        });
+        
 
-		$( "#add-member-submit" ).click( function() {
-				$.ajax("/add-member", 
-					   { user_email: $("#user_email").value,  
-						 group_id : getGroupID() }, 
-					   function () {$('#add-member-modal').modal('hide');}).fail(function() { alert("Failed to add user to group.")});
-			} );
+	    // Setup Group Page Modal Submission Buttons //
 
 		// TODO: Add group page submission button post requests.
 	}

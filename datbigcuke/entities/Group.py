@@ -55,6 +55,17 @@ class Group(AbstractEntity):
     def type(self, value):
         self._type = value
 
+    @property
+    def subgroups(self):
+        if self._subgroups:
+            return self._subgroups
+        else:
+            return []
+
+    @subgroups.setter
+    def subgroups(self, value):
+        self._subgroups = value
+
     def validate(self):
         # TODO(roh7): implement proper validation
         return True

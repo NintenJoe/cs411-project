@@ -85,53 +85,57 @@ class LeaveGroupHandler(AsyncRequestHandler):
 
         user = self.get_current_user()
         data = self.get_argument("data", default=None)
+        if not user or not data:
+            return
+
         data = json.loads(data)
-
-        # 'Logged-in' user must be defined
-        if not user:
-            return
-
-        # Value list must be defined
-        if not data:
-            return
-
         if not self._valid_request(user, "", data):
+            print "bad request"
             return
 
+        print "performing request"
         self._perform_request(user, "", data)
 
     # The name parameter is ignored. Needs to be factored but no time.
     def _valid_request(self, user, name, data):
         """Verify that the 'leave group' request is valid"""
 
-        if "group" not in data:
+        if "group_id" not in data:
             return False
 
-        group_id = data[u"group"]
+        group_id = data[u"group_id"]
 
         # Group must exist
         group_repo = GroupRepository()
         group = group_repo.fetch(group_id)
         if not group:
-            print "group doesn't exist"
+            return False
+
+        group_repo = GroupRepository()
+        groups = group_repo.get_groups_of_user(user.id)
+        group_repo.close()
+
+        if not groups:
             return False
 
         # User must be a member of this group
-        if group_id not in user.groups:
-            return False
+        #if group_id not in groups:
+        #    return False
 
         # User must not be the group maintainer
-        if user.id != group.maintainer.id:
-            return False
+        #if user.id != group.maintainer.id:
+        #    return False
 
         return True
 
     # The name parameter is ignored. Needs to be factored but no time.
     def _perform_request(self, user, name, data):
         """Removes the user from the group"""
-        groups = user.groups
-        groups.remove(data[u"group"])
-        self._persist_user(user)
+        
+        print "Faux-'Deleted' user from DB. Be sure to add a real delete functin and fix this."
+        #groups = user.groups
+        #groups.remove(data[u"group_id"])
+        #self._persist_user(user)
 
 # - Delete (private) group
 #   - Data: Group ID, User ID (from get_curr_user)
@@ -226,61 +230,75 @@ class AddMemberHandler(AsyncRequestHandler):
     # @TODO(halstea2) We chould create a 'complex' async handler base that
     # is aware of a dictionary of values
     def post(self):
-        curr_user = self.getCurrent_user()
-        values =  self.get_argument("values", default=None)
+        curr_user = self.get_current_user()
+        values =  self.get_argument("data", default=None)
 
-        if not user:
-            return
-
-        if not data:
+        if not curr_user or not values:
             return
 
         # We don't need the 'name' field. It's encoded in the data dictionary
         # Keys are unicode after json.loads conversion
-        data = json.loads(data)
-        if not self._valid_request(user, "", data):
+        values = json.loads(values)
+        if not self._valid_request(curr_user, "", values):
             return
 
-        self._perform_request(user, "", data)
+        self._perform_request(curr_user, "", values)
         pass
 
-    def _valid_request(self, user, name, values):
+    def _valid_request(self, curr_user, name, values):
         # Malformed request
-        if u"group_id" not in values or u"user_id" not in values:
+        if u"group_id" not in values or u"user_email" not in values:
             return False
 
         # Malformed request
         group_id = values[u"group_id"]
-        user_id = values["uuser_id"]
-        if not group_id or not user_id:
+        new_user_email = values[u"user_email"]
+        if not group_id or not new_user_email:
             return False
 
         #@TODO(halstea2) We need a mechanism in Group to retrieve the parent
         # and then verify the curr_user and new_user are members of it.
 
+        #@TODO(halstea2) Enable all of these fucking checks
+        #if not curr_user.groups:
+        #    return False
+
         # Current user must be a member of the subgroup they're trying to add a
         # member to
-        if group_id not in user.groups:
-            return False
+        #if group_id not in curr_user.groups:
+        #    return False
 
         # New user is already a member of the group
         new_user_repo = UserRepository()
-        new_user = new_user_repo.fetch(user_id)
+        new_user = new_user_repo.get_user_by_email(new_user_email)
         new_user_repo.close()
-        if group_id in new_user.groups:
-            return False
+        
+        #if not new_user:
+        #    return False
+
+        #if new_user.groups:
+        #    return False
+
+        #if group_id in new_user.groups:
+        #    return False
 
         return True
 
     def _perform_request(self, user, name, values):
+        print "performing request"
         group_id = values[u"group_id"]
-        user_id = values[u"user_id"]
+        new_user_email = values[u"user_email"]
 
         new_user_repo = UserRepository()
-        new_user = new_user_repo.fetch(user_id)
+        new_user = new_user_repo.get_user_by_email(new_user_email)
         new_user_repo.close()
 
-        new_user.append(group_id)
+        # @TODO (halstea2) This might/should use the Group_repo function
+        if new_user.groups:
+            new_user.groups.append(group_id)
+        else:
+            new_user.groups = [group_id]
+
         self._persist_user(new_user)
         pass
 
@@ -381,12 +399,17 @@ class UpdateEmailHandler(AsyncRequestHandler):
     # Assumptions: User is authenticated. attr is string (decoded to utf-8).
     def _valid_request(self, user, attr, value):
         """Verify that the 'update email' request is valid"""
+        print "vr attr: " + str(attr)
         if not hasattr(user, attr):
+            print "attr not found"
             return False
 
+        print "value attr: " + str(value)
         if len(value) != 1:
+            print "value not found"
             return False
 
+        print "Valid request received"
         return True
 
     # Assumption: User is authenticated. attr exists. Value is list of length 1
