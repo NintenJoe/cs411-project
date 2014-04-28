@@ -269,7 +269,7 @@ class UserGroupHandler( PageRequestHandler ):
     @WebResource.resource_url.getter
     def resource_url( self ):
         # TODO: Update this variable once DB is integrated!
-        return "grouptest.html"
+        return "group.html"
 
 
 ### Miscellaneous Handlers ###
