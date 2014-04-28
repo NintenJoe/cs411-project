@@ -22,6 +22,7 @@ class User(AbstractEntity):
         '_salt' : 'salt',
         '_confirmed' : 'confirmed',
         '_confirmUUID' : 'confirmUUID',
+        '_refreshTok' : 'refreshTok',
         '_groups' : 'groups',
     }
 
@@ -109,6 +110,14 @@ class User(AbstractEntity):
     @confirmUUID.setter
     def confirmUUID(self, value):
         self._confirmUUID = value
+
+    @property
+    def refreshTok(self):
+        return self._refreshTok
+
+    @refreshTok.setter
+    def refreshTok(self, value):
+        return self._refreshTok
 
     @password.setter
     def password(self, value):

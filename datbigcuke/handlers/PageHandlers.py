@@ -109,8 +109,23 @@ class RegistrationHandler( PageRequestHandler ):
         user.password = self.get_argument("user_password")
         user.confirmUUID = unique
 
+        gr = GroupRepository()
+        uiuc = gr.fetch_by_name("UIUC")
+        if uiuc == []:
+            g = Group()
+            g.name = "UIUC"
+            g.description = "University of Illinois at Urbana/Champaign"
+            g.type = 0
+            gr.persist(g)
+            gr.close()
+        uiuc = gr.fetch_by_name("UIUC")
+
+        print uiuc
+        print uiuc[0]
         repo = UserRepository()
         repo.persist(user)
+        user = repo.get_user_by_email(user_email)
+        repo.add_user_to_group(user, uiuc[0])
         repo.close()
 
         ## Send a verification email to the user
@@ -154,14 +169,14 @@ class UserMainHandler( PageRequestHandler ):
     @tornado.web.authenticated
     def get( self ):
         user = self.get_current_user()
-
+        
         # NOTE: The deadlines are assumed to be sorted by time.
         # TODO: Retrieve the deadlines associated with the user here.
         deadline_list = []
 
         # NOTE: The groups are assumed to be sorted alphabetically.
         # TODO: Retrieve the groups associated with the user here.
-        group_list = []
+        group_list = GroupRepository().get_groups_of_user(user.id)
 
         self.render( self.get_url(),
             user = user,
@@ -221,28 +236,15 @@ class UserGroupHandler( PageRequestHandler ):
         # TODO: 404 if the user is not a member of the group.
         user = self.get_current_user()
 
+        gr = GroupRepository()
+        ur = UserRepository()
 
-        # TODO: Retrieve the group associated with the given group ID.
-        group = None
-
-        # TODO: Accumulate the parent groups for the given group.
-        supergroup_list = []
-
-        # NOTE: The groups are assumed to be sorted alphabetically.
-        # TODO: Retrieve the groups associated with the group here.
-        subgroup_list = []
-
-        # TODO: Determine if the group is public or not (equivalent to there
-        # not being a maintainer).
-        group_is_public = False
-
-        # TODO: Determine if the user is the maintainer of the current group.
-        user_is_maintainer = True
-
-
-        # NOTE: The members are assumed to be sorted alphabetically.
-        # TODO: Retrieve the members for the given group here.
-        member_list = []
+        group = gr.fetch(group_id)
+        supergroup_list = gr.get_supergroup_of_group(group_id)
+        subgroup_list = gr.get_subgroups_of_group(group_id)
+        group_is_public = group.maintainerId == None
+        user_is_maintainer = group.maintainerId == user.id
+        member_list = ur.get_members_of_group(group_id)
 
         # NOTE: The deadlines are assumed to be sorted by time.
         # TODO: Retrieve the deadlines associated with the user here.
@@ -406,21 +408,12 @@ class GroupTreeModule( WebModule ):
     #   @param group_list A listing of group entity objects.
     def render( self, group_list ):
         # TODO: Add pre-processing at this stage.
-        group_forest = [
-            { "name": "CS411", "gid": 1, "maintainer": "Ryan Cunningham", "subgroups": [
-                { "name": "DBC", "gid": 2, "maintainer": "Eunsoo Roh", "subgroups": [] },
-                { "name": "Phuong", "gid": 3, "maintainer": "Phuong", "subgroups": [] },
-            ] },
-            { "name": "CS428", "gid": 4, "maintainer": "Darko Marinov", "subgroups": [
-                { "name": "Cosmin", "gid": 5, "maintainer": "Cosmin", "subgroups": [] },
-                { "name": "Zol", "gid": 6, "maintainer": "Joe Ciurej", "subgroups": [] },
-            ] },
-            { "name": "CS467", "gid": 7, "maintainer": "Karrie Karahalios", "subgroups": [
-                { "name": "Team 2", "gid": 8, "maintainer": "Efe Karakus", "subgroups": [] },
-            ] },
-            { "name": "CS210", "gid": 8, "maintainer": "Alex Kirlik", "subgroups": [] },
-        ]
-        group_forest += group_forest
+        group_forest = group_list
+
+        gr = GroupRepository()
+        for group in group_forest:
+            group.subgroups = gr.get_subgroups_of_group_rec(group.id)
+            gr.get_group_maintainer_rec(group)
 
         return self.render_string( self.get_url(), group_forest = group_forest )
 

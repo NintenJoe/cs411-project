@@ -21,6 +21,7 @@ CREATE TABLE IF NOT EXISTS `user` (
   `salt` CHAR(40) NOT NULL,
   `confirmed` BOOLEAN NOT NULL DEFAULT False,
   `confirmUUID` CHAR(36) UNIQUE NOT NULL,
+  `refreshTok` CHAR(64),
 
   FOREIGN KEY (`id`)
   REFERENCES `membership_entity`(`id`)
@@ -33,10 +34,16 @@ CREATE TABLE IF NOT EXISTS `group` (
   `name` CHAR(70) NOT NULL,
   `description` TEXT,
   `type` INT NOT NULL,
+  `maintainerId` INT,
 
   FOREIGN KEY (`id`)
   REFERENCES `membership_entity`(`id`)
   ON DELETE CASCADE
+  ON UPDATE CASCADE,
+  
+  FOREIGN KEY (`maintainerId`)
+  REFERENCES `user` (`id`)
+  ON DELETE SET NULL
   ON UPDATE CASCADE
 );
 

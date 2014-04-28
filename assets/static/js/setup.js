@@ -49,7 +49,9 @@ function main()
 	{
 		// Setup the Google Authentication Button //
 		$( "#google_auth" ).click( function() {
-			$.post( "google-auth-request" );
+			$.post("google-auth-request", function(url) {
+				window.location.replace(url);
+			});
 		} );
 
 		// Setup the Group Page Buttons //
