@@ -241,7 +241,7 @@ class UserGroupHandler( PageRequestHandler ):
 
         group = gr.fetch(group_id)
         supergroup_list = gr.get_supergroup_of_group(group_id)
-        subgroup_list = gr.get_subgroups_of_group(group_id)
+        subgroup_list = gr.get_subgroups_of_group_rec(group_id)
         for subgroup in subgroup_list:
             gr.get_group_maintainer_rec(subgroup)
 
