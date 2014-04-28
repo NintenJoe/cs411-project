@@ -81,3 +81,13 @@ li.deadline-entry:hover {
 	cursor: pointer;
 }
 
+ul.deadline-notes li {
+	padding: 0px;
+	margin: 0px;
+}
+
+/* Miscellaneous styling */
+
+#google_auth:hover{
+	cursor: pointer;
+}

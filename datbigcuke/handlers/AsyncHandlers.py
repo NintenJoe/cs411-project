@@ -12,6 +12,8 @@ import tornado.auth
 import uuid
 import datetime
 import json
+import urllib
+import sys
 
 # For test async handler only
 import tornado.httpclient
@@ -420,17 +422,28 @@ class GoogleAuthHandler( WebRequestHandler ):
         if not user:
             return
 
-        http_client = tornado.httpclient.AsyncHTTPClient()
+        client_id = ""
+        client_secret = ""
+        auth_redirect_api = ""
 
+        #construct the url to redirect the user to
+        #that asks them to give us permission
         endpoint = "https://accounts.google.com/o/oauth2/auth?"
-        request =  "redirect_uri=" + auth_redirect_api + "&"
-        request += "response_type=code&"
-        request += "client_id=" + client_id + "&"
-        request += "scope=https://www.googleapis.com/auth/calendar.readonly&"
-        request += "access_type=offline&"
-        request += "state=" + user.id
+        request =  {'redirect_uri': auth_redirect_api,
+                    'response_type': "code",
+                    'client_id': client_id,
+                    'scope': "https://www.googleapis.com/auth/calendar.readonly",
+                    'access_type': "offline",
+                    'approval_prompt': "force",
+                    'state': user.id}
 
-        http_client.fetch(endpoint + urllib.urlencode(request))
+        sys.stderr.write("Redirecting to: " + endpoint + urllib.urlencode(request))
+
+        #send back the url
+        self.write(endpoint + urllib.urlencode(request))
+        self.flush
+        self.finish
+
 
 # - receives the response from Google
 # - Server-side Checks:
@@ -440,9 +453,37 @@ class GoogleResponseHandler( WebRequestHandler ):
     
     def get( self ):
 
-        if self.get_query_argument("error"):
-            print "Google auth returned an error: " + self.get_query_argument("error")
+        #if there was an error, print it and return
+        if self.get_query_argument("error", default=False):
+            sys.stderr.write("Google auth returned an error: " + self.get_query_argument("error"))
             return
 
-        print "code = " + self.get_query_argument("code")
-        print "state = " + self.get_query_argument("state")
+        #if we are receiving a refresh token, store it
+        if self.get_query_argument("access_token", default=False):
+            sys.stderr.write("access_token = " + self.get_query_argument("access_token"))
+            sys.stderr.write("refresh_token = " + self.get_query_argument("refresh_token"))
+            return
+
+
+        #otherwise, ask for the refresh token
+        else:
+            sys.stderr.write("code = " + self.get_query_argument("code"))
+            sys.stderr.write("state = " + self.get_query_argument("state"))
+
+            #form the request
+            client_id = ""
+            client_secret = ""
+            auth_redirect_api = ""
+
+            url = "/o/oauth2/token"
+            request = "code=" + self.get_query_argument("code") + "&" +\
+                      "client_id=" + client_id + "&" +\
+                      "client_secret=" + client_secret + "&" +\
+                      "redirect_uri=" + auth_redirect_api + "&" +\
+                      "grant_type=authorization_code"\
+
+            sys.stderr.write("refresh_token request = " + request)
+
+            http_client = tornado.httpclient.AsyncHTTPClient(url, 'POST', body=request)
+            http_client.fetch()
+            return
