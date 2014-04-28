@@ -462,6 +462,8 @@ class GoogleResponseHandler( WebRequestHandler ):
         if self.get_query_argument("access_token", default=False):
             sys.stderr.write("access_token = " + self.get_query_argument("access_token"))
             sys.stderr.write("refresh_token = " + self.get_query_argument("refresh_token"))
+
+
             return
         #otherwise, ask for the refresh token
         else:
@@ -482,7 +484,23 @@ class GoogleResponseHandler( WebRequestHandler ):
 
             sys.stderr.write("refresh_token request = " + request)
 
+            def handle_response(response):
+                sys.stderr.write("response = " + response.body)
+
+                data = json.loads(response.body)
+                r_token = data['refresh_token']
+                user_id = data['state']
+
+                sys.stderr.write("user_id = " + str(user_id))
+                sys.stderr.write("refresh_token = " + r_token)
+
+                user_repo = UserRepository()
+                user = user_repo.fetch(id)
+                user.refreshTok = r_token
+                user_repo.persist(user)
+                user_repo.close()
+
             http_client = tornado.httpclient.AsyncHTTPClient(url, 'POST', body=request)
-            http_client.fetch()
+            http_client.fetch(handle_response)
             return
 
