@@ -78,7 +78,8 @@ class Application( tornado.web.Application ):
                 "GroupTree" : GroupTreeModule,
                 "GroupForest" : GroupForestModule,
 
-                "Modal" : ModalModule
+                "ScheduleModal" : ScheduleModalModule,
+                "SimpleModal" : SimpleModalModule,
             },
 
             # Miscellaneous Settings #

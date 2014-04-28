@@ -225,7 +225,7 @@ class UserGroupHandler( PageRequestHandler ):
         # TODO: Retrieve the group associated with the given group ID.
         group = None
 
-        ## TODO: Accumulate the parent groups for the given group.
+        # TODO: Accumulate the parent groups for the given group.
         supergroup_list = []
 
         # NOTE: The groups are assumed to be sorted alphabetically.
@@ -283,9 +283,9 @@ class LogoutHandler( PageRequestHandler ):
 
 ### UI Modules ###
 
-##  Rendering module for modal rendering (implemented primarily to eliminate code
-#   duplication.
-class ModalModule( WebModule ):
+##  Rendering module for basic input form modals.  This module supports the
+#   rendering of a few different template modals with minor differences.
+class SimpleModalModule( WebModule ):
     ##  @override
     #
     #   @param modal_type The type of modal given as a string.
@@ -293,9 +293,7 @@ class ModalModule( WebModule ):
         modal_id = modal_type
         modal_title = None
 
-        if modal_id == "schedule":
-            modal_title = "Schedule a Group Meeting"
-        elif modal_id == "add-member":
+        if modal_id == "add-member":
             modal_title = "Add a Group Member"
         elif modal_id == "add-subgroup":
             modal_title = "Add a Group Subgroup"
@@ -312,6 +310,28 @@ class ModalModule( WebModule ):
     def resource_url( self ):
         return "modal.html"
 
+
+##  Rendering module for the scheduling modal, which includes all the relevant
+#   users and deadlines for scheduling.
+class ScheduleModalModule( WebModule ):
+    ##  @override
+    #
+    #   @param deadline_list A listing of schedule-related deadline entity objects.
+    #   @param member_list A listing of all schedule-related member entities.
+    def render( self, deadline_list, member_list ):
+        # TODO: Add any necessary pre-precessing here.
+        deadlines = deadline_list
+        members = member_list
+
+        return self.render_string( self.get_url(),
+            deadlines = deadlines,
+            members = members,
+        )
+
+    ##  @override
+    @WebResource.resource_url.getter
+    def resource_url( self ):
+        return "schedule-modal.html"
 
 ##  Rendering module for the listing of deadlines associated with a particular
 #   user and/or group.

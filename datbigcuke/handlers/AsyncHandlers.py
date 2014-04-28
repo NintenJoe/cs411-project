@@ -97,7 +97,7 @@ class LeaveGroupHandler(AsyncRequestHandler):
             return
 
         self._perform_request(user, "", data)
-       
+
     # The name parameter is ignored. Needs to be factored but no time.
     def _valid_request(self, user, name, data):
         """Verify that the 'leave group' request is valid"""

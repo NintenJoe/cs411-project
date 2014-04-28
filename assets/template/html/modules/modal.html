@@ -6,9 +6,7 @@
 				<h2 class="modal-title">{{ modal_title }}</h2>
 			</div>
 			<div class="modal-body row">
-				{% if modal_id == 'schedule' %}
-					
-				{% elif modal_id == 'add-member' %}
+				{% if modal_id == 'add-member' %}
 				<div class="col-md-12 form-group">
 					<label for="user_email">New Member's Email</label>
 					<input type="email" class="form-control" name="user_email" placeholder="Email Address">
@@ -28,7 +26,9 @@
 					<label for="deadline_datetime">New Deadline Time</label>
 					<div class="timepicker-form input-group date">
 						<input type="text" class="form-control" name="deadline_datetime">
-						<span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+						<span class="input-group-addon">
+							<span class="glyphicon glyphicon-calendar"></span>
+						</span>
 					</div>
 				</div>
 
