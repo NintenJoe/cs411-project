@@ -50,7 +50,7 @@ class User(AbstractEntity):
     def name(self, value):
         self._name = value
 
-# @TODO(halstea2) I don't know if we need these
+    # @TODO(halstea2) I don't know if we need these
     @property
     def cal_token(self):
         return self._cal_token

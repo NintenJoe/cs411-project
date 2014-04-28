@@ -102,7 +102,7 @@ class GroupRepository(AbstractRepository):
         return group_list
 
     def get_supergroup_of_group(self, group_id):
-        supergroup = []
+        supergroup = None
         with self._conn.cursor() as cursor:
             cursor.execute('SELECT `g`.`id` AS `id`, `g`.`name` AS `name`,'
                            '`g`.`description` AS `description`, `g`.`type` AS `type`, `g`.`maintainerId`'
@@ -116,6 +116,16 @@ class GroupRepository(AbstractRepository):
                 supergroup = self._create_entity(data=result)
                 
         return supergroup
+    
+    def get_supergroup_list(self, group_id):
+        supergroup = self.get_supergroup_of_group(group_id)
+        if supergroup is None:
+            return []
+            
+        suplist = self.get_supergroup_list(supergroup.id)
+        suplist.append(supergroup)
+        print suplist
+        return suplist
 
     def get_subgroups_of_group(self, group_id):
         group_list = []
@@ -143,7 +153,7 @@ class GroupRepository(AbstractRepository):
     def get_group_maintainer_rec(self, group):
         group.maintainer = UserRepository().fetch(group.maintainerId)
         for subgroup in group.subgroups:
-            get_group_maintainer_rec(subgroup)
+            self.get_group_maintainer_rec(subgroup)
         
     def _fetch_group(self, cursor):
         result = self._fetch_dict(cursor)

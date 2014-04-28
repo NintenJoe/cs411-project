@@ -32,7 +32,11 @@
 				<h2>
 					<!-- TODO: Add GCalendar integration by adding a hyperlink. -->
 					<strong>Calendar Integration:</strong> 
+					{% if user.refreshTok == None %}
+					<i class="glyphicon glyphicon-remove-circle" id="google_auth"></i>
+					{% else %}
 					<i class="glyphicon glyphicon-ok-circle" id="google_auth"></i>
+					{% end %}
 				</h2>
 			</div>
 		</div>
