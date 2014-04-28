@@ -66,10 +66,14 @@ function main()
 			$.post( "/" );
 		} );
 
-		$( "#add-member-submit" ).click( function() {
-		} );
-
 		// Setup Group Page Modal Submission Buttons //
+
+		$( "#add-member-submit" ).click( function() {
+				$.ajax("/add-member", 
+					   { user_email: $("#user_email").value,  
+						 group_id : getGroupID() }, 
+					   function () {$('#add-member-modal').modal('hide');}).fail(function() { alert("Failed to add user to group.")});
+			} );
 
 		// TODO: Add group page submission button post requests.
 	}
