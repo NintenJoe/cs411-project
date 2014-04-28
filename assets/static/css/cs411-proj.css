@@ -24,7 +24,7 @@ body {
 }
 
 textarea {
-	resize: none;
+	resize: vertical;
 }
 
 .inner-heading {
@@ -56,6 +56,15 @@ textarea {
 
 .cropped-content-container {
 	height: 300px;
+}
+
+/* Modal Styling */
+
+.modal-heading {
+	margin-top: 0px;
+	margin-bottom: 10px;
+	padding: 0px;
+	margin-left: 5px;
 }
 
 /* Item Listing Styling */

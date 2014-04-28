@@ -39,10 +39,12 @@ function main()
 		} );
 
 		// Setup the Datetime Picker Modules //
-		$( ".timepicker-form" ).datetimepicker();
+		$( ".datetimepicker-form" ).datetimepicker();
+		$( ".timepicker-form" ).datetimepicker( {pickDate: false} );
 
 		// Setup the Select Modules //
 		$( "select" ).selectpicker();
+		// TODO: Select all members by default in schedule modal.
 	}
 
 	// Bind AJAX Requests to Fields //
