@@ -92,6 +92,21 @@ class UserRepository(AbstractRepository):
                            'WHERE `email`=?', (email,))
             return self._fetch_user(cursor)
 
+    def get_members_of_group(self, group_id):
+        member_list = []
+        with self._conn.cursor() as cursor:
+            cursor.execute('SELECT `u`.`id`, `u`.`email`, `u`.`name`, `u`.`password`, `u`.`salt`, `u`.`confirmed` '
+                           'FROM `group` AS `gr`'
+                           'JOIN `group_membership` AS `m`'
+                           '    ON (`m`.`group_id` = `gr`.`id`)'
+                           'JOIN `user` AS `u`'
+                           '    ON (`u`.`id` = `m`.`member_id`)'
+                           'WHERE `gr`.`id` =?', (group_id,))
+            for result in self._fetch_all_dict(cursor):
+                member_list.append(self._create_entity(data=result))
+        
+        return member_list
+
     def mark_verified(self, unique):
         with self._conn.cursor() as cursor:
             cursor.execute('UPDATE `user` '

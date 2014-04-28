@@ -221,16 +221,18 @@ class UserGroupHandler( PageRequestHandler ):
         # TODO: 404 if the user is not a member of the group.
         user = self.get_current_user()
 
+        gr = GroupRepository()
+        ur = UserRepository()
 
         # TODO: Retrieve the group associated with the given group ID.
-        group = None
+        group = gr.fetch(group_id)
 
         ## TODO: Accumulate the parent groups for the given group.
-        supergroup_list = []
+        supergroup_list = gr.get_supergroup_of_group(group_id)
 
         # NOTE: The groups are assumed to be sorted alphabetically.
         # TODO: Retrieve the groups associated with the group here.
-        subgroup_list = []
+        subgroup_list = gr.get_subgroups_of_group(group_id)
 
         # TODO: Determine if the group is public or not (equivalent to there
         # not being a maintainer).
@@ -242,7 +244,7 @@ class UserGroupHandler( PageRequestHandler ):
 
         # NOTE: The members are assumed to be sorted alphabetically.
         # TODO: Retrieve the members for the given group here.
-        member_list = []
+        member_list = ur.get_members_of_group(group_id)
 
         # NOTE: The deadlines are assumed to be sorted by time.
         # TODO: Retrieve the deadlines associated with the user here.
