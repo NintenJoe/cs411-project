@@ -53,7 +53,7 @@ class Group(AbstractEntity):
 
     @type.setter
     def type(self, value):
-        self._type = type
+        self._type = value
 
     def validate(self):
         # TODO(roh7): implement proper validation

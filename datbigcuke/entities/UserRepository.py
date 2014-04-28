@@ -108,6 +108,12 @@ class UserRepository(AbstractRepository):
         
         return member_list
 
+    def add_user_to_group(self, user, group):
+        print "Adding: " + str(user.id) + " to: " + str(group.id)
+        with self._conn.cursor() as cursor:
+            cursor.execute('INSERT INTO `group_membership` (`group_id`, `member_id`) '
+                           'VALUES (?,?)', (group.id, user.id))
+
     def mark_verified(self, unique):
         with self._conn.cursor() as cursor:
             cursor.execute('UPDATE `user` '

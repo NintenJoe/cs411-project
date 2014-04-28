@@ -109,8 +109,23 @@ class RegistrationHandler( PageRequestHandler ):
         user.password = self.get_argument("user_password")
         user.confirmUUID = unique
 
+        gr = GroupRepository()
+        uiuc = gr.fetch_by_name("UIUC")
+        if uiuc == []:
+            g = Group()
+            g.name = "UIUC"
+            g.description = "University of Illinois at Urbana/Champaign"
+            g.type = 0
+            gr.persist(g)
+            gr.close()
+        uiuc = gr.fetch_by_name("UIUC")
+
+        print uiuc
+        print uiuc[0]
         repo = UserRepository()
         repo.persist(user)
+        user = repo.get_user_by_email(user_email)
+        repo.add_user_to_group(user, uiuc[0])
         repo.close()
 
         ## Send a verification email to the user

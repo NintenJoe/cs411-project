@@ -36,8 +36,11 @@ class GroupRepository(AbstractRepository):
                 # TODO(roh7): figure out whether it is worth using exception
                 # i.e. is there a case this would be true where execute() does
                 # not throw an exception itself?
+                print type(delta['description'])
+                print type(delta['type'])
+
                 assert cursor.lastrowid != 0
-                cursor.execute('INSERT INTO `group'
+                cursor.execute('INSERT INTO `group`'
                                '(`id`, `name`, `description`, `type`) '
                                'VALUES (?, ?, ?, ?)',
                                (cursor.lastrowid, delta['name'],
@@ -68,6 +71,17 @@ class GroupRepository(AbstractRepository):
         with self._conn.cursor() as cursor:
             cursor.execute('SELECT `id`, `name`, `description`, `type` '
                            'FROM `group`')
+            for result in self._fetch_all_dict(cursor):
+                group_list.append(self._create_entity(data=result))
+
+        return group_list
+
+    def fetch_by_name(self, name):
+        group_list = []
+        with self._conn.cursor() as cursor:
+            cursor.execute('SELECT `id`, `name`, `description`, `type` '
+                           'FROM `group` '
+                           'WHERE `name` =?', (name,))
             for result in self._fetch_all_dict(cursor):
                 group_list.append(self._create_entity(data=result))
 
