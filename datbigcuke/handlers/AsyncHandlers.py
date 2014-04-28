@@ -422,9 +422,9 @@ class GoogleAuthHandler( WebRequestHandler ):
         if not user:
             return
 
-        client_id = ""
-        client_secret = ""
-        auth_redirect_api = ""
+    client_id = "147193299462-66913rrja6qfcua2j6pa9nkvu1ftcl3p.apps.googleusercontent.com"
+    client_secret = "sb7K7nqRdVbDaVA04YWsihIQ"
+    auth_redirect_api = "http://datbigcuke.touko.pe.kr/oauth2callback"
 
         #construct the url to redirect the user to
         #that asks them to give us permission
@@ -437,7 +437,7 @@ class GoogleAuthHandler( WebRequestHandler ):
                     'approval_prompt': "force",
                     'state': user.id}
 
-        sys.stderr.write("Redirecting to: " + endpoint + urllib.urlencode(request))
+        sys.stderr.write("Redirecting to: " + endpoint + urllib.urlencode(request) + '\n')
 
         #send back the url
         self.write(endpoint + urllib.urlencode(request))
@@ -455,52 +455,52 @@ class GoogleResponseHandler( WebRequestHandler ):
 
         #if there was an error, print it and return
         if self.get_query_argument("error", default=False):
-            sys.stderr.write("Google auth returned an error: " + self.get_query_argument("error"))
+            sys.stderr.write("Google auth returned an error: " + self.get_query_argument("error") + '\n')
             return
 
         #if we are receiving a refresh token, store it
         if self.get_query_argument("access_token", default=False):
-            sys.stderr.write("access_token = " + self.get_query_argument("access_token"))
-            sys.stderr.write("refresh_token = " + self.get_query_argument("refresh_token"))
+            sys.stderr.write("access_token = " + self.get_query_argument("access_token") + '\n')
+            sys.stderr.write("refresh_token = " + self.get_query_argument("refresh_token") + '\n')
 
 
             return
         #otherwise, ask for the refresh token
         else:
-            sys.stderr.write("code = " + self.get_query_argument("code"))
-            sys.stderr.write("state = " + self.get_query_argument("state"))
+            sys.stderr.write("code = " + self.get_query_argument("code") + '\n')
+            sys.stderr.write("state = " + self.get_query_argument("state") + '\n')
 
             #form the request
-            client_id = ""
-            client_secret = ""
-            auth_redirect_api = ""
+            client_id = "147193299462-66913rrja6qfcua2j6pa9nkvu1ftcl3p.apps.googleusercontent.com"
+        client_secret = "sb7K7nqRdVbDaVA04YWsihIQ"
+        auth_redirect_api = "http://datbigcuke.touko.pe.kr/oauth2callback"
 
-            url = "/o/oauth2/token"
+            url = "https://accounts.google.com/o/oauth2/token"
             request = "code=" + self.get_query_argument("code") + "&" +\
                       "client_id=" + client_id + "&" +\
                       "client_secret=" + client_secret + "&" +\
                       "redirect_uri=" + auth_redirect_api + "&" +\
                       "grant_type=authorization_code"\
 
-            sys.stderr.write("refresh_token request = " + request)
+            sys.stderr.write("refresh_token request = " + request + '\n')
 
             def handle_response(response):
-                sys.stderr.write("response = " + response.body)
+                sys.stderr.write("response = " + str(response) + '\n')
 
                 data = json.loads(response.body)
                 r_token = data['refresh_token']
-                user_id = data['state']
+                user_id = self.get_query_argument("state")
 
-                sys.stderr.write("user_id = " + str(user_id))
-                sys.stderr.write("refresh_token = " + r_token)
+                sys.stderr.write("user_id = " + str(user_id) + '\n')
+                sys.stderr.write("refresh_token = " + r_token + '\n')
 
                 user_repo = UserRepository()
-                user = user_repo.fetch(id)
+                user = user_repo.fetch(user_id)
                 user.refreshTok = r_token
                 user_repo.persist(user)
                 user_repo.close()
 
-            http_client = tornado.httpclient.AsyncHTTPClient(url, 'POST', body=request)
-            http_client.fetch(handle_response)
-            return
-
+            http_client = tornado.httpclient.AsyncHTTPClient()
+            http_request = tornado.httpclient.HTTPRequest(url, 'POST', body=request)
+            http_client.fetch(http_request, handle_response)
+            self.redirect("/profile")
