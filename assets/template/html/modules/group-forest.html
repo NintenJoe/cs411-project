@@ -3,12 +3,15 @@
 	<li>
 		<a href="/group/{{ group.id }}">
 			<h5 class="inner-heading">
-				{{ group.name }} <small>{% if group.maintainer %}
-                                                        {{ group.maintainer.name }}
-                                                        {% end %}</small>
+				{{ group.name }} 
+				<small>
+				{% if group.maintainer %}
+ 					{{ group.maintainer.name }}
+				{% end %}
+				</small>
 			</h5>
 		</a>
-	        {% module GroupForest( group.subgroups ) %}
+		{% module GroupForest( group.subgroups ) %}
 	</li>
 	{% end %}
 </ul>

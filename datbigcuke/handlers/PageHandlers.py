@@ -169,14 +169,15 @@ class UserMainHandler( PageRequestHandler ):
     @tornado.web.authenticated
     def get( self ):
         user = self.get_current_user()
-        
+        gr = GroupRepository()
+
         # NOTE: The deadlines are assumed to be sorted by time.
         # TODO: Retrieve the deadlines associated with the user here.
         deadline_list = []
 
-        # NOTE: The groups are assumed to be sorted alphabetically.
-        # TODO: Retrieve the groups associated with the user here.
-        group_list = GroupRepository().get_groups_of_user(user.id)
+        group_list = gr.get_groups_of_user_rec(user.id)
+        for group in group_list:
+            gr.get_group_maintainer_rec(group)
 
         self.render( self.get_url(),
             user = user,

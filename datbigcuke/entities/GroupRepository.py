@@ -101,6 +101,23 @@ class GroupRepository(AbstractRepository):
 
         return group_list
 
+    # TODO(ciurej2): Improve this function to be less hacky.
+    def get_groups_of_user_rec(self, user_id):
+        user_group_list = self.get_groups_of_user(user_id)
+        user_group_ids = { group.id : group for group in user_group_list }
+        nonroot_group_ids = {}
+        for user_group in user_group_list:
+            user_group.subgroups = [ user_group_ids[ subgroup.id ] for subgroup in self.get_subgroups_of_group(user_group.id) if subgroup.id in user_group_ids ]
+
+            for subgroup in user_group.subgroups:
+                nonroot_group_ids[ subgroup.id ] = True
+
+        for group in user_group_list:
+            if not group.id in nonroot_group_ids:
+                return [ group ]
+
+        return []
+
     def get_supergroup_of_group(self, group_id):
         supergroup = None
         with self._conn.cursor() as cursor:
@@ -152,6 +169,7 @@ class GroupRepository(AbstractRepository):
         
     def get_group_maintainer_rec(self, group):
         group.maintainer = UserRepository().fetch(group.maintainerId)
+        print group.name
         for subgroup in group.subgroups:
             self.get_group_maintainer_rec(subgroup)
         

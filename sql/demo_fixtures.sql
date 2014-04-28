@@ -6,6 +6,11 @@ VALUES
 (1, 'Academic');
 
 INSERT INTO `membership_entity` VALUES ();
+INSERT INTO `group` (`id`, `name`, `description`, `type`)
+VALUES
+(LAST_INSERT_ID(), 'UIUC', 'Illinois', 1);
+
+INSERT INTO `membership_entity` VALUES ();
 INSERT INTO `user` (`id`, `email`, `name`, `password`, `salt`, `confirmUUID`)
 VALUES
 (LAST_INSERT_ID(), 'josh@halstead.com', 'Josh Halstead', SHA1(CONCAT('b347c0caea913fcf2b7a868387295e390e649d01', 'unsecure')), 'b347c0caea913fcf2b7a868387295e390e649d01', 'a');
@@ -38,11 +43,6 @@ VALUES
 INSERT INTO `membership_entity` VALUES ();
 INSERT INTO `group` (`id`, `name`, `description`, `type`)
 VALUES
-(LAST_INSERT_ID(), 'UIUC', 'Illinois', 1);
-
-INSERT INTO `membership_entity` VALUES ();
-INSERT INTO `group` (`id`, `name`, `description`, `type`)
-VALUES
 (LAST_INSERT_ID(), 'CS 411 Database Systems', 'Examination of the logical organization of databases: the entity-relationship model; the hierarchical, network, and relational data models and their languages. Functional dependencies and normal forms. Design, implementation, and optimization of query languages; security and integrity; concurrency control, and distributed database systems.', 1);
 
 INSERT INTO `membership_entity` VALUES ();
@@ -69,7 +69,6 @@ INSERT INTO `membership_entity` VALUES ();
 INSERT INTO `group` (`id`, `name`, `description`, `type`)
 VALUES
 (LAST_INSERT_ID(), 'CS 411 Project Team', 'Work together on the CS 411 project!', 1);
-
 
 
 SET @group_id = (SELECT id FROM `group` WHERE name = 'UIUC');
