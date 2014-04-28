@@ -30,6 +30,9 @@ function main()
 	$( "#google_auth" ).click( function() {
 		$.post("google-auth-request");
 	} );
+
+	// TODO: Add the AJAX handlers for submitting group modal info. //
+	
 }
 
 
