@@ -6,34 +6,34 @@ VALUES
 (1, 'Academic');
 
 INSERT INTO `membership_entity` VALUES ();
-INSERT INTO `user` (`id`, `email`, `name`, `password`, `salt`)
+INSERT INTO `user` (`id`, `email`, `name`, `password`, `salt`, `confirmUUID`)
 VALUES
-(LAST_INSERT_ID(), 'josh@halstead.com', 'Josh Halstead', SHA1(CONCAT('b347c0caea913fcf2b7a868387295e390e649d01', 'unsecure')), 'b347c0caea913fcf2b7a868387295e390e649d01');
+(LAST_INSERT_ID(), 'josh@halstead.com', 'Josh Halstead', SHA1(CONCAT('b347c0caea913fcf2b7a868387295e390e649d01', 'unsecure')), 'b347c0caea913fcf2b7a868387295e390e649d01', 'a');
 
 INSERT INTO `membership_entity` VALUES ();
-INSERT INTO `user` (`id`, `email`, `name`, `password`, `salt`)
+INSERT INTO `user` (`id`, `email`, `name`, `password`, `salt`, `confirmUUID`)
 VALUES
-(LAST_INSERT_ID(), 'joe@ciurej.com', 'Joe Ciurej', SHA1(CONCAT('b347c0caea913fcf2b7a868387295e390e649d01', 'unsecure')), 'b347c0caea913fcf2b7a868387295e390e649d01');
+(LAST_INSERT_ID(), 'joe@ciurej.com', 'Joe Ciurej', SHA1(CONCAT('1b347c0caea913fcf2b7a868387295e390e649d0', 'unsecure')), '1b347c0caea913fcf2b7a868387295e390e649d0', 'b');
 
 INSERT INTO `membership_entity` VALUES ();
-INSERT INTO `user` (`id`, `email`, `name`, `password`, `salt`)
+INSERT INTO `user` (`id`, `email`, `name`, `password`, `salt`, `confirmUUID`)
 VALUES
-(LAST_INSERT_ID(), 'eunsoo@roh.com', 'Eunsoo Roh', SHA1(CONCAT('b347c0caea913fcf2b7a868387295e390e649d01', 'unsecure')), 'b347c0caea913fcf2b7a868387295e390e649d01');
+(LAST_INSERT_ID(), 'eunsoo@roh.com', 'Eunsoo Roh', SHA1(CONCAT('47c0caea913fcf2b7a868387295e390e649d01b3', 'unsecure')), '47c0caea913fcf2b7a868387295e390e649d01b3', 'c');
 
 INSERT INTO `membership_entity` VALUES ();
-INSERT INTO `user` (`id`, `email`, `name`, `password`, `salt`)
+INSERT INTO `user` (`id`, `email`, `name`, `password`, `salt`, `confirmUUID`)
 VALUES
-(LAST_INSERT_ID(), 'kyle@nusbaum.com', 'Kyle Nusbaum', SHA1(CONCAT('b347c0caea913fcf2b7a868387295e390e649d01', 'unsecure')), 'b347c0caea913fcf2b7a868387295e390e649d01');
+(LAST_INSERT_ID(), 'kyle@nusbaum.com', 'Kyle Nusbaum', SHA1(CONCAT('7c0caea913fcf2b7a868387295e390e649d01b34', 'unsecure')), '7c0caea913fcf2b7a868387295e390e649d01b34', 'd');
 
 INSERT INTO `membership_entity` VALUES ();
-INSERT INTO `user` (`id`, `email`, `name`, `password`, `salt`)
+INSERT INTO `user` (`id`, `email`, `name`, `password`, `salt`, `confirmUUID`)
 VALUES
-(LAST_INSERT_ID(), 'tom@bogue.com', 'Tom Bogue', SHA1(CONCAT('b347c0caea913fcf2b7a868387295e390e649d01', 'unsecure')), 'b347c0caea913fcf2b7a868387295e390e649d01');
+(LAST_INSERT_ID(), 'tom@bogue.com', 'Tom Bogue', SHA1(CONCAT('c0caea913fcf2b7a868387295e390e649d01b347', 'unsecure')), 'c0caea913fcf2b7a868387295e390e649d01b347', 'e');
 
 INSERT INTO `membership_entity` VALUES ();
-INSERT INTO `user` (`id`, `email`, `name`, `password`, `salt`)
+INSERT INTO `user` (`id`, `email`, `name`, `password`, `salt`, `confirmUUID`)
 VALUES
-(LAST_INSERT_ID(), 'lumen@faey.com', 'Lumen Faey', SHA1(CONCAT('b347c0caea913fcf2b7a868387295e390e649d01', 'unsecure')), 'b347c0caea913fcf2b7a868387295e390e649d01');
+(LAST_INSERT_ID(), 'lumen@faey.com', 'Lumen Faey', SHA1(CONCAT('0caea913fcf2b7a868387295e390e649d01b347c', 'unsecure')), '0caea913fcf2b7a868387295e390e649d01b347c', 'f');
 
 
 INSERT INTO `membership_entity` VALUES ();
