@@ -118,11 +118,14 @@ class GroupRepository(AbstractRepository):
         return supergroup
     
     def get_supergroup_list(self, group_id):
-        supergroup = get_supergroup_of_group(group_id)
+        supergroup = self.get_supergroup_of_group(group_id)
         if supergroup is None:
-            return [supergroup]
-
-        return self.get_supergroup_list(0, supergroup)
+            return []
+            
+        suplist = self.get_supergroup_list(supergroup.id)
+        suplist.append(supergroup)
+        print suplist
+        return suplist
 
     def get_subgroups_of_group(self, group_id):
         group_list = []
