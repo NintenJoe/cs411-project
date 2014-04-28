@@ -392,8 +392,10 @@ class MemberListModule( WebModule ):
             member[ "icon-url" ] = url
 
         members += members
+        
+        print member_list
 
-        return self.render_string( self.get_url(), members = members )
+        return self.render_string( self.get_url(), members = member_list )
 
     ##  @override
     @WebResource.resource_url.getter

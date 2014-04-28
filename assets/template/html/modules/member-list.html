@@ -2,9 +2,9 @@
 	<div class="nested-content-container col-md-11">
 		<ul class="member-list">
 			{% for member in members %}
-			<li style="list-style-image: url({{ member['icon-url'] }});">
+			<li style="list-style-image: url({{ member.iconSmallURL }});">
 				<h4 class="inner-heading pull-left">
-					{{ member["name"] }} <small>{{ member["email"] }}</small>
+					{{ member.name }} <small>{{ member.email }}</small>
 				</h4>
 			</li>
 			{% end %}
