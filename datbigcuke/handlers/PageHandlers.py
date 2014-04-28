@@ -394,8 +394,9 @@ class GroupTreeModule( WebModule ):
 
         gr = GroupRepository()
         for group in group_forest:
-            group.subgroups = gr.get_subgroups_of_group(group.id)
-        
+            group.subgroups = gr.get_subgroups_of_group_rec(group.id)
+            gr.get_group_maintainer_rec(group)
+
         return self.render_string( self.get_url(), group_forest = group_forest )
 
     ##  @override

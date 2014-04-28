@@ -3,7 +3,7 @@
 	<li>
 		<a href="/group/{{ group.id }}">
 			<h5 class="inner-heading">
-				{{ group.name }} <small>{{ group.maintainer }}</small>
+				{{ group.name }} <small>{{ group.maintainer.name }}</small>
 			</h5>
 		</a>
 	        {% module GroupForest( group.subgroups ) %}
