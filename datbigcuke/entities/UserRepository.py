@@ -36,9 +36,13 @@ class UserRepository(AbstractRepository):
                 assert cursor.lastrowid != 0
                 cursor.execute('INSERT INTO `user`'
                                '(`id`, `email`, `name`, `password`, `salt`, `confirmUUID`) '
-                               'VALUES (?, ?, ?, ?, ?, ?)',
+                               'VALUES (?, ?, ?, ?, ?, ?); ',
                                (cursor.lastrowid, delta['email'], delta['name'],
                                 delta['password'], delta['salt'], delta['confirmUUID']))
+                cursor.execute('SELECT `id`, `email`, `name`, `password`, `salt`, `refreshTok` '
+                               'FROM `user`'
+                               'WHERE `id`=LAST_INSERT_ID()')
+                user = self._fetch_user(cursor)
                 
         else:
             # old user object
@@ -54,6 +58,7 @@ class UserRepository(AbstractRepository):
                                    args)
 
         self._update_group_membership(user)
+        return user
 
     def _update_group_membership(self, user):
         if user.groups is None:
@@ -109,7 +114,6 @@ class UserRepository(AbstractRepository):
         return member_list
 
     def add_user_to_group(self, user, group):
-        print "Adding: " + str(user.id) + " to: " + str(group.id)
         with self._conn.cursor() as cursor:
             cursor.execute('INSERT INTO `group_membership` (`group_id`, `member_id`) '
                            'VALUES (?,?)', (group.id, user.id))

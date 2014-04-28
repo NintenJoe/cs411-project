@@ -41,11 +41,17 @@ class GroupRepository(AbstractRepository):
 
                 assert cursor.lastrowid != 0
                 cursor.execute('INSERT INTO `group`'
-                               '(`id`, `name`, `description`, `type`) '
-                               'VALUES (?, ?, ?, ?)',
+                               '(`id`, `name`, `description`, `type`, `maintainerId`) '
+                               'VALUES (?, ?, ?, ?, ?);',
                                (cursor.lastrowid, delta['name'],
-                                delta['description'], delta['type']))
+                                delta['description'], delta['type'], delta['maintainerId']))
                 
+                cursor.execute('SELECT `id`, `name`, `description`, `type`, `maintainerId` '
+                               'FROM `group` '
+                               'WHERE `id`=LAST_INSERT_ID()')
+                group = self._fetch_group(cursor)
+                print "Just after assignment: " + str(group)
+
         else:
             # old user object
             if delta:
@@ -58,6 +64,8 @@ class GroupRepository(AbstractRepository):
                     cursor.execute('UPDATE `group` '
                                    'SET {} WHERE `id`=?'.format(query),
                                    args)
+
+        return group
             
     def fetch(self, group_id):
         with self._conn.cursor() as cursor:
@@ -100,6 +108,23 @@ class GroupRepository(AbstractRepository):
                 group_list.append(self._create_entity(data=result))
 
         return group_list
+
+    # TODO(ciurej2): Improve this function to be less hacky.
+    def get_groups_of_user_rec(self, user_id):
+        user_group_list = self.get_groups_of_user(user_id)
+        user_group_ids = { group.id : group for group in user_group_list }
+        nonroot_group_ids = {}
+        for user_group in user_group_list:
+            user_group.subgroups = [ user_group_ids[ subgroup.id ] for subgroup in self.get_subgroups_of_group(user_group.id) if subgroup.id in user_group_ids ]
+
+            for subgroup in user_group.subgroups:
+                nonroot_group_ids[ subgroup.id ] = True
+
+        for group in user_group_list:
+            if not group.id in nonroot_group_ids:
+                return [ group ]
+
+        return []
 
     def get_supergroup_of_group(self, group_id):
         supergroup = None
@@ -149,9 +174,15 @@ class GroupRepository(AbstractRepository):
             group.subgroups = self.get_subgroups_of_group_rec(group.id)
             
         return group_list
+
+    def add_group_as_subgroup(self, group_id, subgroup_id):
+        with self._conn.cursor() as cursor:
+            cursor.execute('INSERT INTO `group_membership` (`group_id`, `member_id`)'
+                           'VALUES (?,?)', (group_id, subgroup_id))
         
     def get_group_maintainer_rec(self, group):
         group.maintainer = UserRepository().fetch(group.maintainerId)
+        print group.name
         for subgroup in group.subgroups:
             self.get_group_maintainer_rec(subgroup)
         

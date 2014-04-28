@@ -47,6 +47,8 @@ class Application( tornado.web.Application ):
             ( r"/leave-group", LeaveGroupHandler ),
             ( r"/update-user-name", UpdateNameHandler ),
             ( r"/update-user-email", UpdateEmailHandler ),
+            ( r"/add-member", AddMemberHandler ),
+            ( r"/add-subgroup", AddSubgroupHandler),
 
             # @TODO(halstea2) Remove test async handler
             ( r"/async-request", TestHandler ),
@@ -72,13 +74,7 @@ class Application( tornado.web.Application ):
 
             # Module/Render Settings #
             "ui_modules" : {
-                "DeadlineList" : DeadlineListModule,
-                "MemberList" : MemberListModule,
-
-                "GroupTree" : GroupTreeModule,
-                "GroupForest" : GroupForestModule,
-
-                "ScheduleModal" : ScheduleModalModule,
+                "RenderTemplate" : RenderTemplateModule,
                 "SimpleModal" : SimpleModalModule,
             },
 

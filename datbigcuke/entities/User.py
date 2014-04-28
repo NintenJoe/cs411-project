@@ -12,8 +12,6 @@ import urllib
 
 
 class User(AbstractEntity):
-    # @TODO(halstea2) Add maintainer mapping to this dictionary.
-    # Add cal_token and other_token
     _ATTRIB_TO_DATA = {
         '_id' : 'id',
         '_email' : 'email',
@@ -49,23 +47,6 @@ class User(AbstractEntity):
     @name.setter
     def name(self, value):
         self._name = value
-
-    # @TODO(halstea2) I don't know if we need these
-    @property
-    def cal_token(self):
-        return self._cal_token
-
-    @cal_token.setter
-    def cal_token(self, value):
-        self._cal_token = value
-
-    @property
-    def other_token(self):
-        return self._other_token
-
-    @other_token.setter
-    def other_token(self, value):
-        self._other_token = value
 
     @property
     def iconBigURL(self):

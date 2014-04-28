@@ -104,14 +104,17 @@ class AsyncRequestHandler( WebRequestHandler ):
 
         # 'Logged-in' user must be defined
         if not user:
+            print "no user"
             return
 
         # Name list must not be empty
         if not name:
+            print "no name"
             return
 
         # Value list must be defined
         if not values:
+            print "no values"
             return
 
         name = name[0].decode("utf-8")
@@ -131,11 +134,15 @@ class AsyncRequestHandler( WebRequestHandler ):
     def _persist_user(self, user):
         """Save any user changes to the database"""
         user_repo = UserRepository()
-        user_repo.persist(user)
+        user = user_repo.persist(user)
         user_repo.close()
+
+        return user
 
     def _persist_group(self, group):
         """Save any group changes to the database"""
         group_repo = GroupRepository()
-        group_repo.persist(group)
+        group = group_repo.persist(group)
         group_repo.close()
+
+        return group
