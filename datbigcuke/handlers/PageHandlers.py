@@ -29,6 +29,10 @@ from datbigcuke.entities import Group
 from datbigcuke.entities import GroupRepository
 from datbigcuke.cukemail import CukeMail
 
+# TODO: Remove.
+import hashlib
+import urllib
+
 
 ### User Login/Registration Handlers ###
 
@@ -105,8 +109,23 @@ class RegistrationHandler( PageRequestHandler ):
         user.password = self.get_argument("user_password")
         user.confirmUUID = unique
 
+        gr = GroupRepository()
+        uiuc = gr.fetch_by_name("UIUC")
+        if uiuc == []:
+            g = Group()
+            g.name = "UIUC"
+            g.description = "University of Illinois at Urbana/Champaign"
+            g.type = 0
+            gr.persist(g)
+            gr.close()
+        uiuc = gr.fetch_by_name("UIUC")
+
+        print uiuc
+        print uiuc[0]
         repo = UserRepository()
         repo.persist(user)
+        user = repo.get_user_by_email(user_email)
+        repo.add_user_to_group(user, uiuc[0])
         repo.close()
 
         ## Send a verification email to the user
@@ -150,19 +169,19 @@ class UserMainHandler( PageRequestHandler ):
     @tornado.web.authenticated
     def get( self ):
         user = self.get_current_user()
-
+        
         # NOTE: The deadlines are assumed to be sorted by time.
         # TODO: Retrieve the deadlines associated with the user here.
         deadline_list = []
 
         # NOTE: The groups are assumed to be sorted alphabetically.
         # TODO: Retrieve the groups associated with the user here.
-        group_list = []
+        group_list = GroupRepository().get_groups_of_user(user.id)
 
         self.render( self.get_url(),
-             user = user,
-             deadlines = deadline_list,
-             groups = group_list
+            user = user,
+            deadlines = deadline_list,
+            groups = group_list
         )
 
     ##  @override
@@ -193,8 +212,8 @@ class UserProfileHandler( PageRequestHandler ):
         group_list = []
 
         self.render( self.get_url(),
-             user = user,
-             groups = group_list
+            user = user,
+            groups = group_list
         )
 
     ##  @override
@@ -214,6 +233,33 @@ class UserGroupHandler( PageRequestHandler ):
     ##  @override
     @tornado.web.authenticated
     def get( self, group_id ):
+        # TODO: 404 if the user is not a member of the group.
+        user = self.get_current_user()
+
+        gr = GroupRepository()
+        ur = UserRepository()
+
+        group = gr.fetch(group_id)
+        supergroup_list = gr.get_supergroup_of_group(group_id)
+        subgroup_list = gr.get_subgroups_of_group(group_id)
+        group_is_public = group.maintainerId == None
+        user_is_maintainer = group.maintainerId == user.id
+        member_list = ur.get_members_of_group(group_id)
+
+        # NOTE: The deadlines are assumed to be sorted by time.
+        # TODO: Retrieve the deadlines associated with the user here.
+        deadline_list = []
+
+        self.render( self.get_url(),
+            group = group,
+            supergroups = supergroup_list,
+            subgroups = subgroup_list,
+            group_is_public = group_is_public,
+            user_is_maintainer = user_is_maintainer,
+            members = member_list,
+            deadlines = deadline_list,
+        )
+
         self.render( self.get_url() )
 
     ##  @override
@@ -224,7 +270,8 @@ class UserGroupHandler( PageRequestHandler ):
     ##  @override
     @WebResource.resource_url.getter
     def resource_url( self ):
-        return "group.html"
+        # TODO: Update this variable once DB is integrated!
+        return "grouptest.html"
 
 
 ### Miscellaneous Handlers ###
@@ -239,6 +286,36 @@ class LogoutHandler( PageRequestHandler ):
 
 
 ### UI Modules ###
+
+##  Rendering module for modal rendering (implemented primarily to eliminate code
+#   duplication.
+class ModalModule( WebModule ):
+    ##  @override
+    #
+    #   @param modal_type The type of modal given as a string.
+    def render( self, modal_type ):
+        modal_id = modal_type
+        modal_title = None
+
+        if modal_id == "schedule":
+            modal_title = "Schedule a Group Meeting"
+        elif modal_id == "add-member":
+            modal_title = "Add a Group Member"
+        elif modal_id == "add-subgroup":
+            modal_title = "Add a Group Subgroup"
+        elif modal_id == "add-deadline":
+            modal_title = "Add a Group Deadline"
+
+        return self.render_string( self.get_url(),
+            modal_id = modal_type,
+            modal_title = modal_title,
+        )
+
+    ##  @override
+    @WebResource.resource_url.getter
+    def resource_url( self ):
+        return "modal.html"
+
 
 ##  Rendering module for the listing of deadlines associated with a particular
 #   user and/or group.
@@ -279,10 +356,24 @@ class DeadlineListModule( WebModule ):
 class MemberListModule( WebModule ):
     ##  @override
     #
-    #   @param deadline_list A listing of user entity objects.
-    def render( self, deadline_list ):
+    #   @param member_list A listing of user entity objects.
+    def render( self, member_list ):
         # TODO: Add pre-processing at this stage.
-        members = member_list
+        members = [
+            { "name":  "Kyle Nusbaum", "email": "kjnusba@illinois.edu" },
+            { "name":  "Eunsoo Roh", "email": "roh7@illinois.edu" },
+            { "name":  "Josh Halstead", "email": "jhalstead85@gmail.com" },
+            { "name":  "Tom Bogue", "email": "tbogue2@illinois.edu" },
+            { "name":  "Joe Ciurej", "email": "jciurej@gmail.com" },
+        ]
+
+        for member in members:
+            url = 'http://www.gravatar.com/avatar/'
+            url += hashlib.md5(member["email"].strip().lower().encode()).hexdigest() + '?'
+            url += urllib.urlencode({ 's': "20" })
+            member[ "icon-url" ] = url
+
+        members += members
 
         return self.render_string( self.get_url(), members = members )
 
@@ -299,22 +390,12 @@ class GroupTreeModule( WebModule ):
     #   @param group_list A listing of group entity objects.
     def render( self, group_list ):
         # TODO: Add pre-processing at this stage.
-        group_forest = [
-            { "name": "CS411", "gid": 1, "maintainer": "Ryan Cunningham", "subgroups": [
-                { "name": "DBC", "gid": 2, "maintainer": "Eunsoo Roh", "subgroups": [] },
-                { "name": "Phuong", "gid": 3, "maintainer": "Phuong", "subgroups": [] },
-            ] },
-            { "name": "CS428", "gid": 4, "maintainer": "Darko Marinov", "subgroups": [
-                { "name": "Cosmin", "gid": 5, "maintainer": "Cosmin", "subgroups": [] },
-                { "name": "Zol", "gid": 6, "maintainer": "Joe Ciurej", "subgroups": [] },
-            ] },
-            { "name": "CS467", "gid": 7, "maintainer": "Karrie Karahalios", "subgroups": [
-                { "name": "Team 2", "gid": 8, "maintainer": "Efe Karakus", "subgroups": [] },
-            ] },
-            { "name": "CS210", "gid": 8, "maintainer": "Alex Kirlik", "subgroups": [] },
-        ]
-        group_forest += group_forest
+        group_forest = group_list
 
+        gr = GroupRepository()
+        for group in group_forest:
+            group.subgroups = gr.get_subgroups_of_group(group.id)
+        
         return self.render_string( self.get_url(), group_forest = group_forest )
 
     ##  @override

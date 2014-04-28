@@ -47,8 +47,13 @@ textarea {
 }
 
 .nested-content-container {
+	width: 98%;
 	height: 90%;
 	overflow-y: auto;
+}
+
+.cropped-content-container {
+	height: 300px;
 }
 
 /* Item Listing Styling */
@@ -59,7 +64,12 @@ ul.deadline-list, ul.deadline-notes, ul.group-forest {
 	margin: 0px;
 }
 
-li.deadline-entry, ul.group-forest li {
+ul.deadline-notes li {
+	padding: 0px;
+	margin: 0px;
+}
+
+li.deadline-entry, ul.group-forest li, ul.member-list li {
 	margin-top: 5px;
 	margin-bottom: 5px;
 	padding: 5px;

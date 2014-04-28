@@ -1,6 +1,12 @@
 {% extends "navbase.html" %}
 
 {% block content %}
+	<div class="page-header">
+		<h1>
+			<strong>{{ user.name }}'s Profile</strong>
+			<small>User Profile Card</small>
+		</h1>
+	</div>
 	<div class="jumbotron col-md-12">
 		<div class="row">
 			<div class="col-md-3">
@@ -10,19 +16,21 @@
 			<div class="col-md-9">
 				<h2>
 					<strong>Nickname:</strong>
-					<a href="#" class="editable-field" data-name="name" 
-					data-type="text" data-url="/update-name" data-title="Enter New Nickname">
+					<a href="#" class="editable-field" data-name="name" data-type="text"
+						data-url="/update-user-name" data-title="Enter New Nickname">
 						{{ user.name }}
 					</a>
 				</h2>
+
 				<h2>
 					<strong>Email Address:</strong>
-					<a href="#" class="editable-field" name="email" 
-					data-type="text" data-url="/update-email" data-title="Enter New Nickname">
+					<a href="#" class="editable-field" data-name="email" data-type="text"
+						data-url="/update-user-email" data-title="Enter New Email">
 						{{ user.email }}
 					</a>
 				</h2>
 				<h2>
+					<!-- TODO: Add GCalendar integration by adding a hyperlink. -->
 					<strong>Calendar Integration:</strong> 
 					<i class="glyphicon glyphicon-ok-circle" id="google_auth"></i>
 				</h2>

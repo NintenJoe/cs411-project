@@ -1,6 +1,17 @@
 {% extends "navbase.html" %}
 
 {% block content %}
-	<p>User Group Page</p>
+	<div class="page-header">
+		{{ group.name }}
+		<small>
+			{% for supergroup in supergroups %}
+			{{ supergroup.name }}<i class="glyphicon glyphicon-ok-circle"></i>
+			{% end %}
+			{{ group.name }}
+		</small>
+	</div>
+	<div class="content-container col-md-12">
+		
+	</div>
 {% end %}
 

@@ -36,8 +36,11 @@ class GroupRepository(AbstractRepository):
                 # TODO(roh7): figure out whether it is worth using exception
                 # i.e. is there a case this would be true where execute() does
                 # not throw an exception itself?
+                print type(delta['description'])
+                print type(delta['type'])
+
                 assert cursor.lastrowid != 0
-                cursor.execute('INSERT INTO `group'
+                cursor.execute('INSERT INTO `group`'
                                '(`id`, `name`, `description`, `type`) '
                                'VALUES (?, ?, ?, ?)',
                                (cursor.lastrowid, delta['name'],
@@ -73,6 +76,17 @@ class GroupRepository(AbstractRepository):
 
         return group_list
 
+    def fetch_by_name(self, name):
+        group_list = []
+        with self._conn.cursor() as cursor:
+            cursor.execute('SELECT `id`, `name`, `description`, `type` '
+                           'FROM `group` '
+                           'WHERE `name` =?', (name,))
+            for result in self._fetch_all_dict(cursor):
+                group_list.append(self._create_entity(data=result))
+
+        return group_list
+
     def get_groups_of_user(self, user_id):
         group_list = []
         with self._conn.cursor() as cursor:
@@ -85,6 +99,45 @@ class GroupRepository(AbstractRepository):
             for result in self._fetch_all_dict(cursor):
                 group_list.append(self._create_entity(data=result))
 
+        return group_list
+
+    def get_supergroup_of_group(self, group_id):
+        supergroup = None
+        with self._conn.cursor() as cursor:
+            cursor.execute('SELECT `g`.`id` AS `id`, `g`.`name` AS `name`,'
+                           '`g`.`description` AS `description`, `g`.`type` AS `type`'
+                           'FROM `group` AS `gr`'
+                           'JOIN `group_membership` AS `m`'
+                           '    ON (`m`.`member_id` = `gr`.`id`)'
+                           'JOIN `group` AS `g`'
+                           '    ON (`g`.`id` = `m`.`group_id`)'
+                           'WHERE `gr`.`id` =?', (group_id,))
+            for result in self._fetch_all_dict(cursor):
+                supergroup = self._create_entity(data=result)
+                
+        return supergroup
+
+    def get_subgroups_of_group(self, group_id):
+        group_list = []
+        with self._conn.cursor() as cursor:
+            cursor.execute('SELECT `g`.`id` AS `id`, `g`.`name` AS `name`,'
+                           '`g`.`description` AS `description`, `g`.`type` AS `type`'
+                           'FROM `group` AS `gr`'
+                           'JOIN `group_membership` AS `m`'
+                           '    ON (`m`.`group_id` = `gr`.`id`)'
+                           'JOIN `group` AS `g`'
+                           '    ON (`g`.`id` = `m`.`member_id`)'
+                           'WHERE `gr`.`id` =?', (group_id,))
+            for result in self._fetch_all_dict(cursor):
+                group_list.append(self._create_entity(data=result))
+        
+        return group_list
+
+    def get_subgroups_of_group_rec(self, group_id):
+        group_list = self.get_subgroups_of_group(group_id)
+        for group in group_list:
+            group.subgroups = self.get_subgroups_of_group(group.id)
+            
         return group_list
 
     def _fetch_group(self, cursor):

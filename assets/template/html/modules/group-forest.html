@@ -1,12 +1,12 @@
 <ul class="group-forest">
 	{% for group in level_groups %}
 	<li>
-		<a href="/group/{{ group["gid"] }}">
+		<a href="/group/{{ group.id }}">
 			<h5 class="inner-heading">
-				{{ group["name"] }} <small>{{ group["maintainer"] }}</small>
+				{{ group.name }} <small>{{ group.maintainer }}</small>
 			</h5>
 		</a>
-		{% module GroupForest( group["subgroups"] ) %}
+	        {% module GroupForest( group.subgroups ) %}
 	</li>
 	{% end %}
 </ul>
