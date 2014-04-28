@@ -258,8 +258,6 @@ class UserGroupHandler( PageRequestHandler ):
             deadlines = deadline_list,
         )
 
-        self.render( self.get_url() )
-
     ##  @override
     @PageRequestHandler.page_title.getter
     def page_title( self ):
