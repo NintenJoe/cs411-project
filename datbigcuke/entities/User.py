@@ -98,7 +98,7 @@ class User(AbstractEntity):
 
     @refreshTok.setter
     def refreshTok(self, value):
-        return self._refreshTok
+        self._refreshTok = value
 
     @password.setter
     def password(self, value):
