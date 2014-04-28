@@ -35,6 +35,10 @@ INSERT INTO `user` (`id`, `email`, `name`, `password`, `salt`, `confirmUUID`)
 VALUES
 (LAST_INSERT_ID(), 'lumen@faey.com', 'Lumen Faey', SHA1(CONCAT('0caea913fcf2b7a868387295e390e649d01b347c', 'unsecure')), '0caea913fcf2b7a868387295e390e649d01b347c', 'f');
 
+INSERT INTO `membership_entity` VALUES ();
+INSERT INTO `group` (`id`, `name`, `description`, `type`)
+VALUES
+(LAST_INSERT_ID(), 'UIUC', 'Illinois', 1);
 
 INSERT INTO `membership_entity` VALUES ();
 INSERT INTO `group` (`id`, `name`, `description`, `type`)
@@ -68,7 +72,28 @@ VALUES
 
 
 
+SET @group_id = (SELECT id FROM `group` WHERE name = 'UIUC');
 
+SET @user_id = (SELECT id FROM user WHERE email = 'josh@halstead.com');
+INSERT INTO `group_membership` VALUES (@group_id, @user_id);
+SET @user_id = (SELECT id FROM user WHERE email = 'joe@ciurej.com');
+INSERT INTO `group_membership` VALUES (@group_id, @user_id);
+SET @user_id = (SELECT id FROM user WHERE email = 'eunsoo@roh.com');
+INSERT INTO `group_membership` VALUES (@group_id, @user_id);
+SET @user_id = (SELECT id FROM user WHERE email = 'kyle@nusbaum.com');
+INSERT INTO `group_membership` VALUES (@group_id, @user_id);
+SET @user_id = (SELECT id FROM user WHERE email = 'tom@bogue.com');
+INSERT INTO `group_membership` VALUES (@group_id, @user_id);
+SET @user_id = (SELECT id FROM user WHERE email = 'lumen@faey.com');
+INSERT INTO `group_membership` VALUES (@group_id, @user_id);
+SET @user_id = (SELECT id FROM `group` WHERE name = 'CS 411 Database Systems');
+INSERT INTO `group_membership` VALUES (@group_id, @user_id);
+SET @user_id = (SELECT id FROM `group` WHERE name = 'CS 418 Interactive Computer Graphics');
+INSERT INTO `group_membership` VALUES (@group_id, @user_id);
+SET @user_id = (SELECT id FROM `group` WHERE name = 'CS 421 Programing Languages and Compilers');
+INSERT INTO `group_membership` VALUES (@group_id, @user_id);
+SET @user_id = (SELECT id FROM `group` WHERE name = 'CS 473 Fundamental Algorithms');
+INSERT INTO `group_membership` VALUES (@group_id, @user_id);
 
 
 SET @group_id = (SELECT id FROM `group` WHERE name = 'CS 411 Database Systems');

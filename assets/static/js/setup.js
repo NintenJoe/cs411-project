@@ -66,6 +66,9 @@ function main()
 			$.post( "/" );
 		} );
 
+		$( "#add-member-submit" ).click( function() {
+		} );
+
 		// Setup Group Page Modal Submission Buttons //
 
 		// TODO: Add group page submission button post requests.

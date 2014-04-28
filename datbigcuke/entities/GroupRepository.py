@@ -143,7 +143,7 @@ class GroupRepository(AbstractRepository):
     def get_group_maintainer_rec(self, group):
         group.maintainer = UserRepository().fetch(group.maintainerId)
         for subgroup in group.subgroups:
-            get_group_maintainer_rec(subgroup)
+            self.get_group_maintainer_rec(subgroup)
         
     def _fetch_group(self, cursor):
         result = self._fetch_dict(cursor)
