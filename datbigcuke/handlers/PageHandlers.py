@@ -154,7 +154,7 @@ class UserMainHandler( PageRequestHandler ):
     @tornado.web.authenticated
     def get( self ):
         user = self.get_current_user()
-
+        
         # NOTE: The deadlines are assumed to be sorted by time.
         # TODO: Retrieve the deadlines associated with the user here.
         deadline_list = []
@@ -224,26 +224,11 @@ class UserGroupHandler( PageRequestHandler ):
         gr = GroupRepository()
         ur = UserRepository()
 
-        # TODO: Retrieve the group associated with the given group ID.
         group = gr.fetch(group_id)
-
-        ## TODO: Accumulate the parent groups for the given group.
         supergroup_list = gr.get_supergroup_of_group(group_id)
-
-        # NOTE: The groups are assumed to be sorted alphabetically.
-        # TODO: Retrieve the groups associated with the group here.
         subgroup_list = gr.get_subgroups_of_group(group_id)
-
-        # TODO: Determine if the group is public or not (equivalent to there
-        # not being a maintainer).
-        group_is_public = False
-
-        # TODO: Determine if the user is the maintainer of the current group.
-        user_is_maintainer = True
-
-
-        # NOTE: The members are assumed to be sorted alphabetically.
-        # TODO: Retrieve the members for the given group here.
+        group_is_public = group.maintainerId == None
+        user_is_maintainer = group.maintainerId == user.id
         member_list = ur.get_members_of_group(group_id)
 
         # NOTE: The deadlines are assumed to be sorted by time.

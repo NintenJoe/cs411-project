@@ -16,6 +16,7 @@ class Group(AbstractEntity):
         '_name' : 'name',
         '_description' : 'description',
         '_type' : 'type',
+        '_maintainerId' : 'maintainerId',
     }
 
     @property
@@ -31,16 +32,13 @@ class Group(AbstractEntity):
         self._name = value
 
     @property
-    def maintainer(self):
-        # @TODO(halstea2) Add maintainer to database and return
-        # a User object (or None)
-        return None
+    def maintainerId(self):
+        return self._maintainerId
 
-    @maintainer.setter
-    def maintainer(self, value):
-        # @TODO(halstea2) Add maintainer to database
-        pass
-
+    @maintainerId.setter
+    def maintainerId(self, value):
+        return self._maintainerId
+        
     @property
     def description(self):
         return self._description
