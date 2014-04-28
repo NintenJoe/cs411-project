@@ -242,6 +242,9 @@ class UserGroupHandler( PageRequestHandler ):
         group = gr.fetch(group_id)
         supergroup_list = gr.get_supergroup_of_group(group_id)
         subgroup_list = gr.get_subgroups_of_group(group_id)
+        for subgroup in subgroup_list:
+            gr.get_group_maintainer_rec(subgroup)
+
         group_is_public = group.maintainerId == None
         user_is_maintainer = group.maintainerId == user.id
         member_list = ur.get_members_of_group(group_id)
