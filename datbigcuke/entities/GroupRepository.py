@@ -42,10 +42,16 @@ class GroupRepository(AbstractRepository):
                 assert cursor.lastrowid != 0
                 cursor.execute('INSERT INTO `group`'
                                '(`id`, `name`, `description`, `type`) '
-                               'VALUES (?, ?, ?, ?)',
+                               'VALUES (?, ?, ?, ?);',
                                (cursor.lastrowid, delta['name'],
                                 delta['description'], delta['type']))
                 
+                cursor.execute('SELECT `id`, `name`, `description`, `type`, `maintainerId` '
+                               'FROM `group` '
+                               'WHERE `id`=LAST_INSERT_ID()')
+                group = self._fetch_group(cursor)
+                print "Just after assignment: " + str(group)
+
         else:
             # old user object
             if delta:
@@ -58,6 +64,8 @@ class GroupRepository(AbstractRepository):
                     cursor.execute('UPDATE `group` '
                                    'SET {} WHERE `id`=?'.format(query),
                                    args)
+
+        return group
             
     def fetch(self, group_id):
         with self._conn.cursor() as cursor:
@@ -166,6 +174,11 @@ class GroupRepository(AbstractRepository):
             group.subgroups = self.get_subgroups_of_group_rec(group.id)
             
         return group_list
+
+    def add_group_as_subgroup(self, group_id, subgroup_id):
+        with self._conn.cursor() as cursor:
+            cursor.execute('INSERT INTO `group_membership` (`group_id`, `member_id`)'
+                           'VALUES (?,?)', (group_id, subgroup_id))
         
     def get_group_maintainer_rec(self, group):
         group.maintainer = UserRepository().fetch(group.maintainerId)
