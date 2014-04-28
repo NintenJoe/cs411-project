@@ -74,13 +74,7 @@ class Application( tornado.web.Application ):
 
             # Module/Render Settings #
             "ui_modules" : {
-                "DeadlineList" : DeadlineListModule,
-                "MemberList" : MemberListModule,
-
-                "GroupTree" : GroupTreeModule,
-                "GroupForest" : GroupForestModule,
-
-                "ScheduleModal" : ScheduleModalModule,
+                "RenderTemplate" : RenderTemplateModule,
                 "SimpleModal" : SimpleModalModule,
             },
 

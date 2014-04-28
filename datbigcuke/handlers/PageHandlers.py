@@ -204,17 +204,8 @@ class UserProfileHandler( PageRequestHandler ):
     def get( self ):
         user = self.get_current_user()
 
-        # NOTE: The deadlines are assumed to be sorted by time.
-        # TODO: Retrieve the deadlines associated with the user here.
-        deadline_list = []
-
-        # NOTE: The groups are assumed to be sorted alphabetically.
-        # TODO: Retrieve the groups associated with the user here.
-        group_list = []
-
         self.render( self.get_url(),
             user = user,
-            groups = group_list
         )
 
     ##  @override
@@ -242,6 +233,9 @@ class UserGroupHandler( PageRequestHandler ):
 
         group = gr.fetch(group_id)
         supergroup_list = gr.get_supergroup_list(group_id)
+
+        # TODO: Update this logic to display the subgroups only associated with
+        # the current user.
         subgroup_list = gr.get_subgroups_of_group_rec(group_id)
         for subgroup in subgroup_list:
             gr.get_group_maintainer_rec(subgroup)
@@ -289,6 +283,18 @@ class LogoutHandler( PageRequestHandler ):
 
 ### UI Modules ###
 
+##  A general type of UI module that renders a template UI module specified
+#   by a given file with a given set of keyword arguments.
+class RenderTemplateModule( tornado.web.UIModule ):
+    ##  @override
+    #
+    #   @param template_name The name of the template HTML file.
+    #   @param kwargs A listing of keyword arguments to be passed to the template.
+    def render( self, template_name, **kwargs ):
+        template_url = join_paths( "html", "modules", template_name + ".html" )
+
+        return self.render_string( template_url, **kwargs )
+
 ##  Rendering module for basic input form modals.  This module supports the
 #   rendering of a few different template modals with minor differences.
 class SimpleModalModule( WebModule ):
@@ -315,132 +321,4 @@ class SimpleModalModule( WebModule ):
     @WebResource.resource_url.getter
     def resource_url( self ):
         return "modal.html"
-
-
-##  Rendering module for the scheduling modal, which includes all the relevant
-#   users and deadlines for scheduling.
-class ScheduleModalModule( WebModule ):
-    ##  @override
-    #
-    #   @param deadline_list A listing of schedule-related deadline entity objects.
-    #   @param member_list A listing of all schedule-related member entities.
-    def render( self, deadline_list, member_list ):
-        # TODO: Add any necessary pre-precessing here.
-        deadlines = deadline_list
-        members = member_list
-
-        return self.render_string( self.get_url(),
-            deadlines = deadlines,
-            members = members,
-        )
-
-    ##  @override
-    @WebResource.resource_url.getter
-    def resource_url( self ):
-        return "schedule-modal.html"
-
-##  Rendering module for the listing of deadlines associated with a particular
-#   user and/or group.
-class DeadlineListModule( WebModule ):
-    ##  @override
-    #
-    #   @param deadline_list A listing of deadline entity objects.
-    def render( self, deadline_list ):
-        # TODO: Add pre-processing at this stage.
-        note_example = "This is an example of a longer note.  It's long!"
-        deadlines = [
-            {
-                "name": "Final Project",
-                "group": "CS411",
-                "time": datetime( 2014, 4, 27, 23, 59 ).strftime( "%A %B %m, %I:%M %p" ),
-                "notes": note_example
-            },
-            {
-                "name": "Final Project",
-                "group": "CS467",
-                "time": datetime( 2014, 5, 1, 9, 0, 0 ).strftime( "%A %B %m, %I:%M %p" ),
-                "notes": note_example
-            },
-        ]
-        for i in range(4):
-            deadlines += deadlines
-
-        return self.render_string( self.get_url(), deadlines = deadlines )
-
-    ##  @override
-    @WebResource.resource_url.getter
-    def resource_url( self ):
-        return "deadline-list.html"
-
-
-##  Rendering module for the listing of members associated with a particular
-#   course or group.
-class MemberListModule( WebModule ):
-    ##  @override
-    #
-    #   @param member_list A listing of user entity objects.
-    def render( self, member_list ):
-        # TODO: Add pre-processing at this stage.
-        members = [
-            { "name":  "Kyle Nusbaum", "email": "kjnusba@illinois.edu" },
-            { "name":  "Eunsoo Roh", "email": "roh7@illinois.edu" },
-            { "name":  "Josh Halstead", "email": "jhalstead85@gmail.com" },
-            { "name":  "Tom Bogue", "email": "tbogue2@illinois.edu" },
-            { "name":  "Joe Ciurej", "email": "jciurej@gmail.com" },
-        ]
-
-        for member in members:
-            url = 'http://www.gravatar.com/avatar/'
-            url += hashlib.md5(member["email"].strip().lower().encode()).hexdigest() + '?'
-            url += urllib.urlencode({ 's': "20" })
-            member[ "icon-url" ] = url
-
-        members += members
-        
-        print member_list
-
-        return self.render_string( self.get_url(), members = member_list )
-
-    ##  @override
-    @WebResource.resource_url.getter
-    def resource_url( self ):
-        return "member-list.html"
-
-##  Rendering module for a hierarchy of groups associated with a particular
-#   user and/or group.
-class GroupTreeModule( WebModule ):
-    ##  @override
-    #
-    #   @param group_list A listing of group entity objects.
-    def render( self, group_list ):
-        # TODO: Add pre-processing at this stage.
-        group_forest = group_list
-
-        #r = GroupRepository()
-        #for group in group_forest:
-        #    group.subgroups = gr.get_subgroups_of_group_rec(group.id)
-        #    gr.get_group_maintainer_rec(group)
-
-        return self.render_string( self.get_url(), group_forest = group_forest )
-
-    ##  @override
-    @WebResource.resource_url.getter
-    def resource_url( self ):
-        return "group-tree.html"
-
-
-##  Rendering module for a listing of group trees (i.e. a group forest).  This
-#   modules acts as a recursive helper rendering module for 'GroupTree' UI module.
-class GroupForestModule( WebModule ):
-    ##  @override
-    #
-    #   @param group_list A list of groups which contain their inner group
-    #    information as nested lists (see 'GroupTreeModule').
-    def render( self, group_forest ):
-        return self.render_string( self.get_url(), level_groups = group_forest )
-
-    ##  @override
-    @WebResource.resource_url.getter
-    def resource_url( self ):
-        return "group-forest.html"
 

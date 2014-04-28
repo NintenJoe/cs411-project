@@ -9,7 +9,8 @@
 
 {% block content %}
 	<div class="modals-container">
-		{% module ScheduleModal( deadlines, members ) %}
+		{% module RenderTemplate( 'schedule-modal', deadlines = deadlines, members = members ) %}
+
 		{% module SimpleModal( 'add-member' ) %}
 		{% module SimpleModal( 'add-subgroup' ) %}
 		{% module SimpleModal( 'add-deadline' ) %}
@@ -28,10 +29,10 @@
 	<div class="content-container col-md-12">
 		<div class="row">
 			<div class="col-md-6">
-				<h3><strong>Group Name:</strong> Big Data Cucumber</h3>
+				<h3><strong>Group Name:</strong> {{ group.name }} </h3>
 				<h3><strong>Group Type:</strong> {{ 'Public' if group_is_public else 'Private' }}</h3>
 				{% if not group_is_public %}
-				<h3><strong>Maintainer:</strong> Eunsoo Roh
+				<h3><strong>Maintainer:</strong> {{ group.maintainer }}
 					{% if user_is_maintainer %}
 					<i class="glyphicon glyphicon-star"></i>
 					{% end %}
@@ -43,12 +44,14 @@
 				<h3><strong>Options:</strong></h3>
 
 				<input class="btn btn-default btn-md btn-block goption-button" 
-				data-toggle="modal" data-target="#schedule-modal" value="Schedule Meeting">
+				data-toggle="modal" data-target="#schedule-query-modal" value="Schedule Meeting">
 
 				<input id="leave_group" class="btn btn-default btn-md btn-block goption-button"
 				value="Leave Group">
 			</div>
 		</div>
+
+		<p>{{ group.description }}</p>
 
 		<h3><strong>Group Information:</strong></h3>
 
@@ -56,21 +59,21 @@
 			<h3 class="inner-heading pull-left">Subgroup List:</h3>
 			<input class="btn btn-default btn-sm pull-right"
 			data-toggle="modal" data-target="#add-subgroup-modal" value="Add Subgroup">
-			{% module GroupTree( subgroups ) %}
+			{% module RenderTemplate( 'group-tree', group_forest = subgroups ) %}
 		</div>
 
 		<div class="cropped-content-container col-md-5 well well-sm">
 			<h3 class="inner-heading pull-left">Member List:</h3>
 			<input class="btn btn-default btn-sm pull-right"
 			data-toggle="modal" data-target="#add-member-modal" value="Add Member">
-			{% module MemberList( members ) %}
+			{% module RenderTemplate( 'member-list', members = members ) %}
 		</div>
 
 		<div class="cropped-content-container col-md-12 well well-sm">
 			<h3 class="inner-heading pull-left">Deadline List:</h3>
 			<input class="btn btn-default btn-sm pull-right"
 			data-toggle="modal" data-target="#add-deadline-modal" value="Add Deadline">
-			{% module DeadlineList( deadlines ) %}
+			{% module RenderTemplate( 'deadline-list', deadlines = deadlines ) %}
 		</div>
 	</div>
 {% end %}

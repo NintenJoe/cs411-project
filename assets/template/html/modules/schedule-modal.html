@@ -1,4 +1,4 @@
-<div id="schedule-modal" class="modal fade" role="dialog" tabindex="-1">
+<div id="schedule-query-modal" class="modal fade" role="dialog" tabindex="-1">
 	<div class="modal-dialog">
 		<div class="modal-content">
 			<div class="modal-header">
@@ -6,30 +6,96 @@
 				<h2 class="modal-title">Schedule a Group Meeting</h2>
 			</div>
 			<div class="modal-body row">
-				<div class="col-md-6 form-group">
-					<label for="meeting_deadlines">Deadline for Meeting:</label>
-					<select name="meeting_deadlines" class="form-control">
-						{% for deadline in deadlines %}
-						<option>{{ deadline.name }} ({{ deadline.time }})</option>
-						{% end %}
-					</select>
+				<div>
+					<h3 class="modal-heading">General Meeting Information</h3>
+					<div class="col-md-4 form-group">
+						<label for="meeting_deadlines">Deadline for Meeting:</label>
+						<select name="meeting_deadlines" class="form-control">
+							{% for deadline in deadlines %}
+							<option data-id="{{ deadline.id }}">{{ deadline.name }} ({{ deadline.time }})</option>
+							{% end %}
+						</select>
+					</div>
+					<div class="col-md-4 form-group">
+						<label for="meeting_members">Members Attending:</label>
+						<select name="meeting_members" class="form-control" multiple 
+						data-selected-text-format="count">
+							{% for member in members %}
+							<option data-email="{{ member.email }}">{{ member.name }} ({{ member.email }})</option>
+							{% end %}
+						</select>
+					</div>
+					<div class="col-md-4 form-group">
+						<label for="meeting_duration">Meeting Duration:</label>
+						<select name="meeting_duration" class="form-control">
+							<option data-mins="15">15 minutes</option>
+							<option data-mins="30">30 minutes</option>
+							<option data-mins="60">60 minutes</option>
+							<option data-mins="90">90 minutes</option>
+							<option data-mins="120">120 minutes</option>
+							<option data-mins="150">150 minutes</option>
+							<option data-mins="180">180 minutes</option>
+						</select>
+					</div>
 				</div>
 
-				<div class="col-md-6 form-group">
-					<label for="meeting_members">Members Attending:</label>
-					<select name="meeting_members" class="form-control">
-						{% for member in members %}
-						<option>{{ member.name }} ({{ member.email }})</option>
-						{% end %}
-					</select>
+				<div>
+					<h3 class="modal-heading">Off-Limits Times</h3>
+					<div class="col-md-6 form-group">
+						<label for="meeting_offlimits_start">Start Time:</label>
+						<div class="timepicker-form input-group date">
+							<input type="text" class="form-control" name="meeting_offlimits_start">
+							<span class="input-group-addon">
+								<span class="glyphicon glyphicon-time"></span>
+							</span>
+						</div>
+					</div>
+					<div class="col-md-6 form-group">
+						<label for="meeting_offlimits_end">End Time:</label>
+						<div class="timepicker-form input-group date">
+							<input type="text" class="form-control" name="meeting_offlimits_end">
+							<span class="input-group-addon">
+								<span class="glyphicon glyphicon-time"></span>
+							</span>
+						</div>
+					</div>
 				</div>
-				
 			</div>
 			<div class="modal-footer">
 				<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-				<button id="schedule-submit" type="button" class="btn btn-primary">Schedule</button>
+				<button id="schedule-query-submit" type="button" data-dismiss="modal" 
+					data-toggle="modal" data-target="#schedule-send-modal" 
+					class="btn btn-primary">Schedule</button>
 			</div>
 		</div><!-- /.modal-content -->
 	</div><!-- /.modal-dialog -->
 </div><!-- /.modal -->
 
+<div id="schedule-send-modal" class="modal fade" role="dialog" tabindex="-1">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+				<h2 class="modal-title">Send Meeting Information</h2>
+			</div>
+			<div class="modal-body row">
+				<div class="col-md-12 form-group">
+					<label for="meeting_times">Select a Meeting Time:</label>
+					<select name="meeting_times" class="form-control">
+						<!-- <option></option> -->
+						<!-- TODO: Add meeting times resulting from query. -->
+					</select>
+				</div>
+				<div class="col-md-12 form-group">
+					<label for="meeting_message">Create an Email Message:</label>
+					<textarea name="meeting_message" class="form-control"></textarea>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+				<button id="schedule-send-submit" type="button" data-dismiss="modal" 
+					class="btn btn-primary">Send</button>
+			</div>
+		</div><!-- /.modal-content -->
+	</div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
