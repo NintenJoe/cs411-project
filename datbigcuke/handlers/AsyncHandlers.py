@@ -302,6 +302,65 @@ class AddMemberHandler(AsyncRequestHandler):
         self._persist_user(new_user)
         pass
 
+
+# - Add member to group
+#   - Data: Group ID, New User ID
+#   - Server-Side Checks:
+#       - New User ID must be in same parent group as current user ID
+#       - Current user must be member of group ID
+class AddSubgroupHandler(AsyncRequestHandler):
+    @tornado.web.authenticated
+    # @TODO(halstea2) We chould create a 'complex' async handler base that
+    # is aware of a dictionary of values
+    def post(self):
+        curr_user = self.get_current_user()
+        values = self.get_argument("data", default=None)
+
+        if not curr_user or not values:
+            return
+
+        # We don't need the 'name' field. It's encoded in the data dictionary
+        # Keys are unicode after json.loads conversion
+        values = json.loads(values)
+        if not self._valid_request(curr_user, "", values):
+            return
+
+        self._perform_request(curr_user, "", values)
+        pass
+
+    def _valid_request(self, curr_user, name, values):
+        # Malformed request
+        if u"group_id" not in values or u"group_name" not in values:
+            return False
+
+        # Malformed request
+        group_id = values[u"group_id"]
+        new_group = values[u"group_name"]
+        new_description = values[u"group_description"]
+        if not group_id or not new_group or not new_description:
+            return False
+
+        return True
+
+    def _perform_request(self, user, name, values):
+        print "performing request"
+        group_id = values[u"group_id"]
+        new_group = values[u"group_name"]
+        new_description = values[u"group_description"]
+
+        gr = GroupRepository()
+        group = Group()
+        group.name = new_group
+        group.description = new_description
+        group.type = 0
+        group = gr.persist(group)
+
+        print "Group: " + str(group)
+
+        gr.add_group_as_subgroup(group_id, group.id)
+        
+        pass
+
 # - Get members of parent group (for 'Add member' auto-complete)
 #   - Data: Parent Group ID
 class GetMembersOfParentHandler(AsyncRequestHandler):

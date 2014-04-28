@@ -95,6 +95,28 @@ function main()
                 }
             });
         });
+            
+                    
+        $( "#add-subgroup-submit" ).click( function () {
+            var data1 = {};
+            data1['group_id'] = getGroupID();
+
+            // Input element has no ID tag defined 
+            data1['group_name'] = $('[name="group_name"]').val();
+            data1['group_description'] = $('[name="group_description"]').val();
+            $.ajax({
+                type: 'POST',
+                url: '/add-subgroup',
+                data: {'data': JSON.stringify(data1)},
+                dataType: 'application/json',
+                complete: function(msg) {
+                    $('#add-subgroup-modal').modal('hide');
+                },
+                fail: function(data) {
+                    alert("Failed to add subgroup.");
+                }
+            });
+        });
         
 
 	    // Setup Group Page Modal Submission Buttons //
