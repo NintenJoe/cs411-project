@@ -11,7 +11,7 @@
 				</small>
 			</h5>
 		</a>
-		{% module GroupForest( group.subgroups ) %}
+		{% module RenderTemplate( 'group-forest', level_groups = group.subgroups ) %}
 	</li>
 	{% end %}
 </ul>

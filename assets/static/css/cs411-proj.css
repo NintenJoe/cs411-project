@@ -9,6 +9,7 @@
  * - Fill out any necessary extra CSS information in this file!
  */
 
+@charset "UTF-8";
 
 /* Main Page Styling */
 
@@ -26,17 +27,9 @@ textarea {
 	resize: none;
 }
 
-.container hr {
-	margin: 2px 0;
-}
-
 .inner-heading {
 	margin: 2px;
 	padding: 0px;
-}
-
-.page-metadata {
-	display: none;
 }
 
 .goption-button {

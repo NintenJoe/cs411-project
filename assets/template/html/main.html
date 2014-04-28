@@ -3,12 +3,12 @@
 {% block content %}
 	<div class="content-container col-md-6 well well-sm">
 		<h2>Deadlines:</h2>
-		{% module DeadlineList( deadlines ) %}
+		{% module RenderTemplate( 'deadline-list', deadlines = deadlines ) %}
 	</div>
 
 	<div class="content-container col-md-6 well well-sm">
 		<h2>Groups:</h2>
-		{% module GroupTree( groups ) %}
+		{% module RenderTemplate( 'group-tree', group_forest = groups ) %}
 	</div>
 {% end %}
 
