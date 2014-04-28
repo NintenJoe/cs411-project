@@ -412,10 +412,10 @@ class GroupTreeModule( WebModule ):
         # TODO: Add pre-processing at this stage.
         group_forest = group_list
 
-        gr = GroupRepository()
-        for group in group_forest:
-            group.subgroups = gr.get_subgroups_of_group_rec(group.id)
-            gr.get_group_maintainer_rec(group)
+        #r = GroupRepository()
+        #for group in group_forest:
+        #    group.subgroups = gr.get_subgroups_of_group_rec(group.id)
+        #    gr.get_group_maintainer_rec(group)
 
         return self.render_string( self.get_url(), group_forest = group_forest )
 
