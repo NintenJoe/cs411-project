@@ -99,7 +99,7 @@ class LeaveGroupHandler(AsyncRequestHandler):
             return
 
         self._perform_request(user, "", data)
-       
+
     # The name parameter is ignored. Needs to be factored but no time.
     def _valid_request(self, user, name, data):
         """Verify that the 'leave group' request is valid"""
@@ -465,8 +465,6 @@ class GoogleResponseHandler( WebRequestHandler ):
 
 
             return
-
-
         #otherwise, ask for the refresh token
         else:
             sys.stderr.write("code = " + self.get_query_argument("code"))
@@ -489,3 +487,4 @@ class GoogleResponseHandler( WebRequestHandler ):
             http_client = tornado.httpclient.AsyncHTTPClient(url, 'POST', body=request)
             http_client.fetch()
             return
+

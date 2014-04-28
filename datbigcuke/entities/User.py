@@ -83,7 +83,7 @@ class User(AbstractEntity):
         # TODO(ciurej2): Refactor this functionality to eliminate duplication.
         url = 'http://www.gravatar.com/avatar/'
         url += hashlib.md5(self.email.strip().lower().encode()).hexdigest() + '?'
-        url += urllib.urlencode({ 's': "40" })
+        url += urllib.urlencode({ 's': "20" })
 
         return url
 

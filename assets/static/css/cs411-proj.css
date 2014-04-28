@@ -35,6 +35,15 @@ textarea {
 	padding: 0px;
 }
 
+.page-metadata {
+	display: none;
+}
+
+.goption-button {
+	margin-top: 15px;
+	margin-bottom: 15px;
+}
+
 /* Content Container Styling */
 
 .main-content-container {

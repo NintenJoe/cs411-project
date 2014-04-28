@@ -7,7 +7,7 @@ __author__ = 'Eunsoo Roh'
 __copyright__ = 'Copyright 2014 Bigdatcuke Project'
 __email__ = 'roh7@illinois.edu'
 
-
+from datbigcuke.entities.UserRepository import UserRepository
 from datbigcuke.entities.User import User
 from datbigcuke.entities.Group import Group
 from datbigcuke.entities.AbstractRepository import AbstractRepository
@@ -61,7 +61,7 @@ class GroupRepository(AbstractRepository):
             
     def fetch(self, group_id):
         with self._conn.cursor() as cursor:
-            cursor.execute('SELECT `id`, `name`, `description`, `type` '
+            cursor.execute('SELECT `id`, `name`, `description`, `type`, `maintainerId` '
                            'FROM `group`'
                            'WHERE `id`=?', (group_id,))
             return self._fetch_group(cursor)
@@ -69,7 +69,7 @@ class GroupRepository(AbstractRepository):
     def fetch_all(self):
         group_list = []
         with self._conn.cursor() as cursor:
-            cursor.execute('SELECT `id`, `name`, `description`, `type` '
+            cursor.execute('SELECT `id`, `name`, `description`, `type`, `maintainerId` '
                            'FROM `group`')
             for result in self._fetch_all_dict(cursor):
                 group_list.append(self._create_entity(data=result))
@@ -79,7 +79,7 @@ class GroupRepository(AbstractRepository):
     def fetch_by_name(self, name):
         group_list = []
         with self._conn.cursor() as cursor:
-            cursor.execute('SELECT `id`, `name`, `description`, `type` '
+            cursor.execute('SELECT `id`, `name`, `description`, `type`, `maintainerId` '
                            'FROM `group` '
                            'WHERE `name` =?', (name,))
             for result in self._fetch_all_dict(cursor):
@@ -91,7 +91,7 @@ class GroupRepository(AbstractRepository):
         group_list = []
         with self._conn.cursor() as cursor:
             cursor.execute('SELECT `g`.`id` AS `id`, `g`.`name` AS `name`,'
-                           '`g`.`description` AS `description`, `g`.`type` AS `type`'
+                           '`g`.`description` AS `description`, `g`.`type` AS `type`, `g`.`maintainerId` '
                            'FROM `group` AS `g`'
                            'JOIN `group_membership` AS `m`'
                            '    ON (`m`.`group_id` = `g`.`id`)'
@@ -105,7 +105,7 @@ class GroupRepository(AbstractRepository):
         supergroup = None
         with self._conn.cursor() as cursor:
             cursor.execute('SELECT `g`.`id` AS `id`, `g`.`name` AS `name`,'
-                           '`g`.`description` AS `description`, `g`.`type` AS `type`'
+                           '`g`.`description` AS `description`, `g`.`type` AS `type`, `g`.`maintainerId`'
                            'FROM `group` AS `gr`'
                            'JOIN `group_membership` AS `m`'
                            '    ON (`m`.`member_id` = `gr`.`id`)'
@@ -121,7 +121,7 @@ class GroupRepository(AbstractRepository):
         group_list = []
         with self._conn.cursor() as cursor:
             cursor.execute('SELECT `g`.`id` AS `id`, `g`.`name` AS `name`,'
-                           '`g`.`description` AS `description`, `g`.`type` AS `type`'
+                           '`g`.`description` AS `description`, `g`.`type` AS `type`, `g`.`maintainerId`'
                            'FROM `group` AS `gr`'
                            'JOIN `group_membership` AS `m`'
                            '    ON (`m`.`group_id` = `gr`.`id`)'
@@ -136,10 +136,15 @@ class GroupRepository(AbstractRepository):
     def get_subgroups_of_group_rec(self, group_id):
         group_list = self.get_subgroups_of_group(group_id)
         for group in group_list:
-            group.subgroups = self.get_subgroups_of_group(group.id)
+            group.subgroups = self.get_subgroups_of_group_rec(group.id)
             
         return group_list
-
+        
+    def get_group_maintainer_rec(self, group):
+        group.maintainer = UserRepository().fetch(group.maintainerId)
+        for subgroup in group.subgroups:
+            get_group_maintainer_rec(subgroup)
+        
     def _fetch_group(self, cursor):
         result = self._fetch_dict(cursor)
         if result is not None:

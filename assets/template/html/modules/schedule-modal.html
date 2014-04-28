@@ -1,0 +1,35 @@
+<div id="schedule-modal" class="modal fade" role="dialog" tabindex="-1">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+				<h2 class="modal-title">Schedule a Group Meeting</h2>
+			</div>
+			<div class="modal-body row">
+				<div class="col-md-6 form-group">
+					<label for="meeting_deadlines">Deadline for Meeting:</label>
+					<select name="meeting_deadlines" class="form-control">
+						{% for deadline in deadlines %}
+						<option>{{ deadline.name }} ({{ deadline.time }})</option>
+						{% end %}
+					</select>
+				</div>
+
+				<div class="col-md-6 form-group">
+					<label for="meeting_members">Members Attending:</label>
+					<select name="meeting_members" class="form-control">
+						{% for member in members %}
+						<option>{{ member.name }} ({{ member.email }})</option>
+						{% end %}
+					</select>
+				</div>
+				
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+				<button id="schedule-submit" type="button" class="btn btn-primary">Schedule</button>
+			</div>
+		</div><!-- /.modal-content -->
+	</div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+

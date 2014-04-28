@@ -38,7 +38,7 @@ class Group(AbstractEntity):
     @maintainerId.setter
     def maintainerId(self, value):
         return self._maintainerId
-        
+
     @property
     def description(self):
         return self._description
