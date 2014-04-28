@@ -104,14 +104,17 @@ class AsyncRequestHandler( WebRequestHandler ):
 
         # 'Logged-in' user must be defined
         if not user:
+            print "no user"
             return
 
         # Name list must not be empty
         if not name:
+            print "no name"
             return
 
         # Value list must be defined
         if not values:
+            print "no values"
             return
 
         name = name[0].decode("utf-8")

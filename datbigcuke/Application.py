@@ -47,6 +47,7 @@ class Application( tornado.web.Application ):
             ( r"/leave-group", LeaveGroupHandler ),
             ( r"/update-user-name", UpdateNameHandler ),
             ( r"/update-user-email", UpdateEmailHandler ),
+            ( r"/add-member", AddMemberHandler ),
 
             # @TODO(halstea2) Remove test async handler
             ( r"/async-request", TestHandler ),
