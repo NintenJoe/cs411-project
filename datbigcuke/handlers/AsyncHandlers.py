@@ -462,6 +462,8 @@ class GoogleResponseHandler( WebRequestHandler ):
         if self.get_query_argument("access_token", default=False):
             sys.stderr.write("access_token = " + self.get_query_argument("access_token"))
             sys.stderr.write("refresh_token = " + self.get_query_argument("refresh_token"))
+
+
             return
 
 
