@@ -10,7 +10,7 @@
 					<label for="meeting_deadlines">Deadline for Meeting:</label>
 					<select name="meeting_deadlines" class="form-control">
 						{% for deadline in deadlines %}
-						<option>{{ deadline["name"] }} ({{ deadline["time"] }})</option>
+						<option>{{ deadline.name }} ({{ deadline.time }})</option>
 						{% end %}
 					</select>
 				</div>
@@ -19,7 +19,7 @@
 					<label for="meeting_members">Members Attending:</label>
 					<select name="meeting_members" class="form-control">
 						{% for member in members %}
-						<option>{{ member["name"] }} ({{ deadline["email"] }})</option>
+						<option>{{ member.name }} ({{ member.email }})</option>
 						{% end %}
 					</select>
 				</div>
