@@ -24,7 +24,9 @@ function main()
 	} );
 
 	$( "#google_auth" ).click( function() {
-		$.post("google-auth-request");
+		$.post("google-auth-request", function(url) {
+			window.location.replace(url);
+		});
 	} );
 }
 

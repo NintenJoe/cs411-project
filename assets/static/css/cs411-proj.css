@@ -76,4 +76,8 @@ ul.deadline-notes li {
 	margin: 0px;
 }
 
+/* Miscellaneous styling */
 
+#google_auth:hover{
+	cursor: pointer;
+}
