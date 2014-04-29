@@ -52,8 +52,21 @@ class ClassRepository(AbstractRepository):
                 class_list.append(self._create_entity(data=result))
 
         return class_list
-        
+
     def _fetch_class(self, cursor):
         result = self._fetch_dict(cursor)
         if result is not None:
             return self._create_entity(data=result)
+
+    def find_classes_with_name_prefix(self, term, prefix):
+        class_list = []
+        with self._conn.cursor() as cursor:
+            cursor.execute('SELECT `id`, `institution_id`, `term_id`, `name`,'
+                           '`title`, `class_name`, `group_id` '
+                           'FROM `class` NATURAL JOIN `academic_entity`
+                           WHERE `term_id`=? AND `class_name` LIKE ?',
+                           (term.id, '{!s}%'.format(prefix)))
+            for result in self._fetch_all_dict(cursor):
+                class_list.append(self._create_entity(data=result))
+
+        return class_list
