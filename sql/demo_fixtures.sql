@@ -128,7 +128,7 @@ INSERT INTO `group_membership` VALUES (@group_id, @user_id);
 SET @group_id = (SELECT id FROM `group` WHERE name = 'CS 418 Interactive Computer Graphics');
 
 INSERT INTO `deadline` (`name`, group_id, deadline, `type`)
-VALUES ('HW 1 (END)', @group_id, NOW(), 'END');
+VALUES ('HW 1 (END)', @group_id, '2014-05-01 12:15:00', 'END');
 SET @end_id = (SELECT id FROM `deadline` WHERE `name` = 'HW 1 (END)');
 
 INSERT INTO `deadline` (`name`, group_id, deadline, `type`)
@@ -136,7 +136,7 @@ VALUES ('HW 2 (COM)', @group_id, NOW(), 'COM');
 SET @com_id = (SELECT id FROM `deadline` WHERE `name` = 'HW 2 (COM)');
 
 INSERT INTO `deadline` (`name`, group_id, deadline, `type`)
-VALUES ('HW 3 (PER)', @group_id, NOW(), 'PER');
+VALUES ('HW 3 (PER)', @group_id, '2014-05-01 12:15:00', 'PER');
 SET @per_id = (SELECT id FROM `deadline` WHERE `name` = 'HW 3 (PER)');
 
 SET @user_id = (SELECT id FROM user WHERE email = 'josh@halstead.com');

@@ -480,12 +480,126 @@ class GetGroupDeadlinesHandler(AsyncRequestHandler):
 
 ## - Schedule endpoint
 class ScheduleHandler(AsyncRequestHandler):
-    def _valid_request(self, user, name, values):
+    @tornado.web.authenticated
+    # @TODO(halstea2) We chould create a 'complex' async handler base that
+    # is aware of a dictionary of values
+    def post(self):
+        curr_user = self.get_current_user()
+        values =  self.get_argument("data", default=None)
+
+        if not curr_user or not values:
+            return
+
+        # We don't need the 'name' field. It's encoded in the data dictionary
+        # Keys are unicode after json.loads conversion
+        values = json.loads(values)
+        if not self._valid_request(curr_user, "", values):
+            return
+
+        self._perform_request(curr_user, "", values)
         pass
 
+    def _valid_request(self, user, name, values):
+        # Malformed request
+        if u"group_members" not in values or u"deadline" not in values or u"duration" not in values or u"off_limits_start" not in values or u"off_limits_end" not in values:
+            return False
+
+        # Malformed request
+        group_members = values[u"group_members"]
+        deadline = values[u"deadline"]
+        duration = values[u"duration"]
+        off_limits_start = values[u"off_limits_start"]
+        off_limits_end = values[u"off_limits_end"]
+        if not group_members or not deadline or not duration or not off_limits_start or not off_limits_end:
+            return False
+
+        #real deadline
+        dr = DeadlineRepository()
+        dl = dr.fetch(deadline)
+        dr.close()
+
+        if not dl:
+            sys.stderr.write("invalid deadline id: " + str(dl))
+            return False
+
+        #real users
+        for email in group_members:
+            new_user_repo = UserRepository()
+            new_user = new_user_repo.get_user_by_email(email)
+            new_user_repo.close()
+            if not new_user:
+                sys.stderr.write("invalid email: " + email)
+                return False
+
+
+        return True
+
     def _perform_request(self, user, name, values):
+
+        parser = ConfigParser.ConfigParser()
+        parser.read('./config/app.conf')
+
+        section = 'General'
+        client_id = parser.get(section, 'client_id')
+        client_secret = parser.get(section, 'client_secret')
+
+        group_emails = values[u"group_members"]
+        deadline = values[u"deadline"]
+        duration = values[u"duration"]
+        off_limits_start = values[u"off_limits_start"]
+        off_limits_end = values[u"off_limits_end"]
+
+        group_members = []
+
+        for email in group_emails:
+            new_user_repo = UserRepository()
+            new_user = new_user_repo.get_user_by_email(email)
+            new_user_repo.close()
+
+            #must refresh token
+            #if not new_user.refreshTok:
+            #    print email + "has not given google permission to view calandar information"
+            #    return error response
+
+            #ref_tok = new_user.refreshTok
+            #@TODO: remove test test
+            ref_tok = "1/Y8j4yqLc8gPA5TDE2pTOVGOuPYxYb0w2V5mNhlhbQck"
+
+            #get access token
+            url = "https://accounts.google.com/o/oauth2/token"
+            access_token_request = "refresh_token=" + ref_tok + "&" +\
+                      "client_id=" + client_id + "&" +\
+                      "client_secret=" + client_secret + "&" +\
+                      "grant_type=refresh_token"\
+
+            sys.stderr.write("access_token request = " + access_token_request + '\n')
+
+            def handle_access_token(response):
+                sys.stderr.write("response = " + str(response) + '\n')
+
+                data = json.loads(response.body)
+                a_token = data['access_token']
+                sys.stderr.write("access_token = " + a_token + '\n')
+
+
+                #get google calandars
+                def handle_cal_list(response2):
+                    sys.stderr.write("calandar list response = " + str(response2) + '\n')
+                    sys.stderr.write(str(json.loads(response2.body))+ '\n')
+
+                cal_list_http_client = tornado.httpclient.AsyncHTTPClient()
+                cal_list_http_client.fetch("https://www.googleapis.com/calendar/v3/users/me/calendarList?access_token=" + a_token, handle_cal_list)
+  
+
+            http_client = tornado.httpclient.AsyncHTTPClient()
+            http_request = tornado.httpclient.HTTPRequest(url, 'POST', body=access_token_request)
+            http_client.fetch(http_request, handle_access_token)
+
+
+
+            
         pass
-    pass
+    
 
 
 # /profile Request Handlers

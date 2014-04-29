@@ -185,6 +185,33 @@ function main()
                 }
             });
         });
+
+        $( "#schedule-query-submit" ).click( function () {
+            var data1 = {};
+            var members = [];
+            $('#meeting_members option:selected').each(function() {
+				members.push($( this ).attr('data-email'));
+			});
+            data1['group_members'] = members;
+            data1['deadline'] = $('#meeting_deadlines option:selected').attr('data-id');
+            data1['duration'] = $('#meeting_duration').val();
+            data1['off_limits_start'] = $('#meeting_offlimits_start').val();
+            data1['off_limits_end'] = $('#meeting_offlimits_end').val();
+            alert(JSON.stringify(data1) );
+            $.ajax({
+                type: 'POST',
+                url: '/schedule',
+                data: {'data': JSON.stringify(data1) },
+                success: function(msg) {
+                    //$('#add-deadline-modal').modal('hide');
+                    //@TODO yeah remove this
+                    alert("SUCESSSSS!");
+                },
+                error: function(data, text) {
+                    alert("Failed to schedule." + text);
+                }
+            });
+        });
     }
 }
 
