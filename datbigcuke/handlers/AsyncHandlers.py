@@ -14,6 +14,7 @@ import datetime
 import json
 import urllib
 import sys
+import ConfigParser
 
 # For test async handler only
 import tornado.httpclient
@@ -517,9 +518,14 @@ class GoogleAuthHandler( WebRequestHandler ):
         if not user:
             return
 
-        client_id = ""
-        client_secret = ""
-        auth_redirect_api = ""
+        section = 'General'
+
+        parser = ConfigParser.ConfigParser()
+        parser.read('./config/app.conf')
+
+        client_id = parser.get(section, 'client_id')
+        client_secret = parser.get(section, 'client_secret')
+        auth_redirect_api = parser.get(section, 'auth_redirect_api')
 
         #construct the url to redirect the user to
         #that asks them to give us permission
@@ -566,9 +572,14 @@ class GoogleResponseHandler( WebRequestHandler ):
             sys.stderr.write("state = " + self.get_query_argument("state") + '\n')
 
             #form the request
-            client_id = ""
-            client_secret = ""
-            auth_redirect_api = ""
+            section = 'General'
+
+            parser = ConfigParser.ConfigParser()
+            parser.read('./config/app.conf')
+
+            client_id = parser.get(section, 'client_id')
+            client_secret = parser.get(section, 'client_secret')
+            auth_redirect_api = parser.get(section, 'auth_redirect_api')
 
             url = "https://accounts.google.com/o/oauth2/token"
             request = "code=" + self.get_query_argument("code") + "&" +\
