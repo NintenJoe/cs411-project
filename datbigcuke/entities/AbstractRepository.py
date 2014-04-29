@@ -37,11 +37,14 @@ class AbstractRepository(object):
         if not obj.validate():
             raise EntityValidationError(user)
             
-    def fetch(self, user_id):
-        pass
+    def fetch(self, entity_id):
+        raise NotImplementedError()
 
     def fetch_all(self):
-        pass
+        raise NotImplementedError()
+
+    def remove(self, entity):
+        raise NotImplementedError()
 
     def _fetch_dict(self, cursor, header=None):
         if header is None:

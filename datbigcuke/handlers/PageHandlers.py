@@ -27,7 +27,10 @@ from datbigcuke.entities import User
 from datbigcuke.entities import UserRepository
 from datbigcuke.entities import Group
 from datbigcuke.entities import GroupRepository
+from datbigcuke.entities import Deadline
+from datbigcuke.entities import DeadlineRepository
 from datbigcuke.cukemail import CukeMail
+
 
 # TODO: Remove.
 import hashlib
@@ -168,10 +171,11 @@ class UserMainHandler( PageRequestHandler ):
     def get( self ):
         user = self.get_current_user()
         gr = GroupRepository()
+        dr = DeadlineRepository()
 
         # NOTE: The deadlines are assumed to be sorted by time.
         # TODO: Retrieve the deadlines associated with the user here.
-        deadline_list = []
+        deadline_list = dr.deadlines_for_user(user.id)
 
         group_list = gr.get_groups_of_user_rec(user.id)
         for group in group_list:
@@ -225,6 +229,7 @@ class UserGroupHandler( PageRequestHandler ):
     def get( self, group_id ):
         ur = UserRepository()
         gr = GroupRepository()
+        dr = DeadlineRepository()
 
         # TODO: 404 if the user is not a member of the group.
         user = self.get_current_user()
@@ -243,7 +248,7 @@ class UserGroupHandler( PageRequestHandler ):
 
         # NOTE: The deadlines are assumed to be sorted by time.
         # TODO: Retrieve the deadlines associated with the user here.
-        deadline_list = []
+        deadline_list = dr.deadlines_for_user_for_group(user.id, group.id)
 
         self.render( self.get_url(),
             group = group,

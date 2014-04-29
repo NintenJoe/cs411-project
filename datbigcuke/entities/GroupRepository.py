@@ -44,13 +44,12 @@ class GroupRepository(AbstractRepository):
                                '(`id`, `name`, `description`, `type`, `maintainerId`) '
                                'VALUES (?, ?, ?, ?, ?);',
                                (cursor.lastrowid, delta['name'],
-                                delta['description'], delta['type'], delta['maintainerId']))
+                                group.description, group.type, group.maintainerId))
                 
                 cursor.execute('SELECT `id`, `name`, `description`, `type`, `maintainerId` '
                                'FROM `group` '
                                'WHERE `id`=LAST_INSERT_ID()')
                 group = self._fetch_group(cursor)
-                #print "Just after assignment: " + str(group)
 
         else:
             # old user object
@@ -66,7 +65,13 @@ class GroupRepository(AbstractRepository):
                                    args)
 
         return group
-            
+ 
+    def remove(self, group):
+        with self._conn.cursor() as cursor:
+            cursor.execute('DELETE FROM `membership_entity` WHERE `id`=?',
+                           (group.id,))
+            group.invalidate()
+           
     def fetch(self, group_id):
         with self._conn.cursor() as cursor:
             cursor.execute('SELECT `id`, `name`, `description`, `type`, `maintainerId` '
@@ -106,7 +111,7 @@ class GroupRepository(AbstractRepository):
                            'WHERE `m`.`member_id`=?', (user_id,))
             for result in self._fetch_all_dict(cursor):
                 group_list.append(self._create_entity(data=result))
-
+                
         return group_list
 
     # TODO(ciurej2): Improve this function to be less hacky.

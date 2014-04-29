@@ -12,7 +12,7 @@
 						<label for="meeting_deadlines">Deadline for Meeting:</label>
 						<select id="meeting_deadlines" class="form-control">
 							{% for deadline in deadlines %}
-							<option data-id="{{ deadline.id }}">{{ deadline.name }} ({{ deadline.time }})</option>
+							<option data-id="{{ deadline.id }}">{{ deadline.name }} ({{ deadline.deadline }})</option>
 							{% end %}
 						</select>
 					</div>

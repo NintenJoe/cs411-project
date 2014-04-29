@@ -4,11 +4,15 @@
 			{% for deadline in deadlines %}
 			<li class="deadline-entry">
 				<h5 class="inner-heading">
-					{{ deadline["group"] }}: {{ deadline["name"] }} <small>{{ deadline["time"] }}</small>
+					{{ deadline.group }}: {{ deadline.name }} <small>{{ deadline.deadline }}</small>
 				</h5>
 
 				<ul class="deadline-notes">
-					<li><small>{{ deadline["notes"] }}</small></li>
+					<li><small>
+                                            {% if deadline.meta %}
+                                            {{ deadline.meta.notes }}
+                                            {% end %}
+                                        </small></li>
 				</ul>
 			</li>
 			{% end %}

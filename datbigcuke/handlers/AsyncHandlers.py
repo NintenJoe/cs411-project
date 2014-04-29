@@ -83,18 +83,18 @@ class LeaveGroupHandler(AsyncRequestHandler):
 
     @tornado.web.authenticated
     def post(self):
-
         user = self.get_current_user()
         data = self.get_argument("data", default=None)
         if not user or not data:
+            print "Missing information. user: " + str(user) + ", data: " + str(data)
             return
 
+        # Keys are unicode after json.loads conversion
         data = json.loads(data)
         if not self._valid_request(user, "", data):
-            print "bad request"
+            print "Bad leave group request."
             return
 
-        print "performing request"
         self._perform_request(user, "", data)
 
     # The name parameter is ignored. Needs to be factored but no time.
@@ -102,38 +102,39 @@ class LeaveGroupHandler(AsyncRequestHandler):
         """Verify that the 'leave group' request is valid"""
 
         if "group_id" not in data:
+            print "group_id not defined."
             return False
 
         group_id = data[u"group_id"]
+        if not self._group_exists(group_id):
+            return False
 
-        # Group must exist
         group_repo = GroupRepository()
         group = group_repo.fetch(group_id)
-        if not group:
-            return False
-
-        group_repo = GroupRepository()
-        groups = group_repo.get_groups_of_user(user.id)
         group_repo.close()
-
-        if not groups:
+        if not self._in_group(user, group):
+            return False
+        
+        # User must not be the group maintainer
+        if user.id != group.maintainerId:
+            print "User (" + str(user.id) + ") is not the maintainer of group (" + str(group_id) + ")."
             return False
 
-        # User must be a member of this group
-        #if group_id not in groups:
+        # Group must be private
+        # @TODO(halstea2) How is 'private' represented in database? Assume
+        # that Group.type = 'private' is how it's represened. Change otherwise
+        print "Make sure we clarify how 'private' groups are represented in the database"
+        #if group.type != "private":
         #    return False
 
-        # User must not be the group maintainer
-        #if user.id != group.maintainer.id:
-        #    return False
-
+ 
         return True
 
     # The name parameter is ignored. Needs to be factored but no time.
     def _perform_request(self, user, name, data):
         """Removes the user from the group"""
         
-        print "Faux-'Deleted' user from DB. Be sure to add a real delete functin and fix this."
+        print "Faux-'Deleted' user from group_membership table. Be sure to add a real delete functin and fix this."
         #groups = user.groups
         #groups.remove(data[u"group_id"])
         #self._persist_user(user)
@@ -149,73 +150,69 @@ class LeaveGroupHandler(AsyncRequestHandler):
 #   - Side Effects:
 #       - Delete all associated deadlines
 class DeleteGroupHandler(AsyncRequestHandler):
-    """Async Handler for leaving a group"""
+    """Async Handler for deleting a group"""
 
     @tornado.web.authenticated
     def post(self):
-
         user = self.get_current_user()
         data = self.get_argument("data", default=None)
+        if not user or not data:
+            print "Missing information. user: " + str(user) + ", data: " + str(data)
+            return
+
         # Keys are unicode after json.loads conversion
         data = json.loads(data)
-
-
-        # 'Logged-in' user must be defined
-        if not user:
-            return
-
-        # Value list must be defined
-        if not data:
-            return
-
         if not self._valid_request(user, "", data):
+            print "Bad delete group request."
             return
 
         self._perform_request(user, "", data)
        
     # The name parameter is ignored. Needs to be factored but no time.
     def _valid_request(self, user, name, data):
-        """Verify that the 'leave group' request is valid"""
+        """Verify that the 'delete group' request is valid"""
 
-        if "group" not in data:
+        if "group_id" not in data:
+            print "group_id not defined."
             return False
 
-        # Keys are unicode after json.loads conversion
-        group_id = data[u"group"]
+        group_id = data[u"group_id"]
+        if not self._group_exists(group_id):
+            return False
 
-        # Group must exist
         group_repo = GroupRepository()
         group = group_repo.fetch(group_id)
-        if not group:
-            print "group doesn't exist"
+        group_repo.close()
+
+        if not self._in_group(user, group):
+            return False
+
+        # User must be the group maintainer
+        if not user.id == group.maintainerId:
+            print "User (" + str(user.id) + ") is not the maintainer of group (" + str(group_id) + ")."
             return False
 
         # Group must be private
         # @TODO(halstea2) How is 'private' represented in database? Assume
         # that Group.type = 'private' is how it's represened. Change otherwise
         print "Make sure we clarify how 'private' groups are represented in the database"
-        if group.type != "private":
-            return False
+        #if group.type != "private":
+        #    return False
 
-        # User must be a member of this group
-        if group_id not in user.groups:
-            return False
-
-        # User must be the group maintainer
-        if user.id == group.maintainer.id:
-            return False
+        #@TODO(halstea2) The group must not have any other members associated
+        # with it.
 
         return True
 
     # The name parameter is ignored. Needs to be factored but no time.
     def _perform_request(self, user, name, data):
-        """Removes the user from the group"""
+        """Removes the maintainer from the group and deletes it"""
 
         # @TODO(halstea2) Not sure canonical way to delete group. Think Eunsoo
         # wanted to enforce that no members were present in the group before
         # deleting.
 
-        print "No remove function is implemented in the GroupRepository"
+        print "Faux-'Deleted' user from group_membership table. Be sure to add a real delete functin and fix this."
         #groups = user.groups
         #groups.remove(data[u"group"])
         #self._persist_user(user)
@@ -518,11 +515,10 @@ class GoogleAuthHandler( WebRequestHandler ):
         if not user:
             return
 
-        section = 'General'
-
         parser = ConfigParser.ConfigParser()
         parser.read('./config/app.conf')
 
+        section = 'General'
         client_id = parser.get(section, 'client_id')
         client_secret = parser.get(section, 'client_secret')
         auth_redirect_api = parser.get(section, 'auth_redirect_api')
@@ -572,11 +568,10 @@ class GoogleResponseHandler( WebRequestHandler ):
             sys.stderr.write("state = " + self.get_query_argument("state") + '\n')
 
             #form the request
-            section = 'General'
-
             parser = ConfigParser.ConfigParser()
             parser.read('./config/app.conf')
 
+            section = 'General'
             client_id = parser.get(section, 'client_id')
             client_secret = parser.get(section, 'client_secret')
             auth_redirect_api = parser.get(section, 'auth_redirect_api')
