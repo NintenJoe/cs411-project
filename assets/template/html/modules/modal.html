@@ -7,16 +7,16 @@
 			</div>
 			<div class="modal-body row">
 				{% if modal_id == 'add-member' %}
-				<div class="col-md-12 form-group">
-					<label for="user_email">New Member's Email</label>
+				<div class="col-md-6 form-group">
+					<label for="new_user_email">New Member's Email</label>
 					<input type="email" class="form-control" id="user_email" placeholder="Email Address">
 				</div>
 				{% elif modal_id == 'add-subgroup' %}
-				<div class="col-md-12 form-group">
+				<div class="col-md-6 form-group">
 					<label for="group_name">New Subgroup Name</label>
 					<input type="text" class="form-control" id="group_name" placeholder="Group Name">
 				</div>
-				<div class="col-md-12 form-group">
+				<div class="col-md-6 form-group">
          	<label for="group_description">New Subgroup Description</label>
 					<input type="textfield" class="form-control" id="group_description" placeholder="Group Description">
 				</div>
