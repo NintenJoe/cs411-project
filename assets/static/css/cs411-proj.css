@@ -57,6 +57,13 @@ textarea {
 	height: 300px;
 }
 
+/* Form Styling */
+
+.tt-dropdown-menu {
+	max-height: 150px;
+	overflow-y: auto;
+}
+
 /* Modal Styling */
 
 .modal-heading {
