@@ -31,7 +31,7 @@
 			<div class="col-md-6">
 				<h3><strong>Group Type:</strong> {{ 'Public' if group_is_public else 'Private' }}</h3>
 				{% if not group_is_public %}
-				<h3><strong>Maintainer:</strong> {{ group.maintainer }}
+				<h3><strong>Maintainer:</strong> {% if group.maintainer %} {{ group.maintainer.name }} {% end %}
 					{% if user_is_maintainer %}
 					<i class="glyphicon glyphicon-star"></i>
 					{% end %}
@@ -52,18 +52,18 @@
 
 		<h3><strong>Group Information:</strong></h3>
 
-		<div class="cropped-content-container col-md-7 well well-sm">
-			<h3 class="inner-heading pull-left">Subgroup List:</h3>
-			<input class="btn btn-default btn-sm pull-right"
-			data-toggle="modal" data-target="#add-subgroup-modal" value="Add Subgroup">
-			{% module RenderTemplate( 'group-tree', group_forest = subgroups ) %}
-		</div>
-
 		<div class="cropped-content-container col-md-5 well well-sm">
 			<h3 class="inner-heading pull-left">Member List:</h3>
 			<input class="btn btn-default btn-sm pull-right"
 			data-toggle="modal" data-target="#add-member-modal" value="Add Member">
 			{% module RenderTemplate( 'member-list', members = members ) %}
+		</div>
+
+		<div class="cropped-content-container col-md-7 well well-sm">
+			<h3 class="inner-heading pull-left">Subgroup List:</h3>
+			<input class="btn btn-default btn-sm pull-right"
+			data-toggle="modal" data-target="#add-subgroup-modal" value="Add Subgroup">
+			{% module RenderTemplate( 'group-tree', group_forest = subgroups ) %}
 		</div>
 
 		<div class="cropped-content-container col-md-12 well well-sm">

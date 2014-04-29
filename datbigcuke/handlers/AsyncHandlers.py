@@ -18,6 +18,7 @@ import ConfigParser
 
 # For test async handler only
 import tornado.httpclient
+from datetime import datetime
 
 from datbigcuke.handlers.BaseHandlers import WebResource
 from datbigcuke.handlers.BaseHandlers import WebModule
@@ -25,6 +26,9 @@ from datbigcuke.handlers.BaseHandlers import AsyncRequestHandler
 from datbigcuke.handlers.BaseHandlers import WebRequestHandler
 from datbigcuke.entities import User
 from datbigcuke.entities import UserRepository
+from datbigcuke.entities import Deadline
+from datbigcuke.entities import DeadlineMetadata
+from datbigcuke.entities import DeadlineRepository
 from datbigcuke.entities import Group
 from datbigcuke.entities import GroupRepository
 from datbigcuke.cukemail import CukeMail
@@ -283,7 +287,6 @@ class AddMemberHandler(AsyncRequestHandler):
         return True
 
     def _perform_request(self, user, name, values):
-        print "performing request"
         group_id = values[u"group_id"]
         new_user_email = values[u"user_email"]
 
@@ -301,11 +304,8 @@ class AddMemberHandler(AsyncRequestHandler):
         pass
 
 
-# - Add member to group
-#   - Data: Group ID, New User ID
-#   - Server-Side Checks:
-#       - New User ID must be in same parent group as current user ID
-#       - Current user must be member of group ID
+# - Add subgroup to group
+# - Data: Group ID, New Group Name, New Group Description
 class AddSubgroupHandler(AsyncRequestHandler):
     @tornado.web.authenticated
     # @TODO(halstea2) We chould create a 'complex' async handler base that
@@ -315,12 +315,14 @@ class AddSubgroupHandler(AsyncRequestHandler):
         values = self.get_argument("data", default=None)
 
         if not curr_user or not values:
+            print "Invalid Request. Parameters Missing"
             return
 
         # We don't need the 'name' field. It's encoded in the data dictionary
         # Keys are unicode after json.loads conversion
         values = json.loads(values)
         if not self._valid_request(curr_user, "", values):
+            print "Invalid Request. Parameters Empty"
             return
 
         self._perform_request(curr_user, "", values)
@@ -372,6 +374,75 @@ class AddSubgroupHandler(AsyncRequestHandler):
 
         pass
 
+# - Add deadline to group
+# - Data: Group ID, New Deadline Name, New Deadline Time, New Deadline Notes
+class AddDeadlineHandler(AsyncRequestHandler):
+    @tornado.web.authenticated
+    # @TODO(halstea2) We chould create a 'complex' async handler base that
+    # is aware of a dictionary of values
+    def post(self):
+        curr_user = self.get_current_user()
+        values = self.get_argument("data", default=None)
+
+        if not curr_user or not values:
+            return
+
+        # We don't need the 'name' field. It's encoded in the data dictionary
+        # Keys are unicode after json.loads conversion
+        values = json.loads(values)
+        if not self._valid_request(curr_user, "", values):
+            return
+
+        self._perform_request(curr_user, "", values)
+        
+        pass
+
+    def _valid_request(self, curr_user, name, values):
+        # Malformed request
+        if u"group_id" not in values or u"name" not in values or u"deadline" not in values or u"notes" not in values:
+            return False
+
+        # Malformed request
+        group_id = values[u"group_id"]
+        name = values[u"name"]
+        deadline = values[u"deadline"]
+        notes = values[u"notes"]
+        if not group_id or not name or not deadline or not notes:
+            return False
+
+        return True
+
+    def _perform_request(self, user, name, values):
+        group_id = values[u"group_id"]
+        name = values[u"name"]
+        deadline = values[u"deadline"]
+        notes = values[u"notes"]
+        curr_user = self.get_current_user()
+
+
+        dr = DeadlineRepository()
+        gr = GroupRepository()
+        group = gr.fetch(group_id)
+        gr.get_group_maintainer(group)
+
+        new_deadline = Deadline()
+        new_deadline.meta = DeadlineMetadata()
+
+        new_deadline.name = name
+        new_deadline.group_id = group_id
+        new_deadline.deadline = datetime.strptime(deadline, u'%m/%d/%Y %I:%M %p') # private group
+        if(group.maintainer and group.maintainer.id == user.id):
+            new_deadline.type = 'END'
+        else:
+            new_deadline.type = 'PER'
+        new_deadline.meta.user_id = user.id
+        new_deadline.meta.notes = notes
+        new_deadline = dr.persist(new_deadline)        
+
+        dr.close()
+
+        pass
+
 # - Get members of parent group (for 'Add member' auto-complete)
 #   - Data: Parent Group ID
 class GetMembersOfParentHandler(AsyncRequestHandler):
@@ -398,17 +469,6 @@ class GetCourseListHandler(AsyncRequestHandler):
     # @TODO(halstea2) - Extract user auth and data checking to base class
     @tornado.web.authenticated
     def get(self):
-        pass
-
-# - Add deadline
-#   - Data: Name (autocomplete), Datetime, group ID, notes
-#   - Server-Side Checks:
-#       - Current user is a member of this group ID
-class AddDeadlineHandler(AsyncRequestHandler):
-    def _valid_request(self, user, name, values):
-        pass
-
-    def _perform_request(self, user, name, values):
         pass
 
 # - Get existing deadline names for the group (for 'Add deadline' auto-complete)

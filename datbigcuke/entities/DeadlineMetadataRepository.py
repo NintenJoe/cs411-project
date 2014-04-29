@@ -8,7 +8,7 @@ __copyright__ = 'Copyright 2014 Bigdatcuke Project'
 __email__ = 'kjnusba2@illinois.edu'
 
 
-from datbigcuke.entities.Deadline import Deadline
+from datbigcuke.entities.DeadlineMetadata import DeadlineMetadata
 from datbigcuke.entities.AbstractRepository import AbstractRepository
 import datbigcuke.db
 import operator
@@ -27,7 +27,7 @@ class DeadlineMetadataRepository(AbstractRepository):
             with self._conn.cursor() as cursor:
                 cursor.execute('INSERT INTO `deadline_metadata` '
                                '(`user_id`, `deadline_id`, `notes`)'
-                               'VALUES (?,?,?,?)',(deadlineMeta.user_id, deadlineMeta.deadline_id, deadlineMeta.notes))
+                               'VALUES (?,?,?)',(deadlineMeta.user_id, deadlineMeta.deadline_id, deadlineMeta.notes))
         else:
             if delta:
                 keys = delta.keys()
@@ -45,8 +45,8 @@ class DeadlineMetadataRepository(AbstractRepository):
             cursor.execute('SELECT `user_id`, `deadline_id`, `notes` '
                            'FROM `deadline_metadata` '
                            'WHERE `deadline_id`=?', (deadline_id,))
-        for result in self._fetch_all_dict(cursor):
-            deadline_list.append(self._create_entity(data=result))
+            for result in self._fetch_all_dict(cursor):
+                deadline_list.append(self._create_entity(data=result))
             
         return deadline_list
 

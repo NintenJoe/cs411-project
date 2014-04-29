@@ -10,7 +10,7 @@
 					<h3 class="modal-heading">General Meeting Information</h3>
 					<div class="col-md-4 form-group">
 						<label for="meeting_deadlines">Deadline for Meeting:</label>
-						<select name="meeting_deadlines" class="form-control">
+						<select id="meeting_deadlines" class="form-control">
 							{% for deadline in deadlines %}
 							<option data-id="{{ deadline.id }}">{{ deadline.name }} ({{ deadline.deadline }})</option>
 							{% end %}
@@ -18,7 +18,7 @@
 					</div>
 					<div class="col-md-4 form-group">
 						<label for="meeting_members">Members Attending:</label>
-						<select name="meeting_members" class="form-control" multiple 
+						<select id="meeting_members" class="form-control" multiple 
 						data-selected-text-format="count">
 							{% for member in members %}
 							<option data-email="{{ member.email }}">{{ member.name }} ({{ member.email }})</option>
@@ -27,7 +27,7 @@
 					</div>
 					<div class="col-md-4 form-group">
 						<label for="meeting_duration">Meeting Duration:</label>
-						<select name="meeting_duration" class="form-control">
+						<select id="meeting_duration" class="form-control">
 							<option data-mins="15">15 minutes</option>
 							<option data-mins="30">30 minutes</option>
 							<option data-mins="60">60 minutes</option>
@@ -44,7 +44,7 @@
 					<div class="col-md-6 form-group">
 						<label for="meeting_offlimits_start">Start Time:</label>
 						<div class="timepicker-form input-group date">
-							<input type="text" class="form-control" name="meeting_offlimits_start">
+							<input type="text" class="form-control" id="meeting_offlimits_start">
 							<span class="input-group-addon">
 								<span class="glyphicon glyphicon-time"></span>
 							</span>
@@ -53,7 +53,7 @@
 					<div class="col-md-6 form-group">
 						<label for="meeting_offlimits_end">End Time:</label>
 						<div class="timepicker-form input-group date">
-							<input type="text" class="form-control" name="meeting_offlimits_end">
+							<input type="text" class="form-control" id="meeting_offlimits_end">
 							<span class="input-group-addon">
 								<span class="glyphicon glyphicon-time"></span>
 							</span>
@@ -81,14 +81,14 @@
 			<div class="modal-body row">
 				<div class="col-md-12 form-group">
 					<label for="meeting_times">Select a Meeting Time:</label>
-					<select name="meeting_times" class="form-control">
+					<select id="meeting_times" class="form-control">
 						<!-- <option></option> -->
 						<!-- TODO: Add meeting times resulting from query. -->
 					</select>
 				</div>
 				<div class="col-md-12 form-group">
 					<label for="meeting_message">Create an Email Message:</label>
-					<textarea name="meeting_message" class="form-control"></textarea>
+					<textarea id="meeting_message" class="form-control"></textarea>
 				</div>
 			</div>
 			<div class="modal-footer">

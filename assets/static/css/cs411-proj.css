@@ -57,6 +57,21 @@ textarea {
 	height: 300px;
 }
 
+/* Form Styling */
+
+.tt-dropdown-menu {
+	max-height: 150px;
+	overflow-y: auto;
+}
+
+.deadline-icon-group {
+	margin-top: -18px;
+}
+
+.deadline-icon:hover {
+	cursor: pointer;
+}
+
 /* Modal Styling */
 
 .modal-heading {
@@ -84,11 +99,18 @@ li.deadline-entry, ul.group-forest li, ul.member-list li {
 	margin-bottom: 5px;
 	padding: 5px;
 	border: 1px solid #cccccc;
-	background: #eeeeee;
 }
 
-li.deadline-entry:hover {
-	cursor: pointer;
+li.deadline-entry.PER {
+	background: #bbbbbb;
+}
+
+li.deadline-entry.COM {
+	background: #dddddd;
+}
+
+li.deadline-entry.END {
+	background: #ffffff;
 }
 
 ul.deadline-notes li {
