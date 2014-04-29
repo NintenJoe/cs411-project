@@ -232,7 +232,6 @@ class UserGroupHandler( PageRequestHandler ):
         ur = UserRepository()
 
         group = gr.fetch(group_id)
-        group.maintainer = ur.fetch( group.maintainerId ).name
 
         supergroup_list = gr.get_supergroup_list(group_id)
         # TODO: Update this logic to display the subgroups only associated with
@@ -242,6 +241,10 @@ class UserGroupHandler( PageRequestHandler ):
             gr.get_group_maintainer_rec(subgroup)
 
         group_is_public = group.maintainerId == None
+        if not group_is_public:
+            group.maintainer = ur.fetch( group.maintainerId ).name
+        else:
+            group.maintainer = None
         user_is_maintainer = group.maintainerId == user.id
         member_list = ur.get_members_of_group(group_id)
 
