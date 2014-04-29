@@ -6,7 +6,6 @@
 				<h5 class="inner-heading">
 					<strong>{{ deadline.group }}:</strong>
 
-					{% if deadline.type == personal %}
 					<a href="#" class="editable-field" data-name="name" data-type="text"
 					data-pk="{{ deadline.id }}" data-url="/update-deadline-name" data-title="Enter New Name">
 						{{ deadline.name }}
