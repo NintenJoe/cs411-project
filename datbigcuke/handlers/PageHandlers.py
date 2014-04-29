@@ -229,6 +229,7 @@ class UserGroupHandler( PageRequestHandler ):
     def get( self, group_id ):
         ur = UserRepository()
         gr = GroupRepository()
+        dr = DeadlineRepository()
 
         # TODO: 404 if the user is not a member of the group.
         user = self.get_current_user()
@@ -247,7 +248,7 @@ class UserGroupHandler( PageRequestHandler ):
 
         # NOTE: The deadlines are assumed to be sorted by time.
         # TODO: Retrieve the deadlines associated with the user here.
-        deadline_list = DeadlineRepository().deadlines_for_user_for_group(user.id, group.id)
+        deadline_list = dr.deadlines_for_user_for_group(user.id, group.id)
 
         self.render( self.get_url(),
             group = group,

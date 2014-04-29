@@ -64,18 +64,22 @@ class DeadlineRepository(AbstractRepository):
             
     def fetch(self, deadline_id):
         with self._conn.cursor() as cursor:
-            cursor.execute('SELECT `id`, `name`, `group_id`, `deadline`, `type` '
-                           'FROM `deadline` '
-                           'WHERE `id`=?', (deadline_id,))
-        return self._fetch_deadline(cursor)
+            cursor.execute('SELECT `d`.`id`, `d`.`name`, `d`.`group_id`, `d`.`deadline`, `d`.`type`, `g`.`name` as `group` '
+                           'FROM `deadline` as `d` '
+                           'JOIN `group` as `g` '
+                           'ON `g`.`id` = `d`.`group_id` '
+                           'WHERE `d`.`id`=?', (deadline_id,))
+            return self._fetch_deadline(cursor)
 
     def fetch_all(self):
         deadline_list = []
         with self._conn.cursor() as cursor:
-            cursor.execute('SELECT `id`, `name`, `group_id`, `deadline`, `type` '
-                           'FROM `deadline` ')
-        for result in self._fetch_all_dict(cursor):
-            deadline_list.append(self._create_entity(data=result))
+            cursor.execute('SELECT `d`.`id`, `d`.`name`, `d`.`group_id`, `d`.`deadline`, `d`.`type`, `g`.`name` as `group` '
+                           'FROM `deadline` as `d`'
+                           'JOIN `g` as `g` '
+                           'ON `g`.`id` = `d`.`group_id` ')
+            for result in self._fetch_all_dict(cursor):
+                deadline_list.append(self._create_entity(data=result))
             
         return deadline_list
 
@@ -145,13 +149,37 @@ class DeadlineRepository(AbstractRepository):
     def deadlines_for_group(self, group_id):
         deadline_list = []
         with self._conn.cursor() as cursor:
-            cursor.execute('SELECT `d`.`id`, `d`.`name`, `d`.`group_id`, `d`.`deadline`, `d`.`type` '
+            cursor.execute('SELECT `d`.`id`, `d`.`name`, `d`.`group_id`, `d`.`deadline`, `d`.`type`, `g`.`name` as `group` '
                            'FROM `deadline` AS `d` '
+                           'JOIN `group` as `g` '
+                           'ON `g`.`id` = `d`.`group_id` '
                            'WHERE `d`.`group_id` =?', (group_id,))
             
             for result in self._fetch_all_dict(cursor):
                 deadline_list.append(self._create_entity(data=result))
         
+    def deadline_for_user(self, user_id, deadline_id):
+        with self._conn.cursor() as cursor:
+            cursor.execute('SELECT `d`.`id`, `d`.`name`, `d`.`group_id`, `d`.`deadline`, `d`.`type`, `dm`.`user_id`, `dm`.`deadline_id`, `dm`.`notes`, `g`.`name` as `group` '
+                           'FROM `deadline` AS `d` '
+                           'JOIN `deadline_metadata` as `dm` '
+                           'ON `dm`.`deadline_id` = `d`.`id` '
+                           'JOIN `group` as `g` '
+                           'ON `g`.`id` = `d`.`group_id` '
+                           'WHERE `d`.`id` =?', (deadline_id,))
+            
+            result = self._fetch_dict(cursor)
+            deadline = self._create_entity(data=result)
+            deadlineMeta = None
+            if result['deadline_id']:
+                deadlineMeta = DeadlineMetadata()
+                deadlineMeta.user_id = result['user_id']
+                deadlineMeta.deadline_id = result['id']
+                deadlineMeta.notes = result['notes']
+            deadline.meta = deadlineMeta
+            return deadline
+
+
 
     def _fetch_deadline(self, cursor):
         result = self._fetch_dict(cursor)
