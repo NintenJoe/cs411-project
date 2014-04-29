@@ -5,6 +5,14 @@ __copyright__ = 'Copyright 2014 Bigdatcuke Project'
 __email__ = 'roh7@illinois.edu'
 
 
+class Error(Exception):
+    pass
+
+
+class InvalidatedEntityError(Error):
+    pass
+
+
 class AbstractEntity(object):
     _ATTRIB_TO_DATA = {}
 
@@ -30,8 +38,21 @@ class AbstractEntity(object):
 
         super(AbstractEntity, self).__setattr__(name, value)
 
+    def __getattribute__(self, name):
+        attrib = super(AbstractEntity, self).__getattribute__(name)
+        # whitelist to prevent infinite recursion
+        if (name in ('_AbstractEntity__data', '_ATTRIB_TO_DATA')
+            or self.__data is not None):
+            return attrib
+        else:
+            raise InvalidatedEntityError()
+
     def validate(self):
         return True
+
+    def invalidate(self):
+        """Invalidate the entity object to prevent any further use."""
+        self.__data = None
 
     def get_delta(self):
         delta = {}

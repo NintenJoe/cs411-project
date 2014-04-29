@@ -65,7 +65,13 @@ class GroupRepository(AbstractRepository):
                                    args)
 
         return group
-            
+ 
+    def remove(self, group):
+        with self._conn.cursor() as cursor:
+            cursor.execute('DELETE FROM `membership_entity` WHERE `id`=?',
+                           (group.id,))
+            group.invalidate()
+           
     def fetch(self, group_id):
         with self._conn.cursor() as cursor:
             cursor.execute('SELECT `id`, `name`, `description`, `type`, `maintainerId` '
