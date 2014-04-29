@@ -44,13 +44,12 @@ class GroupRepository(AbstractRepository):
                                '(`id`, `name`, `description`, `type`, `maintainerId`) '
                                'VALUES (?, ?, ?, ?, ?);',
                                (cursor.lastrowid, delta['name'],
-                                delta['description'], delta['type'], delta['maintainerId']))
+                                group.description, group.type, group.maintainerId))
                 
                 cursor.execute('SELECT `id`, `name`, `description`, `type`, `maintainerId` '
                                'FROM `group` '
                                'WHERE `id`=LAST_INSERT_ID()')
                 group = self._fetch_group(cursor)
-                print "Just after assignment: " + str(group)
 
         else:
             # old user object

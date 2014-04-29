@@ -14,8 +14,7 @@ import urllib
 class DeadlineMetadata(AbstractEntity):
     _ATTRIB_TO_DATA = {
         '_user_id' : 'user_id',
-        '_deadline_id' : 'deadline_id';
-        '_name' : 'name',
+        '_deadline_id' : 'deadline_id',
         '_notes' : 'notes',
     }
 
@@ -38,14 +37,6 @@ class DeadlineMetadata(AbstractEntity):
     def deadline_id(self, value):
         self._deadline_id = value
         
-    @property
-    def name(self):
-        return self._name
-        
-    @name.setter
-    def name(self, value):
-        self._name = value
-
     @property
     def notes(self):
         return self._notes

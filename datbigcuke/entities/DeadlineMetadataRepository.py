@@ -26,8 +26,8 @@ class DeadlineMetadataRepository(AbstractRepository):
         if delta.get('user_id', None) or delta.get('deadline_id', None):
             with self._conn.cursor() as cursor:
                 cursor.execute('INSERT INTO `deadline_metadata` '
-                               '(`user_id`, `deadline_id`, `name`, `notes`)'
-                               'VALUES (?,?,?,?)',(deadlineMeta.user_id, deadlineMeta.deadline_id, deadlineMeta.name, deadlineMeta.notes))
+                               '(`user_id`, `deadline_id`, `notes`)'
+                               'VALUES (?,?,?,?)',(deadlineMeta.user_id, deadlineMeta.deadline_id, deadlineMeta.notes))
         else:
             if delta:
                 keys = delta.keys()
@@ -42,7 +42,7 @@ class DeadlineMetadataRepository(AbstractRepository):
     def fetch(self, deadline_id):
         deadline_list = []
         with self._conn.cursor() as cursor:
-            cursor.execute('SELECT `user_id`, `deadline_id`, `name`, `notes` '
+            cursor.execute('SELECT `user_id`, `deadline_id`, `notes` '
                            'FROM `deadline_metadata` '
                            'WHERE `deadline_id`=?', (deadline_id,))
         for result in self._fetch_all_dict(cursor):
@@ -53,10 +53,15 @@ class DeadlineMetadataRepository(AbstractRepository):
     def fetch_user(self, user_id):
         deadline_list = []
         with self._conn.cursor() as cursor:
-            cursor.execute('SELECT `user_id`, `deadline_id`, `name`, `notes` '
+            cursor.execute('SELECT `user_id`, `deadline_id`, `notes` '
                            'FROM `deadline_metadata` '
                            'WHERE `user_id`=?', (user_id,))
         for result in self._fetch_all_dict(cursor):
             deadline_list.append(self._create_entity(data=result))
             
         return deadline_list
+
+    def _fetch_deadline_meta(self, cursor):
+        result = self._fetch_dict(cursor)
+        if result is not None:
+            return self._create_entity(data=result)
