@@ -47,6 +47,7 @@ function main()
 		$.fn.editable.defaults.mode = "popup";
 		$( ".editable-field" ).editable( { placement: "bottom" } );
 		$( ".editable-date" ).editable( { placement: "bottom", firstitem: "name" } );
+		$( ".editable-notes" ).editable( { placement: "right" } );
 
 		// Setup the Deadline List Modules //
 		$( ".deadline-notes" ).hide();

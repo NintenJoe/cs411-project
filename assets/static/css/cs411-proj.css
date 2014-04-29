@@ -64,11 +64,11 @@ textarea {
 	overflow-y: auto;
 }
 
-.deadline-expand-icon {
+.deadline-icon-group {
 	margin-top: -18px;
 }
 
-.deadline-expand-icon:hover {
+.deadline-icon:hover {
 	cursor: pointer;
 }
 
@@ -99,7 +99,18 @@ li.deadline-entry, ul.group-forest li, ul.member-list li {
 	margin-bottom: 5px;
 	padding: 5px;
 	border: 1px solid #cccccc;
-	background: #eeeeee;
+}
+
+li.deadline-entry.PER {
+	background: #bbbbbb;
+}
+
+li.deadline-entry.COM {
+	background: #dddddd;
+}
+
+li.deadline-entry.END {
+	background: #ffffff;
 }
 
 ul.deadline-notes li {
