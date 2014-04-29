@@ -120,7 +120,7 @@ class DeadlineRepository(AbstractRepository):
     def deadlines_for_user_for_group(self, user_id, group_id):
         deadline_list = []
         with self._conn.cursor() as cursor:
-            cursor.execute('SELECT DISTINCT `d`.`id`, `d`.`name`, `d`.`group_id`, `d`.`deadline`, `d`.`type`, `dm`.`user_id`, `dm`.`deadline_id`, `dm`.`notes`, `g`.`name` as `group` '
+            cursor.execute('SELECT `d`.`id`, `d`.`name`, `d`.`group_id`, `d`.`deadline`, `d`.`type`, `dm`.`user_id`, `dm`.`deadline_id`, `dm`.`notes`, `g`.`name` as `group` '
                            'FROM `deadline` as `d` '
                            'LEFT JOIN `deadline_metadata` as `dm` '
                            'ON `dm`.`deadline_id` = `d`.`id`'
@@ -129,16 +129,17 @@ class DeadlineRepository(AbstractRepository):
                            'JOIN `group_membership` as `gm` '
                            'ON `gm`.`group_id` = `g`.`id` '
                            'WHERE (`dm`.`user_id` =? '
-                           'OR (`gm`.`member_id` =? '
-                           '    AND (`d`.`type` = \'END\' ' 
-                           '         OR `d`.`type` = \'COM\'))) '
+                           '        OR (`gm`.`member_id` =? '
+                           '             AND (`d`.`type` = \'END\' ' 
+                           '                   OR `d`.`type` = \'COM\'))) '
                            'AND `d`.`group_id` =? '
+                           'GROUP BY `d`.`id` '
                            'ORDER BY `d`.`deadline` ', (user_id, user_id, group_id))
 
             for result in self._fetch_all_dict(cursor):
                 deadline = self._create_entity(data=result)
                 deadlineMeta = None
-                if result['deadline_id']:
+                if result['user_id'] == user_id:
                     deadlineMeta = DeadlineMetadata()
                     deadlineMeta.user_id = result['user_id']
                     deadlineMeta.deadline_id = result['id']
@@ -146,6 +147,7 @@ class DeadlineRepository(AbstractRepository):
                 deadline.meta = deadlineMeta
                 deadline_list.append(deadline)
 
+        print "Deadlines: " + str(deadline_list)
         return deadline_list
 
 
