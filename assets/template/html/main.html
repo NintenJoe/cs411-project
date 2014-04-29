@@ -1,12 +1,12 @@
 {% extends "navbase.html" %}
 
 {% block content %}
-	<div class="content-container col-md-6 well well-sm">
+	<div class="content-container col-md-8 well well-sm">
 		<h2>Deadlines:</h2>
 		{% module RenderTemplate( 'deadline-list', deadlines = deadlines ) %}
 	</div>
 
-	<div class="content-container col-md-6 well well-sm">
+	<div class="content-container col-md-4 well well-sm">
 		<h2>Groups:</h2>
 		{% module RenderTemplate( 'group-tree', group_forest = groups ) %}
 	</div>

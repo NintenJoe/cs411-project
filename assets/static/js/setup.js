@@ -45,12 +45,15 @@ function main()
 	{
 		// Setup the Editable Fields //
 		$.fn.editable.defaults.mode = "popup";
-		$( ".editable-field" ).editable();
+		$( ".editable-field" ).editable( { placement: "bottom" } );
+		$( ".editable-date" ).editable( { placement: "bottom", firstitem: "name" } );
+		$( ".editable-notes" ).editable( { placement: "right" } );
 
 		// Setup the Deadline List Modules //
 		$( ".deadline-notes" ).hide();
-		$( ".deadline-entry" ).click( function() {
-			$( this ).find( ".deadline-notes" ).slideToggle( "slow" );
+		$( ".deadline-expand-icon" ).click( function() {
+			var deadlineID = $( this ).data( "id" );
+			$( "#deadline-" + deadlineID ).find( ".deadline-notes" ).slideToggle( "slow" );
 		} );
 
 		// Setup the Datetime Picker Modules //
@@ -90,6 +93,7 @@ function main()
 			});
 		} );
 
+	    // Setup Group Page Modal Submission Buttons //
         $( "#leave_group" ).click( function () {
             var data1 = {};
             data1['group_id'] = getGroupID();
@@ -106,22 +110,22 @@ function main()
             });
         });
         
-	$( "#delete_group" ).click( function() {
-            var data1 = {};
-            data1['group_id'] = getGroupID();
-            
-            $.ajax({
-                type: 'POST',
-                url: '/delete-group',
-                data: {'data': JSON.stringify(data1)},
-                success: function(msg) {
-                    window.location.reload();
-                },
-                error: function(data) {
-                    alert("Failed to delete group.");
-                }
-            }); 
-	});
+		$( "#delete_group" ).click( function() {
+				var data1 = {};
+				data1['group_id'] = getGroupID();
+				
+				$.ajax({
+					type: 'POST',
+					url: '/delete-group',
+					data: {'data': JSON.stringify(data1)},
+					success: function(msg) {
+						window.location.reload();
+					},
+					error: function(data) {
+						alert("Failed to delete group.");
+					}
+				}); 
+		});
         
         $( "#add-member-submit" ).click( function () {
             var data1 = {};
@@ -181,9 +185,6 @@ function main()
                 }
             });
         });
-	// Setup Group Page Modal Submission Buttons //
-
-	// TODO: Add group page submission button post requests.
     }
 }
 

@@ -174,10 +174,9 @@ class UserMainHandler( PageRequestHandler ):
         gr = GroupRepository()
         dr = DeadlineRepository()
 
-        # NOTE: The deadlines are assumed to be sorted by time.
-        # TODO: Retrieve the deadlines associated with the user here.
+        # TODO: Add functionality to integrate the groups with the deadlines
+        # to allow for front-end maintainer validation when modifying deadlines.
         deadline_list = dr.deadlines_for_user(user.id)
-
         group_list = gr.get_groups_of_user_rec(user.id)
         for group in group_list:
             gr.get_group_maintainer_rec(group)
@@ -247,8 +246,8 @@ class UserGroupHandler( PageRequestHandler ):
         user_is_maintainer = group.maintainerId == user.id
         member_list = ur.get_members_of_group(group_id)
 
-        # NOTE: The deadlines are assumed to be sorted by time.
-        # TODO: Retrieve the deadlines associated with the user here.
+        # TODO: Add functionality to integrate the groups with the deadlines
+        # to allow for front-end maintainer validation when modifying deadlines.
         deadline_list = dr.deadlines_for_user_for_group(user.id, group.id)
 
         self.render( self.get_url(),
