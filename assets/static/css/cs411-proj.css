@@ -64,6 +64,14 @@ textarea {
 	overflow-y: auto;
 }
 
+.deadline-expand-icon {
+	margin-top: -18px;
+}
+
+.deadline-expand-icon:hover {
+	cursor: pointer;
+}
+
 /* Modal Styling */
 
 .modal-heading {
@@ -92,10 +100,6 @@ li.deadline-entry, ul.group-forest li, ul.member-list li {
 	padding: 5px;
 	border: 1px solid #cccccc;
 	background: #eeeeee;
-}
-
-li.deadline-entry:hover {
-	cursor: pointer;
 }
 
 ul.deadline-notes li {

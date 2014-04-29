@@ -2,18 +2,39 @@
 	<div class="nested-content-container col-md-12">
 		<ul class="deadline-list">
 			{% for deadline in deadlines %}
-			<li class="deadline-entry">
+			<li id="deadline-{{ deadline.id }}" class="deadline-entry">
 				<h5 class="inner-heading">
-					{{ deadline.group }}: {{ deadline.name }} <small>{{ deadline.deadline }}</small>
+					<strong>{{ deadline.group }}:</strong>
+
+					{% if deadline.type == personal %}
+					<a href="#" class="editable-field" data-name="name" data-type="text"
+					data-pk="{{ deadline.id }}" data-url="/update-deadline-name" data-title="Enter New Name">
+						{{ deadline.name }}
+					</a>
+
+					<small>
+						<a href="#" class="editable-date" data-viewformat="dddd MMMM DD, hh:mm A" 
+						data-format="YYYY-MM-DD HH:mm" data-template="MMMM DD, hh:mm A"
+						data-type="combodate" data-pk="{{ deadline.id }}" 
+						data-url="/update-deadline-time" data-title="Enter New Time">
+							{{ deadline.deadline.strftime( "%A %B %m, %I:%M" ) }}
+						</a>
+					</small>
 				</h5>
+				<span data-id="{{ deadline.id }}" 
+				class="glyphicon glyphicon-chevron-down deadline-expand-icon pull-right"></span>
 
 				<ul class="deadline-notes">
 					<li><small>
-                                            {% if deadline.meta %}
-                                            {{ deadline.meta.notes }}
-                                            {% end %}
-                                        </small></li>
+						{% if deadline.meta %}
+							<a href="#" class="editable-field" data-name="notes" data-type="text"
+							data-pk="{{ deadline.id }}" data-url="/update-deadline-notes" data-title="Enter New Name">
+								{{ deadline.meta.notes }}
+							</a>
+						{% end %}
+					</small></li>
 				</ul>
+
 			</li>
 			{% end %}
 		</ul>
