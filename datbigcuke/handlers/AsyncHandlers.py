@@ -14,6 +14,7 @@ import datetime
 import json
 import urllib
 import sys
+import ConfigParser
 
 # For test async handler only
 import tornado.httpclient
@@ -345,20 +346,33 @@ class AddSubgroupHandler(AsyncRequestHandler):
     def _perform_request(self, user, name, values):
         print "performing request"
         group_id = values[u"group_id"]
-        new_group = values[u"group_name"]
-        new_description = values[u"group_description"]
+        new_group_name = values[u"group_name"]
+        new_group_desc = values[u"group_description"]
+
+        curr_user = self.get_current_user()
 
         gr = GroupRepository()
-        group = Group()
-        group.name = new_group
-        group.description = new_description
-        group.type = 0
-        group = gr.persist(group)
+        new_group = Group()
+        new_group.name = new_group_name
+        new_group.description = new_group_desc
+        new_group.type = 0 # private group
+        new_group.maintainerId = curr_user.id
+        new_group = gr.persist(new_group)
 
-        print "Group: " + str(group)
+        print "Group: " + str(new_group)
 
-        gr.add_group_as_subgroup(group_id, group.id)
+        # assign the subgroup as a child of the parent group
+        gr.add_group_as_subgroup(group_id, new_group.id)
+        gr.close()
+
+        # assign the user as a member of the subgroup
+        user_repo = UserRepository()
+        user_repo.add_user_to_group(curr_user, new_group)
+        user_repo.close()
+
+        self._persist_user(curr_user)
         
+
         pass
 
 # - Get members of parent group (for 'Add member' auto-complete)
@@ -504,9 +518,14 @@ class GoogleAuthHandler( WebRequestHandler ):
         if not user:
             return
 
-        client_id = ""
-        client_secret = ""
-        auth_redirect_api = ""
+        section = 'General'
+
+        parser = ConfigParser.ConfigParser()
+        parser.read('./config/app.conf')
+
+        client_id = parser.get(section, 'client_id')
+        client_secret = parser.get(section, 'client_secret')
+        auth_redirect_api = parser.get(section, 'auth_redirect_api')
 
         #construct the url to redirect the user to
         #that asks them to give us permission
@@ -553,9 +572,14 @@ class GoogleResponseHandler( WebRequestHandler ):
             sys.stderr.write("state = " + self.get_query_argument("state") + '\n')
 
             #form the request
-            client_id = ""
-            client_secret = ""
-            auth_redirect_api = ""
+            section = 'General'
+
+            parser = ConfigParser.ConfigParser()
+            parser.read('./config/app.conf')
+
+            client_id = parser.get(section, 'client_id')
+            client_secret = parser.get(section, 'client_secret')
+            auth_redirect_api = parser.get(section, 'auth_redirect_api')
 
             url = "https://accounts.google.com/o/oauth2/token"
             request = "code=" + self.get_query_argument("code") + "&" +\

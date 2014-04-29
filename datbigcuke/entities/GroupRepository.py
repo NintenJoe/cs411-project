@@ -41,10 +41,10 @@ class GroupRepository(AbstractRepository):
 
                 assert cursor.lastrowid != 0
                 cursor.execute('INSERT INTO `group`'
-                               '(`id`, `name`, `description`, `type`) '
-                               'VALUES (?, ?, ?, ?);',
+                               '(`id`, `name`, `description`, `type`, `maintainerId`) '
+                               'VALUES (?, ?, ?, ?, ?);',
                                (cursor.lastrowid, delta['name'],
-                                delta['description'], delta['type']))
+                                delta['description'], delta['type'], delta['maintainerId']))
                 
                 cursor.execute('SELECT `id`, `name`, `description`, `type`, `maintainerId` '
                                'FROM `group` '

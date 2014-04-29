@@ -134,11 +134,15 @@ class AsyncRequestHandler( WebRequestHandler ):
     def _persist_user(self, user):
         """Save any user changes to the database"""
         user_repo = UserRepository()
-        user_repo.persist(user)
+        user = user_repo.persist(user)
         user_repo.close()
+
+        return user
 
     def _persist_group(self, group):
         """Save any group changes to the database"""
         group_repo = GroupRepository()
-        group_repo.persist(group)
+        group = group_repo.persist(group)
         group_repo.close()
+
+        return group

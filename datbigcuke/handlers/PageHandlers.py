@@ -230,8 +230,9 @@ class UserGroupHandler( PageRequestHandler ):
         ur = UserRepository()
 
         group = gr.fetch(group_id)
-        supergroup_list = gr.get_supergroup_list(group_id)
+        group.maintainer = ur.fetch( group.maintainerId ).name
 
+        supergroup_list = gr.get_supergroup_list(group_id)
         # TODO: Update this logic to display the subgroups only associated with
         # the current user.
         gr.get_group_maintainer_rec( [group] )
