@@ -45,8 +45,8 @@ class DeadlineMetadataRepository(AbstractRepository):
             cursor.execute('SELECT `user_id`, `deadline_id`, `notes` '
                            'FROM `deadline_metadata` '
                            'WHERE `deadline_id`=?', (deadline_id,))
-        for result in self._fetch_all_dict(cursor):
-            deadline_list.append(self._create_entity(data=result))
+            for result in self._fetch_all_dict(cursor):
+                deadline_list.append(self._create_entity(data=result))
             
         return deadline_list
 
