@@ -36,8 +36,8 @@ class GroupRepository(AbstractRepository):
                 # TODO(roh7): figure out whether it is worth using exception
                 # i.e. is there a case this would be true where execute() does
                 # not throw an exception itself?
-                print type(delta['description'])
-                print type(delta['type'])
+                #print type(delta['description'])
+                #print type(delta['type'])
 
                 assert cursor.lastrowid != 0
                 cursor.execute('INSERT INTO `group`'
@@ -50,7 +50,7 @@ class GroupRepository(AbstractRepository):
                                'FROM `group` '
                                'WHERE `id`=LAST_INSERT_ID()')
                 group = self._fetch_group(cursor)
-                print "Just after assignment: " + str(group)
+                #print "Just after assignment: " + str(group)
 
         else:
             # old user object
@@ -149,7 +149,6 @@ class GroupRepository(AbstractRepository):
             
         suplist = self.get_supergroup_list(supergroup.id)
         suplist.append(supergroup)
-        print suplist
         return suplist
 
     def get_subgroups_of_group(self, group_id):
@@ -182,7 +181,6 @@ class GroupRepository(AbstractRepository):
         
     def get_group_maintainer_rec(self, group):
         group.maintainer = UserRepository().fetch(group.maintainerId)
-        print group.name
         for subgroup in group.subgroups:
             self.get_group_maintainer_rec(subgroup)
         

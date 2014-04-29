@@ -120,8 +120,6 @@ class RegistrationHandler( PageRequestHandler ):
             gr.close()
         uiuc = gr.fetch_by_name("UIUC")
 
-        print uiuc
-        print uiuc[0]
         repo = UserRepository()
         repo.persist(user)
         user = repo.get_user_by_email(user_email)
@@ -236,9 +234,10 @@ class UserGroupHandler( PageRequestHandler ):
 
         # TODO: Update this logic to display the subgroups only associated with
         # the current user.
+        gr.get_group_maintainer_rec( [group] )
         subgroup_list = gr.get_subgroups_of_group_rec(group_id)
-        for subgroup in subgroup_list:
-            gr.get_group_maintainer_rec(subgroup)
+        #for subgroup in subgroup_list:
+        #    gr.get_group_maintainer_rec(subgroup)
 
         group_is_public = group.maintainerId == None
         user_is_maintainer = group.maintainerId == user.id
@@ -266,7 +265,6 @@ class UserGroupHandler( PageRequestHandler ):
     ##  @override
     @WebResource.resource_url.getter
     def resource_url( self ):
-        # TODO: Update this variable once DB is integrated!
         return "group.html"
 
 
