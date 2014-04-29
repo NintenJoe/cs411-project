@@ -29,7 +29,6 @@
 	<div class="content-container col-md-12">
 		<div class="row">
 			<div class="col-md-6">
-				<h3><strong>Group Name:</strong> {{ group.name }} </h3>
 				<h3><strong>Group Type:</strong> {{ 'Public' if group_is_public else 'Private' }}</h3>
 				{% if not group_is_public %}
 				<h3><strong>Maintainer:</strong> {{ group.maintainer }}
@@ -41,8 +40,6 @@
 			</div>
 
 			<div class="col-md-6">
-				<h3><strong>Options:</strong></h3>
-
 				<input class="btn btn-default btn-md btn-block goption-button" 
 				data-toggle="modal" data-target="#schedule-query-modal" value="Schedule Meeting">
 
