@@ -127,10 +127,39 @@ INSERT INTO `group_membership` VALUES (@group_id, @user_id);
 
 SET @group_id = (SELECT id FROM `group` WHERE name = 'CS 418 Interactive Computer Graphics');
 
+INSERT INTO `deadline` (`name`, group_id, deadline, `type`)
+VALUES ('HW 1 (END)', @group_id, NOW(), 'END');
+SET @end_id = (SELECT id FROM `deadline` WHERE `name` = 'HW 1 (END)');
+
+INSERT INTO `deadline` (`name`, group_id, deadline, `type`)
+VALUES ('HW 2 (COM)', @group_id, NOW(), 'COM');
+SET @com_id = (SELECT id FROM `deadline` WHERE `name` = 'HW 2 (COM)');
+
+INSERT INTO `deadline` (`name`, group_id, deadline, `type`)
+VALUES ('HW 3 (PER)', @group_id, NOW(), 'PER');
+SET @per_id = (SELECT id FROM `deadline` WHERE `name` = 'HW 3 (PER)');
+
 SET @user_id = (SELECT id FROM user WHERE email = 'josh@halstead.com');
 INSERT INTO `group_membership` VALUES (@group_id, @user_id);
+
+INSERT INTO `deadline_metadata`
+VALUES (@user_id, @end_id, 'Josh Endorsed Deadline Notes');
+
+INSERT INTO `deadline_metadata`
+VALUES (@user_id, @com_id, 'Josh Communal Deadline Notes');
+
+INSERT INTO `deadline_metadata`
+VALUES (@user_id, @per_id, 'Josh Personal Deadline Notes');
+
 SET @user_id = (SELECT id FROM user WHERE email = 'eunsoo@roh.com');
 INSERT INTO `group_membership` VALUES (@group_id, @user_id);
+
+INSERT INTO `deadline_metadata`
+VALUES (@user_id, @end_id, 'Eunsoo  Endorsed Deadline Notes');
+
+INSERT INTO `deadline_metadata`
+VALUES (@user_id, @com_id, 'Eunsoo Communal Deadline Notes');
+
 SET @user_id = (SELECT id FROM user WHERE email = 'kyle@nusbaum.com');
 INSERT INTO `group_membership` VALUES (@group_id, @user_id);
 
@@ -156,9 +185,12 @@ INSERT INTO `group_membership` VALUES (@group_id, @user_id);
 
 SET @group_id = (SELECT id FROM `group` WHERE name = 'CS 473 Study Team');
 
+
+
 SET @user_id = (SELECT id FROM user WHERE email = 'josh@halstead.com');
 INSERT INTO `group_membership` VALUES (@group_id, @user_id);
 SET @user_id = (SELECT id FROM user WHERE email = 'tom@bogue.com');
 INSERT INTO `group_membership` VALUES (@group_id, @user_id);
 SET @user_id = (SELECT id FROM user WHERE email = 'lumen@faey.com');
 INSERT INTO `group_membership` VALUES (@group_id, @user_id);
+
