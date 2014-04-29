@@ -123,6 +123,7 @@ class UserRepository(AbstractRepository):
         with self._conn.cursor() as cursor:
             cursor.execute('INSERT INTO `group_membership` (`group_id`, `member_id`) '
                            'VALUES (?,?)', (group.id, user.id))
+            user.groups.append(user.id)
 
     def mark_verified(self, unique):
         with self._conn.cursor() as cursor:
