@@ -184,6 +184,10 @@ class GroupRepository(AbstractRepository):
             cursor.execute('INSERT INTO `group_membership` (`group_id`, `member_id`)'
                            'VALUES (?,?)', (group_id, subgroup_id))
         
+    def get_group_maintainer(self, group):
+        group.maintainer = UserRepository().fetch(group.maintainerId)
+        return group
+        
     def get_group_maintainer_rec(self, group):
         group.maintainer = UserRepository().fetch(group.maintainerId)
         for subgroup in group.subgroups:
@@ -197,7 +201,8 @@ class GroupRepository(AbstractRepository):
                            'ON `u`.`id` = `gm`.`member_id` '
                            'WHERE `gm`.`group_id` =?', (group_id,))
             result = self._fetch_dict(cursor)
-        
+        return result['count']
+
     def _fetch_group(self, cursor):
         result = self._fetch_dict(cursor)
         if result is not None:

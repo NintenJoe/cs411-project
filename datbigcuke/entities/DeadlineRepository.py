@@ -7,7 +7,7 @@ __author__ = 'Kyle Nusbaum'
 __copyright__ = 'Copyright 2014 Bigdatcuke Project'
 __email__ = 'kjnusba2@illinois.edu'
 
-import datbigcuke.aggregation
+from datbigcuke.aggregation import *
 from datbigcuke.entities.DeadlineMetadata import DeadlineMetadata
 from datbigcuke.entities.DeadlineMetadataRepository import DeadlineMetadataRepository
 from datbigcuke.entities.Deadline import Deadline
@@ -15,7 +15,7 @@ from datbigcuke.entities.AbstractRepository import AbstractRepository
 from datbigcuke.entities.GroupRepository import GroupRepository
 import datbigcuke.db
 import operator
-
+import math
 
 class DeadlineRepository(AbstractRepository):
 
@@ -29,22 +29,23 @@ class DeadlineRepository(AbstractRepository):
         delta.pop('id', None) # make sure id does not exist
         
         if deadline.id is None:
-    
             with self._conn.cursor() as cursor:
                 cursor.execute('INSERT INTO `deadline` (name, group_id, deadline, type) ' 
-                               'VALUES (?,?);',
+                               'VALUES (?,?,?,?);',
                                (delta['name'], delta['group_id'], delta['deadline'], delta['type']))
 
                 cursor.execute('SELECT `id`, `name`, `group_id`, `deadline`, `type` '
                                'FROM `deadline` '
                                'WHERE `id`=LAST_INSERT_ID()')
-                deadline = self._fetch_group(cursor)
-
+                new_deadline = self._fetch_deadline(cursor)
+                
                 if deadline.meta:
-                    deadline.meta.deadline_id = deadline.id
+                    new_deadline.meta = deadline.meta
+                    new_deadline.meta.deadline_id = new_deadline.id
                     dmr = DeadlineMetadataRepository()
-                    dmr.persist(deadline.meta)
+                    dmr.persist(new_deadline.meta)
                     
+                deadline = new_deadline
         else:
             if deadline.meta:
                 dmr = DeadlineMetadataRepository()
@@ -148,7 +149,6 @@ class DeadlineRepository(AbstractRepository):
                 deadline.meta = deadlineMeta
                 deadline_list.append(deadline)
 
-        print "Deadlines: " + str(deadline_list)
         return deadline_list
 
 
@@ -186,6 +186,7 @@ class DeadlineRepository(AbstractRepository):
             return deadline
 
     def deadlines_in_group_with_same_name(self, deadline):
+        deadline_list = []
         with self._conn.cursor() as cursor:
             cursor.execute('SELECT `d`.`id`, `d`.`name`, `d`.`group_id`, `d`.`deadline`, `d`.`type`, `dm`.`user_id`, `dm`.`deadline_id`, `dm`.`notes`, `g`.`name` as `group` '
                            'FROM `deadline` AS `d` '
@@ -193,25 +194,41 @@ class DeadlineRepository(AbstractRepository):
                            'ON `g`.`id` = `d`.`group_id` '
                            'JOIN `deadline_metadata` as `dm` '
                            'ON `dm`.`deadline_id` = `d`.`id` '
-                           'WHERE `d`.`name` =?'
+                           'WHERE `d`.`name` =? '
                            'and `g`.`id` =?', (deadline.name,deadline.group_id))
-
-    
+            for result in self._fetch_all_dict(cursor):
+                deadline = self._create_entity(data=result)
+                deadlineMeta = None
+                if result['user_id']:
+                    deadlineMeta = DeadlineMetadata()
+                    deadlineMeta.user_id = result['user_id']
+                    deadlineMeta.deadline_id = result['id']
+                    deadlineMeta.notes = result['notes']
+                deadline.meta = deadlineMeta
+                deadline_list.append(deadline)
+        return deadline_list
 
     def perform_aggregation(self, deadline):
-        candidates = deadlines_in_group_with_same_name(deadline)
+        candidates = self.deadlines_in_group_with_same_name(deadline)
         candidates_dates = [ deadline.deadline for deadline in candidates]
         gr = GroupRepository()
         threshold = math.ceil(gr.get_group_size(deadline.group_id) / 3) 
         dmr = DeadlineMetadataRepository()
 
+        print "Dates: " + str(candidates_dates)
+        print "Threshold: " + str(threshold)
+        print "Should Aggregate? " + str(should_aggregate(candidates_dates, threshold))
+
         if deadline.type == 'END':
+            print "Performing Aggregation for Endorsed Deadline."
             for candidate in candidates:
                 if candidate.meta:
                     candidate.meta.deadline_id = deadline.id
                     dmr.persist(candidate.meta)
 
+
         elif should_aggregate(candidates_dates, threshold):
+            print "Aggregating for general deadline."
             canonical = deadline
             for candidate in candidates:
                 if candidate.type == 'END':
@@ -236,15 +253,9 @@ class DeadlineRepository(AbstractRepository):
     
     def cleanup_orphan_deadlines(self):
         with self._conn.cursor() as cursor:
-            cursor.execute('DELETE'
-                           'FROM `deadline` as `d` '
-                           'WHERE `d`.`id` in '
-                           '     (SELECT `d`.`id` '
-                           '      FROM `deadline` as `d` '
-                           '      LEFT JOIN `deadline_metadata` as `dm` '
-                           '      ON `dm`.`deadline_id` = `d`.`id` '
-                           '      WHERE `dm`.`deadline_id` IS NULL) ')
-
+            cursor.execute('DELETE FROM `deadline` '
+                           'WHERE `id` NOT IN '
+                           '(SELECT `deadline_id` FROM `deadline_metadata`) ')
 
     def _fetch_deadline(self, cursor):
         result = self._fetch_dict(cursor)

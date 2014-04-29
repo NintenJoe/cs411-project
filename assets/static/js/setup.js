@@ -101,7 +101,6 @@ function main()
                 type: 'POST',
                 url: '/leave-group',
                 data: {'data': JSON.stringify(data1)},
-                dataType: 'application/json',
                 success: function(msg) {
                     window.location.reload();
                 },
@@ -119,7 +118,6 @@ function main()
 					type: 'POST',
 					url: '/delete-group',
 					data: {'data': JSON.stringify(data1)},
-					dataType: 'application/json',
 					success: function(msg) {
 						window.location.reload();
 					},
@@ -139,7 +137,6 @@ function main()
                 type: 'POST',
                 url: '/add-member',
                 data: {'data': JSON.stringify(data1)},
-                dataType: 'application/json',
                 success: function(msg) {
                     $('#add-member-modal').modal('hide');
                 },
@@ -161,7 +158,6 @@ function main()
                 type: 'POST',
                 url: '/add-subgroup',
                 data: {'data': JSON.stringify(data1)},
-                dataType: 'application/json',
                 success: function(msg) {
                     $('#add-subgroup-modal').modal('hide');
                 },
@@ -174,19 +170,18 @@ function main()
         $( "#add-deadline-submit" ).click( function () {
             var data1 = {};
             data1['group_id'] = getGroupID();
-            data1['name'] = $('[name="deadline_name"]').val();
-            data1['deadline'] = $('[name="deadline_datetime"]').val();
-            data1['notes'] = $('[name="deadline_notes"]').val();
+            data1['name'] = $('#deadline_name').val();
+            data1['deadline'] = $('#deadline_datetime').val();
+            data1['notes'] = $('#deadline_notes').val();
             $.ajax({
                 type: 'POST',
                 url: '/add-deadline',
-                data: {'data': JSON.stringify(data1)},
-                dataType: 'application/json',
+                data: {'data': JSON.stringify(data1) },
                 success: function(msg) {
                     $('#add-deadline-modal').modal('hide');
                 },
-                error: function(data) {
-                    alert("Failed to add subgroup.");
+                error: function(data, text) {
+                    alert("Failed to add subgroup." + text);
                 }
             });
         });
