@@ -21,7 +21,6 @@ from os.path import join as join_paths
 from os.path import exists as file_exists
 from datetime import datetime
 
-
 from datbigcuke.handlers.BaseHandlers import WebResource
 from datbigcuke.handlers.BaseHandlers import WebModule
 from datbigcuke.handlers.BaseHandlers import PageRequestHandler
