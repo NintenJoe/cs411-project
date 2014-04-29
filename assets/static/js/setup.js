@@ -20,6 +20,20 @@ function getGroupID()
 	return $( "meta[name=groupid]" ).attr( "content" );
 }
 
+function getBloodhoundForURL( _url )
+{
+	var replacefun = function( u, q ) { return u + "?query=" + q; };
+
+	var bhFinder = new Bloodhound( {
+		datumTokenizer: Bloodhound.tokenizers.obj.whitespace( "value" ),
+		queryTokenizer: Bloodhound.tokenizers.whitespace,
+		remote: { url: _url, wildcard: "%QUERY", replace: replacefun },
+	} );
+
+	bhFinder.initialize();
+	return bhFinder;
+}
+
 // Primary Entry Point //
 
 /**
@@ -50,38 +64,20 @@ function main()
 
 	// Set up Autocomplete Fields ///
 	{
-		var typeahead_options = { hint: true, highlight: true, minlength: 2 };
+		var typeahead_options = { hint: true, highlight: true, minLength: 2 };
 
-		var emailFinder = new Bloodhound( {
-			datumTokenizer: Bloodhound.tokenizers.obj.whitespace( "value" ),
-			queryTokenizer: Bloodhound.tokenizers.whitespace,
-			remote: "../get-emails"
-		} );
-		emailFinder.initialize();
 		$( "#new_user_email" ).typeahead( typeahead_options,
-			{ name: "emails", displaykey: "value", source: emailFinder.ttAdapter() } );
-
-		// TODO: Only allow this feature if the user can add courses.
-		var courseFinder = new Bloodhound( {
-			datumTokenizer: Bloodhound.tokenizers.obj.whitespace( "value" ),
-			queryTokenizer: Bloodhound.tokenizers.whitespace,
-			remote: "../get-courses"
-		} );
-		courseFinder.initialize();
+			{ name: "emails", displaykey: "value", 
+			source: getBloodhoundForURL("../get-users").ttAdapter() } );
 		$( "#group_name" ).typeahead( typeahead_options,
-			{ name: "emails", displaykey: "value", source: courseFinder.ttAdapter() } );
-
-		var deadlineFinder = new Bloodhound( {
-			datumTokenizer: Bloodhound.tokenizers.obj.whitespace( "value" ),
-			queryTokenizer: Bloodhound.tokenizers.whitespace,
-			remote: "../get-deadlines"
-		} );
-		deadlineFinder.initialize();
+			{ name: "groups", displaykey: "value", 
+			source: getBloodhoundForURL("../get-courses").ttAdapter() } );
 		$( "#deadline_name" ).typeahead( typeahead_options,
-			{ name: "emails", displaykey: "value", source: deadlineFinder.ttAdapter() } );
+			{ name: "emails", displaykey: "value", 
+			source: getBloodhoundForURL("../get-deadlines").ttAdapter() } );
 
 		// TODO: Remove this example code.
-		/*$( "#group_name" ).typeahead( { hint: true, highlight: true, minlength: 2 },
+		/*$( "#group_name" ).typeahead( { hint: true, highlight: true, minLength: 2 },
 			{ name: "states", displaykey: "value", source: substringMatcher(states) } );*/
 	}
 
