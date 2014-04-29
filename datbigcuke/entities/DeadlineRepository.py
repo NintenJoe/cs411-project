@@ -101,12 +101,13 @@ class DeadlineRepository(AbstractRepository):
                            'OR (`gm`.`member_id` =? '
                            '    AND (`d`.`type` = \'END\' ' 
                            '         OR `d`.`type` = \'COM\')) '
+                           'GROUP BY `d`.`id` '
                            'ORDER BY `d`.`deadline` ', (user_id, user_id))
 
             for result in self._fetch_all_dict(cursor):
                 deadline = self._create_entity(data=result)
                 deadlineMeta = None
-                if result['deadline_id']:
+                if result['user_id'] == user_id:
                     deadlineMeta = DeadlineMetadata()
                     deadlineMeta.user_id = result['user_id']
                     deadlineMeta.deadline_id = result['id']
