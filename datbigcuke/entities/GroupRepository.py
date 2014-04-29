@@ -182,6 +182,15 @@ class GroupRepository(AbstractRepository):
         group.maintainer = UserRepository().fetch(group.maintainerId)
         for subgroup in group.subgroups:
             self.get_group_maintainer_rec(subgroup)
+
+    def get_group_size(self, group_id):
+        with self._conn.cursor() as cursor:
+            cursor.execute('SELECT `u`.`id`, count(*) as `count` '
+                           'FROM `group_membership` as `gm` '
+                           'JOIN `user` as `u` '
+                           'ON `u`.`id` = `gm`.`member_id` '
+                           'WHERE `gm`.`group_id` =?', (group_id,))
+            result = self._fetch_dict(cursor)
         
     def _fetch_group(self, cursor):
         result = self._fetch_dict(cursor)
