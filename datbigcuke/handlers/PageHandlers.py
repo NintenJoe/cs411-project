@@ -123,8 +123,6 @@ class RegistrationHandler( PageRequestHandler ):
             gr.close()
         uiuc = gr.fetch_by_name("UIUC")
 
-        print uiuc
-        print uiuc[0]
         repo = UserRepository()
         repo.persist(user)
         user = repo.get_user_by_email(user_email)
@@ -229,21 +227,19 @@ class UserGroupHandler( PageRequestHandler ):
     ##  @override
     @tornado.web.authenticated
     def get( self, group_id ):
+        ur = UserRepository()
+        gr = GroupRepository()
+
         # TODO: 404 if the user is not a member of the group.
         user = self.get_current_user()
-
-        gr = GroupRepository()
-        ur = UserRepository()
-
+        # TODO: 404 if the page doesn not exist in the DB.
         group = gr.fetch(group_id)
-        group.maintainer = ur.fetch( group.maintainerId ).name
 
-        supergroup_list = gr.get_supergroup_list(group_id)
         # TODO: Update this logic to display the subgroups only associated with
         # the current user.
-        subgroup_list = gr.get_subgroups_of_group_rec(group_id)
-        for subgroup in subgroup_list:
-            gr.get_group_maintainer_rec(subgroup)
+        supergroup_list = gr.get_supergroup_list(group_id)
+        group.subgroups = gr.get_subgroups_of_group_rec(group_id)
+        gr.get_group_maintainer_rec(group)
 
         group_is_public = group.maintainerId == None
         user_is_maintainer = group.maintainerId == user.id
@@ -256,7 +252,7 @@ class UserGroupHandler( PageRequestHandler ):
         self.render( self.get_url(),
             group = group,
             supergroups = supergroup_list,
-            subgroups = subgroup_list,
+            subgroups = group.subgroups,
             group_is_public = group_is_public,
             user_is_maintainer = user_is_maintainer,
             members = member_list,
@@ -271,7 +267,6 @@ class UserGroupHandler( PageRequestHandler ):
     ##  @override
     @WebResource.resource_url.getter
     def resource_url( self ):
-        # TODO: Update this variable once DB is integrated!
         return "group.html"
 
 
