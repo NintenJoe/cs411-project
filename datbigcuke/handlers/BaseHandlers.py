@@ -131,6 +131,48 @@ class AsyncRequestHandler( WebRequestHandler ):
         raise Exception("AsyncRequestHandler._update must be overriden.")
         pass
 
+    def _in_group(self, user, group):
+        group_repo = GroupRepository()
+        user_groups = group_repo.get_groups_of_user(user.id)
+        group_repo.close()
+
+        if not user_groups or not any(g.id == group.id for g in user_groups):
+            print "User is not a member of group (" + group.id + ")"
+            return False
+
+        return True
+
+    def _group_exists(self, group_id):
+        # Group id is invalid
+        if not group_id:
+            print "Group ID (" + group_id + ") is invalid."
+            return False
+
+        group_repo = GroupRepository()
+        group = group_repo.fetch(group_id)
+        group_repo.close()
+
+        if not group:
+            print "Group (" + str(group_id) + ") doesn't exist."
+            return False 
+
+        return True
+
+    def _user_exists(self, user_id):
+        # User must exist
+        user_repo = GroupRepository()
+        user = user_repo.fetch(user_id)
+        user_repo.close()
+
+        if not user:
+            print "User (" + str(user_id) + ") doesn't exist."
+            return False 
+
+        return True
+
+
+        pass
+
     def _persist_user(self, user):
         """Save any user changes to the database"""
         user_repo = UserRepository()
