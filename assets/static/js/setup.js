@@ -17,7 +17,7 @@
  */
 function getGroupID()
 {
-	return $( "meta[name=groupid]" ).attr( "content" );
+    return $( "meta[name=groupid]" ).attr( "content" );
 }
 
 function getBloodhoundForURL( _url )
@@ -101,31 +101,31 @@ function main()
                 url: '/leave-group',
                 data: {'data': JSON.stringify(data1)},
                 dataType: 'application/json',
-                complete: function(msg) {
+                success: function(msg) {
                     window.location.reload();
                 },
-                fail: function(data) {
+                error: function(data) {
                     alert("Failed to leave group.");
                 }
             });
         });
- 
+        
 		$( "#delete_group" ).click( function() {
-            var data1 = {};
-            data1['group_id'] = getGroupID();
-
-            $.ajax({
-                type: 'POST',
-                url: '/delete-group',
-                data: {'data': JSON.stringify(data1)},
-                dataType: 'application/json',
-                complete: function(msg) {
-                    window.location.reload();
-                },
-                fail: function(data) {
-                    alert("Failed to delete group.");
-                }
-            }); 
+				var data1 = {};
+				data1['group_id'] = getGroupID();
+				
+				$.ajax({
+					type: 'POST',
+					url: '/delete-group',
+					data: {'data': JSON.stringify(data1)},
+					dataType: 'application/json',
+					success: function(msg) {
+						window.location.reload();
+					},
+					error: function(data) {
+						alert("Failed to delete group.");
+					}
+				}); 
 		});
         
         $( "#add-member-submit" ).click( function () {
@@ -139,16 +139,16 @@ function main()
                 url: '/add-member',
                 data: {'data': JSON.stringify(data1)},
                 dataType: 'application/json',
-                complete: function(msg) {
+                success: function(msg) {
                     $('#add-member-modal').modal('hide');
                 },
-                fail: function(data) {
+                error: function(data) {
                     alert("Failed to add user to group.");
                 }
             });
         });
-            
-                    
+        
+        
         $( "#add-subgroup-submit" ).click( function () {
             var data1 = {};
             data1['group_id'] = getGroupID();
@@ -161,15 +161,35 @@ function main()
                 url: '/add-subgroup',
                 data: {'data': JSON.stringify(data1)},
                 dataType: 'application/json',
-                complete: function(msg) {
+                success: function(msg) {
                     $('#add-subgroup-modal').modal('hide');
                 },
-                fail: function(data) {
+                error: function(data) {
                     alert("Failed to add subgroup.");
                 }
             });
         });
-	}
+        
+        $( "#add-deadline-submit" ).click( function () {
+            var data1 = {};
+            data1['group_id'] = getGroupID();
+            data1['name'] = $('[name="deadline_name"]').val();
+            data1['deadline'] = $('[name="deadline_datetime"]').val();
+            data1['notes'] = $('[name="deadline_notes"]').val();
+            $.ajax({
+                type: 'POST',
+                url: '/add-deadline',
+                data: {'data': JSON.stringify(data1)},
+                dataType: 'application/json',
+                success: function(msg) {
+                    $('#add-deadline-modal').modal('hide');
+                },
+                error: function(data) {
+                    alert("Failed to add subgroup.");
+                }
+            });
+        });
+    }
 }
 
 
