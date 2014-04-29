@@ -223,21 +223,19 @@ class UserGroupHandler( PageRequestHandler ):
     ##  @override
     @tornado.web.authenticated
     def get( self, group_id ):
+        ur = UserRepository()
+        gr = GroupRepository()
+
         # TODO: 404 if the user is not a member of the group.
         user = self.get_current_user()
-
-        gr = GroupRepository()
-        ur = UserRepository()
-
+        # TODO: 404 if the page doesn not exist in the DB.
         group = gr.fetch(group_id)
-        group.maintainer = ur.fetch( group.maintainerId ).name if group.maintainerId else None
 
         # TODO: Update this logic to display the subgroups only associated with
         # the current user.
-        gr.get_group_maintainer_rec( group )
-        subgroup_list = gr.get_subgroups_of_group_rec(group_id)
-
         supergroup_list = gr.get_supergroup_list(group_id)
+        group.subgroups = gr.get_subgroups_of_group_rec(group_id)
+        gr.get_group_maintainer_rec(group)
 
         group_is_public = group.maintainerId == None
         user_is_maintainer = group.maintainerId == user.id
@@ -250,7 +248,7 @@ class UserGroupHandler( PageRequestHandler ):
         self.render( self.get_url(),
             group = group,
             supergroups = supergroup_list,
-            subgroups = subgroup_list,
+            subgroups = group.subgroups,
             group_is_public = group_is_public,
             user_is_maintainer = user_is_maintainer,
             members = member_list,
