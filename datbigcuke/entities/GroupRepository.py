@@ -105,7 +105,7 @@ class GroupRepository(AbstractRepository):
                            'WHERE `m`.`member_id`=?', (user_id,))
             for result in self._fetch_all_dict(cursor):
                 group_list.append(self._create_entity(data=result))
-
+                
         return group_list
 
     # TODO(ciurej2): Improve this function to be less hacky.

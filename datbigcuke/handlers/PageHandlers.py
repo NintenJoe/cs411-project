@@ -176,7 +176,7 @@ class UserMainHandler( PageRequestHandler ):
         # NOTE: The deadlines are assumed to be sorted by time.
         # TODO: Retrieve the deadlines associated with the user here.
         deadline_list = dr.deadlines_for_user(user.id)
-        
+
         group_list = gr.get_groups_of_user_rec(user.id)
         for group in group_list:
             gr.get_group_maintainer_rec(group)
@@ -247,7 +247,7 @@ class UserGroupHandler( PageRequestHandler ):
 
         # NOTE: The deadlines are assumed to be sorted by time.
         # TODO: Retrieve the deadlines associated with the user here.
-        deadline_list = []
+        deadline_list = DeadlineRepository().deadlines_for_user_for_group(user.id, group.id)
 
         self.render( self.get_url(),
             group = group,

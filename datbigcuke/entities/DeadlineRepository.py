@@ -82,7 +82,7 @@ class DeadlineRepository(AbstractRepository):
     def deadlines_for_user(self, user_id):
         deadline_list = []
         with self._conn.cursor() as cursor:
-            cursor.execute('SELECT `d`.`id`, `d`.`name`, `d`.`group_id`, `d`.`deadline`, `d`.`type`, `dm`.`user_id`, `dm`.`deadline_id`, `dm`.`notes`, `g`.`name` as `group` '
+            cursor.execute('SELECT DISTINCT `d`.`id`, `d`.`name`, `d`.`group_id`, `d`.`deadline`, `d`.`type`, `dm`.`user_id`, `dm`.`deadline_id`, `dm`.`notes`, `g`.`name` as `group` '
                            'FROM `deadline` as `d` '
                            'LEFT JOIN `deadline_metadata` as `dm` '
                            'ON `dm`.`deadline_id` = `d`.`id`'
@@ -94,7 +94,7 @@ class DeadlineRepository(AbstractRepository):
                            'OR (`gm`.`member_id` =? '
                            '    AND (`d`.`type` = \'END\' ' 
                            '         OR `d`.`type` = \'COM\')) '
-                           'ORDER BY `d`.`deadline` DESC ', (user_id, user_id))
+                           'ORDER BY `d`.`deadline` ', (user_id, user_id))
 
             for result in self._fetch_all_dict(cursor):
                 deadline = self._create_entity(data=result)
@@ -108,7 +108,50 @@ class DeadlineRepository(AbstractRepository):
                 deadline_list.append(deadline)
 
         return deadline_list
+
+
+    def deadlines_for_user_for_group(self, user_id, group_id):
+        deadline_list = []
+        with self._conn.cursor() as cursor:
+            cursor.execute('SELECT DISTINCT `d`.`id`, `d`.`name`, `d`.`group_id`, `d`.`deadline`, `d`.`type`, `dm`.`user_id`, `dm`.`deadline_id`, `dm`.`notes`, `g`.`name` as `group` '
+                           'FROM `deadline` as `d` '
+                           'LEFT JOIN `deadline_metadata` as `dm` '
+                           'ON `dm`.`deadline_id` = `d`.`id`'
+                           'JOIN `group` as `g` '
+                           'ON `g`.`id` = `d`.`group_id` '
+                           'JOIN `group_membership` as `gm` '
+                           'ON `gm`.`group_id` = `g`.`id` '
+                           'WHERE (`dm`.`user_id` =? '
+                           'OR (`gm`.`member_id` =? '
+                           '    AND (`d`.`type` = \'END\' ' 
+                           '         OR `d`.`type` = \'COM\'))) '
+                           'AND `d`.`group_id` =? '
+                           'ORDER BY `d`.`deadline` ', (user_id, user_id, group_id))
+
+            for result in self._fetch_all_dict(cursor):
+                deadline = self._create_entity(data=result)
+                deadlineMeta = None
+                if result['deadline_id']:
+                    deadlineMeta = DeadlineMetadata()
+                    deadlineMeta.user_id = result['user_id']
+                    deadlineMeta.deadline_id = result['id']
+                    deadlineMeta.notes = result['notes']
+                deadline.meta = deadlineMeta
+                deadline_list.append(deadline)
+
+        return deadline_list
+
+
+    def deadlines_for_group(self, group_id):
+        deadline_list = []
+        with self._conn.cursor() as cursor:
+            cursor.execute('SELECT `d`.`id`, `d`.`name`, `d`.`group_id`, `d`.`deadline`, `d`.`type` '
+                           'FROM `deadline` AS `d` '
+                           'WHERE `d`.`group_id` =?', (group_id,))
             
+            for result in self._fetch_all_dict(cursor):
+                deadline_list.append(self._create_entity(data=result))
+        
 
     def _fetch_deadline(self, cursor):
         result = self._fetch_dict(cursor)
