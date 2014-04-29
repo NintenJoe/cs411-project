@@ -9,27 +9,27 @@
 				{% if modal_id == 'add-member' %}
 				<div class="col-md-12 form-group">
 					<label for="user_email">New Member's Email</label>
-					<input type="email" class="form-control" name="user_email" placeholder="Email Address">
+					<input type="email" class="form-control" id="user_email" placeholder="Email Address">
 				</div>
 				{% elif modal_id == 'add-subgroup' %}
 				<div class="col-md-12 form-group">
 					<label for="group_name">New Subgroup Name</label>
-					<input type="text" class="form-control" name="group_name" placeholder="Group Name">
+					<input type="text" class="form-control" id="group_name" placeholder="Group Name">
 				</div>
 				<div class="col-md-12 form-group">
          	<label for="group_description">New Subgroup Description</label>
-					<input type="textfield" class="form-control" name="group_description" placeholder="Group Description">
+					<input type="textfield" class="form-control" id="group_description" placeholder="Group Description">
 				</div>
 				{% elif modal_id == 'add-deadline' %}
 				<div class="col-md-6 form-group">
 					<label for="deadline_name">New Deadline Name</label>
-					<input type="text" class="form-control" name="deadline_name" placeholder="HW1">
+					<input type="text" class="form-control" id="deadline_name" placeholder="HW1">
 				</div>
 
 				<div class="col-md-6 form-group">
 					<label for="deadline_datetime">New Deadline Time</label>
 					<div class="datetimepicker-form input-group date">
-						<input type="text" class="form-control" name="deadline_datetime">
+						<input type="text" class="form-control" id="deadline_datetime">
 						<span class="input-group-addon">
 							<span class="glyphicon glyphicon-calendar"></span>
 						</span>
@@ -37,8 +37,8 @@
 				</div>
 
 				<div class="col-md-12 form-group">
-					<label for="group_name">New Deadline Notes</label>
-					<input type="text" class="form-control" name="deadline_notes" 
+					<label for="deadline_notes">New Deadline Notes</label>
+					<input type="text" class="form-control" id="deadline_notes" 
 					placeholder="Remember to get started early!">
 				</div>
 				{% end %}

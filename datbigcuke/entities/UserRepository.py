@@ -60,6 +60,12 @@ class UserRepository(AbstractRepository):
         self._update_group_membership(user)
         return user
 
+    def remove(self, user):
+        with self._conn.cursor() as cursor:
+            cursor.execute('DELETE FROM `membership_entity` WHERE `id`=?',
+                           (user.id,))
+            user.invalidate()
+
     def _update_group_membership(self, user):
         if user.groups is None:
             return
