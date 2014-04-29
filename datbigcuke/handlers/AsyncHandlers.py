@@ -315,12 +315,14 @@ class AddSubgroupHandler(AsyncRequestHandler):
         values = self.get_argument("data", default=None)
 
         if not curr_user or not values:
+            print "Invalid Request. Parameters Missing"
             return
 
         # We don't need the 'name' field. It's encoded in the data dictionary
         # Keys are unicode after json.loads conversion
         values = json.loads(values)
         if not self._valid_request(curr_user, "", values):
+            print "Invalid Request. Parameters Empty"
             return
 
         self._perform_request(curr_user, "", values)

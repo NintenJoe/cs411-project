@@ -132,7 +132,7 @@ function main()
             data1['group_id'] = getGroupID();
 
             // Input element has no ID tag defined 
-            data1['user_email'] = $('[name="user_email"]').val();
+            data1['user_email'] = $('#user_email').val();
             $.ajax({
                 type: 'POST',
                 url: '/add-member',
@@ -152,8 +152,8 @@ function main()
             data1['group_id'] = getGroupID();
 
             // Input element has no ID tag defined 
-            data1['group_name'] = $('[name="group_name"]').val();
-            data1['group_description'] = $('[name="group_description"]').val();
+            data1['group_name'] = $('#group_name').val();
+            data1['group_description'] = $('#group_description').val();
             $.ajax({
                 type: 'POST',
                 url: '/add-subgroup',
