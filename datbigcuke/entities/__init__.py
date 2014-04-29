@@ -10,4 +10,6 @@ from datbigcuke.entities.User import User
 from datbigcuke.entities.Group import Group
 from datbigcuke.entities.UserRepository import UserRepository
 from datbigcuke.entities.GroupRepository import GroupRepository
+from datbigcuke.entities.Deadline import Deadline
+from datbigcuke.entities.DeadlineMetadata import DeadlineMetadata
 from datbigcuke.entities.DeadlineRepository import DeadlineRepository
