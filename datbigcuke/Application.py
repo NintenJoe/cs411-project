@@ -45,6 +45,7 @@ class Application( tornado.web.Application ):
 
             # Asynchronous Request Handlers #
             ( r"/leave-group", LeaveGroupHandler ),
+            ( r"/delete-group", DeleteGroupHandler ),
             ( r"/update-user-name", UpdateNameHandler ),
             ( r"/update-user-email", UpdateEmailHandler ),
             ( r"/add-member", AddMemberHandler ),

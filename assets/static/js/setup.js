@@ -74,9 +74,22 @@ function main()
         });
  
 		$( "#delete_group" ).click( function() {
-			alert( "Deleting group" );
-			$.post( "/" );
-		} );
+            var data1 = {};
+            data1['group_id'] = getGroupID();
+
+            $.ajax({
+                type: 'POST',
+                url: '/delete-group',
+                data: {'data': JSON.stringify(data1)},
+                dataType: 'application/json',
+                complete: function(msg) {
+                    window.location.reload();
+                },
+                fail: function(data) {
+                    alert("Failed to delete group.");
+                }
+            }); 
+		});
         
         $( "#add-member-submit" ).click( function () {
             var data1 = {};
