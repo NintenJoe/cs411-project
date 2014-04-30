@@ -26,6 +26,8 @@ textarea {
 	resize: vertical;
 }
 
+a:hover { color: #333333 !important; }
+
 .inner-heading {
 	margin: 2px;
 	padding: 0px;

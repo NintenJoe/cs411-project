@@ -20,6 +20,10 @@ function getGroupID()
     return $( "meta[name=groupid]" ).attr( "content" );
 }
 
+/**
+ * @return bhFinder A 'BloodHound' instance that queries the back-end handler
+ *  at the given url for autocomplete information.
+ */
 function getBloodhoundForURL( _url )
 {
 	var replacefun = function( u, q ) { return u + "?query=" + q; };
@@ -34,6 +38,17 @@ function getBloodhoundForURL( _url )
 	return bhFinder;
 }
 
+/**
+ * The validation function for all basic fields using bootstrap editable.
+ *
+ * @see http://vitalets.github.io/x-editable/demo-bs3.html
+ */
+function validateFieldForm( _value )
+{
+	if( $.trim(_value) == "" )
+		return "Field Required"
+}
+
 // Primary Entry Point //
 
 /**
@@ -45,9 +60,9 @@ function main()
 	{
 		// Setup the Editable Fields //
 		$.fn.editable.defaults.mode = "popup";
-		$( ".editable-field" ).editable( { placement: "bottom" } );
+		$( ".editable-field" ).editable( { placement: "bottom", validate: validateFieldForm } );
 		$( ".editable-date" ).editable( { placement: "bottom", firstitem: "name" } );
-		$( ".editable-notes" ).editable( { placement: "right" } );
+		$( ".editable-notes" ).editable( { placement: "right", validate: validateFieldForm } );
 
 		// Setup the Deadline List Modules //
 		$( ".deadline-notes" ).hide();
@@ -57,7 +72,7 @@ function main()
 		} );
 
 		// Setup the Datetime Picker Modules //
-		$( ".datetimepicker-form" ).datetimepicker();
+		$( ".datetimepicker-form" ).datetimepicker( {minDate: Date.now()} );
 		$( ".timepicker-form" ).datetimepicker( {pickDate: false} );
 
 		// Setup the Select Modules //
