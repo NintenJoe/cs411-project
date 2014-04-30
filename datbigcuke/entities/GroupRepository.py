@@ -40,17 +40,18 @@ class GroupRepository(AbstractRepository):
                 #print type(delta['type'])
 
                 assert cursor.lastrowid != 0
+                group_id = cursor.lastrowid
                 cursor.execute('INSERT INTO `group`'
                                '(`id`, `name`, `description`, `type`,'
                                ' `maintainerId`, `academic_entity_id`) '
                                'VALUES (?, ?, ?, ?, ?, ?);',
-                               (cursor.lastrowid,
+                               (group_id,
                                 group.name,
                                 group.description,
                                 group.type,
                                 group.maintainerId,
                                 group.academic_entity_id))
-                group = self._fetch(cursor, cursor.lastrowid)
+                group = self._fetch(cursor, group_id)
 
         else:
             # old user object
@@ -145,7 +146,7 @@ class GroupRepository(AbstractRepository):
         return group_list
 
     # TODO(ciurej2): Modify base group ID to be the ID of the UIUC group.
-    def get_user_group_tree(self, user_id, base_group_id=1L):
+    def get_user_group_tree(self, user_id, base_group_id):
         user_group_list = self.get_groups_of_user(user_id)
         user_group_ids = { group.id : group for group in user_group_list }
 

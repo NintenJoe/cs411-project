@@ -27,8 +27,7 @@ class DeadlineRepository(AbstractRepository):
 
         delta = deadline.get_delta()
         delta.pop('id', None) # make sure id does not exist
-        delta.pop('meta', None)
-
+        
         if deadline.id is None:
             with self._conn.cursor() as cursor:
                 cursor.execute('INSERT INTO `deadline` (name, group_id, deadline, type) ' 
@@ -43,7 +42,6 @@ class DeadlineRepository(AbstractRepository):
                 if deadline.meta:
                     new_deadline.meta = deadline.meta
                     new_deadline.meta.deadline_id = new_deadline.id
-                    new_deadline.meta.insert = True
                     dmr = DeadlineMetadataRepository()
                     dmr.persist(new_deadline.meta)
                     
@@ -57,7 +55,7 @@ class DeadlineRepository(AbstractRepository):
                 assert 'id' not in delta
                 keys = delta.keys()
                 args = list(delta.values())
-                args.append(deadline.id)
+                args.append(user.id)
                 query = ','.join('`{}`=?'.format(k) for k in keys)
                 with self._conn.cursor() as cursor:
                     cursor.execute('UPDATE `deadline` '
@@ -150,8 +148,7 @@ class DeadlineRepository(AbstractRepository):
                     deadlineMeta.notes = result['notes']
                 deadline.meta = deadlineMeta
                 deadline_list.append(deadline)
-                print "Result: ", result
-        print "List: ", deadline_list
+
         return deadline_list
 
 
@@ -183,7 +180,7 @@ class DeadlineRepository(AbstractRepository):
             if result['deadline_id']:
                 deadlineMeta = DeadlineMetadata()
                 deadlineMeta.user_id = result['user_id']
-                deadlineMeta.deadline_id = result['deadline_id']
+                deadlineMeta.deadline_id = result['id']
                 deadlineMeta.notes = result['notes']
             deadline.meta = deadlineMeta
             return deadline
@@ -215,7 +212,7 @@ class DeadlineRepository(AbstractRepository):
         candidates = self.deadlines_in_group_with_same_name(deadline)
         candidates_dates = [ deadline.deadline for deadline in candidates]
         gr = GroupRepository()
-        threshold = math.ceil(gr.get_group_size(deadline.group_id) / 3)
+        threshold = math.ceil(gr.get_group_size(deadline.group_id) / 3) 
         dmr = DeadlineMetadataRepository()
 
         print "Dates: " + str(candidates_dates)

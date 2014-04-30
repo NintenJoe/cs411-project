@@ -30,6 +30,7 @@ from datbigcuke.entities import Group
 from datbigcuke.entities import GroupRepository
 from datbigcuke.entities import Deadline
 from datbigcuke.entities import DeadlineRepository
+from datbigcuke.entities import InstitutionRepository
 from datbigcuke.cukemail import CukeMail
 
 
@@ -113,21 +114,12 @@ class RegistrationHandler( PageRequestHandler ):
         user.password = self.get_argument("user_password")
         user.confirmUUID = unique
 
-        gr = GroupRepository()
-        uiuc = gr.fetch_by_name("UIUC")
-        if uiuc == []:
-            g = Group()
-            g.name = "UIUC"
-            g.description = "University of Illinois at Urbana/Champaign"
-            g.type = 0
-            gr.persist(g)
-            gr.close()
-        uiuc = gr.fetch_by_name("UIUC")
+        uiuc = self.get_root_group()
 
         repo = UserRepository()
-        user = repo.persist(user)
-        user.groups = []
-        repo.add_user_to_group(user, uiuc[0])
+        repo.persist(user)
+        user = repo.get_user_by_email(user_email)
+        repo.add_user_to_group(user, uiuc)
         repo.close()
 
         ## Send a verification email to the user
@@ -173,9 +165,10 @@ class UserMainHandler( PageRequestHandler ):
         gr = GroupRepository()
         dr = DeadlineRepository()
 
+        root_group = self.get_root_group()
         user = self.get_current_user()
-        root_group = gr.get_user_group_tree(user.id)
-        gr.get_group_maintainer_rec(root_group)
+        root_group_tree = gr.get_user_group_tree(user.id, root_group.id)
+        gr.get_group_maintainer_rec(root_group_tree)
 
         deadline_list = dr.deadlines_for_user(user.id)
         for deadline in deadline_list:
@@ -184,7 +177,7 @@ class UserMainHandler( PageRequestHandler ):
         self.render( self.get_url(),
             user = user,
             deadlines = deadline_list,
-            groups = [ root_group ]
+            groups = [ root_group_tree ]
         )
 
     ##  @override
@@ -243,6 +236,7 @@ class UserGroupHandler( PageRequestHandler ):
         member_list = ur.get_members_of_group(group_id)
 
         deadline_list = dr.deadlines_for_user_for_group(user.id, group.id)
+        print "Deadline List: ", deadline_list
         for deadline in deadline_list:
             deadline.group = group
 

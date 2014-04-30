@@ -18,6 +18,8 @@ from datbigcuke.entities import User
 from datbigcuke.entities import UserRepository
 from datbigcuke.entities import Group
 from datbigcuke.entities import GroupRepository
+from datbigcuke.entities import TermRepository
+from datbigcuke.entities import InstitutionRepository
 
 
 ##  An abstract base class for types that correspond to particular web
@@ -70,6 +72,43 @@ class WebRequestHandler( tornado.web.RequestHandler ):
         else:
             self.clear_cookie( self.cookie_name )
 
+    def get_root_group(self):
+        # TODO(roh7): this is a hack
+        uiuc_name = "University of Illinois at Urbana-Champaign"
+        ir = InstitutionRepository()
+        institutions = ir.fetch_all()
+        uiuc = None
+        for inst in institutions:
+            if inst.name == uiuc_name:
+                uiuc = inst
+                break
+        ir.close()
+
+        assert uiuc is not None, 'institution for UIUC group not found...'
+        # with the UIUC group, find the term. we currently want UIUC Spring 2014.
+        tr = TermRepository()
+        gr = GroupRepository()
+        term = tr.fetch_term_by_year_index(uiuc, 2014, 0)
+        assert term is not None, 'Spring 2014 not found...'
+
+        if term.group:
+            root = gr.fetch(term.group)
+        else:
+            # create UIUC group
+            root = Group()
+            root.name = "UIUC " + term.name
+            root.description = uiuc_name
+            root.type = 0
+            # make sure bidirectional references work
+            root.academic_entity_id = term.id
+            root = gr.persist(root)
+            term.group = root.id
+            tr.persist(term)
+        tr.close()
+        gr.close()
+        return root
+
+
     ### User Resource Methods ###
 
     ##  @return The string that identifies the cookie stored on the user's
@@ -118,7 +157,6 @@ class AsyncRequestHandler( WebRequestHandler ):
             print "no values"
             return
 
-        print "Good job"
         name = name[0].decode("utf-8")
         if not self._valid_request(user, name, values):
             return

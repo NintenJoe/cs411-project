@@ -18,7 +18,9 @@ import ConfigParser
 
 # For test async handler only
 import tornado.httpclient
-from datetime import datetime
+
+from datetime import datetime, date
+from tornado import gen
 
 from datbigcuke.scheduler import *
 from datbigcuke.handlers.BaseHandlers import WebResource
@@ -30,16 +32,13 @@ from datbigcuke.entities import UserRepository
 from datbigcuke.entities import Deadline
 from datbigcuke.entities import DeadlineMetadata
 from datbigcuke.entities import DeadlineRepository
+from datbigcuke.entities import DeadlineMetadataRepository
 from datbigcuke.entities import Group
 from datbigcuke.entities import GroupRepository
 from datbigcuke.cukemail import CukeMail
 
 
-# @TODO(halstea2) sanitize user data??
-# @TODO(halstea2) Require authentication for all via @tornado.web.authenticated
-
 class TestHandler(AsyncRequestHandler):
-    @tornado.gen.coroutine
     @tornado.web.authenticated
     def post(self):
         data = self.get_argument("data", default=None)
@@ -82,6 +81,7 @@ class TestHandler(AsyncRequestHandler):
 #                }
 #            });
 #        })(event, this)"> Test Leave Group </button>
+
 
 # - Add member to group
 #   - Data: Group ID, New User ID
@@ -204,7 +204,6 @@ class AddSubgroupHandler(AsyncRequestHandler):
         return True
 
     def _perform_request(self, user, name, values):
-        print "performing request"
         group_id = values[u"group_id"]
         new_group_name = values[u"group_name"]
         new_group_desc = values[u"group_description"]
@@ -299,6 +298,187 @@ class AddDeadlineHandler(AsyncRequestHandler):
         dr.close()
 
         pass
+
+
+
+
+# - Send email after meeting has been scheduled
+# - Data: Group ID, Email Message, Time
+class AddDeadlineHandler(AsyncRequestHandler):
+    @tornado.web.authenticated
+    # @TODO(halstea2) We chould create a 'complex' async handler base that
+    # is aware of a dictionary of values
+    def post(self):
+        curr_user = self.get_current_user()
+        values = self.get_argument("data", default=None)
+
+        if not curr_user or not values:
+            return
+
+        # We don't need the 'name' field. It's encoded in the data dictionary
+        # Keys are unicode after json.loads conversion
+        values = json.loads(values)
+        if not self._valid_request(curr_user, "", values):
+            return
+
+        self._perform_request(curr_user, "", values)
+
+    def _valid_request(self, curr_user, name, values):
+        # Malformed request
+        if u"group_id" not in values or u"name" not in values or u"deadline" not in values or u"notes" not in values:
+            return False
+
+        # Malformed request
+        group_id = values[u"group_id"]
+        name = values[u"name"]
+        deadline = values[u"deadline"]
+        notes = values[u"notes"]
+        if not group_id or not name or not deadline or not notes:
+            return False
+
+        return True
+
+    def _perform_request(self, user, name, values):
+        group_id = values[u"group_id"]
+        name = values[u"name"]
+        deadline = values[u"deadline"]
+        notes = values[u"notes"]
+        curr_user = self.get_current_user()
+
+
+        dr = DeadlineRepository()
+        gr = GroupRepository()
+        group = gr.fetch(group_id)
+        gr.get_group_maintainer(group)
+
+        new_deadline = Deadline()
+        new_deadline.meta = DeadlineMetadata()
+
+        new_deadline.name = name
+        new_deadline.group_id = group_id
+        new_deadline.deadline = datetime.strptime(deadline, u'%m/%d/%Y %I:%M %p') # private group
+        if(group.maintainer and group.maintainer.id == user.id):
+            new_deadline.type = 'END'
+        else:
+            new_deadline.type = 'PER'
+        new_deadline.meta.user_id = user.id
+        new_deadline.meta.notes = notes
+        new_deadline = dr.persist(new_deadline)
+
+        dr.close()
+
+        pass
+
+# - Add course for user
+# - Data: Course Name
+class AddCourseHandler(AsyncRequestHandler):
+    @tornado.web.authenticated
+    # @TODO(halstea2) We chould create a 'complex' async handler base that
+    # is aware of a dictionary of values
+    def post(self):
+        curr_user = self.get_current_user()
+        values = self.get_argument("data", default=None)
+
+        if not curr_user or not values:
+            print "Invalid Request. Parameters Missing"
+            return
+
+        # We don't need the 'name' field. It's encoded in the data dictionary
+        # Keys are unicode after json.loads conversion
+        values = json.loads(values)
+        if not self._valid_request(curr_user, "", values):
+            print "Invalid Request. Parameters Empty"
+            return
+
+        self._perform_request(curr_user, "", values)
+        pass
+
+    def _valid_request(self, curr_user, name, values):
+        # Malformed request
+        if u"course_name" not in values:
+            return False
+
+        # Malformed request
+        course_name = values[u"course_name"]
+        if not course_name:
+            return False
+
+        return True
+
+    def _perform_request(self, user, name, values):
+        course_name = values[u"course_name"]
+        curr_user = self.get_current_user()
+
+        gr = GroupRepository()
+        group = gr.fetch_by_name(course_name)
+        gr.close()
+
+        # assign the user as a member of the subgroup
+        user_repo = UserRepository()
+        user_repo.add_user_to_group(curr_user, group[0])
+        user_repo.close()
+
+        self._persist_user(curr_user)
+
+# - Send email for meeting
+# - Data: Meeting Time, Meeting Message
+class SendEmailHandler(AsyncRequestHandler):
+    @tornado.web.authenticated
+    # @TODO(halstea2) We chould create a 'complex' async handler base that
+    # is aware of a dictionary of values
+    def post(self):
+        curr_user = self.get_current_user()
+        values = self.get_argument("data", default=None)
+
+        if not curr_user or not values:
+            print "Invalid Request. Parameters Missing"
+            return
+
+        # We don't need the 'name' field. It's encoded in the data dictionary
+        # Keys are unicode after json.loads conversion
+        values = json.loads(values)
+        if not self._valid_request(curr_user, "", values):
+            print "Invalid Request. Parameters Empty"
+            return
+
+        self._perform_request(curr_user, "", values)
+        pass
+
+    def _valid_request(self, curr_user, name, values):
+        # Malformed request
+        if u"meeting_time" not in values or "meeting_message" not in values or "group_id" not in values:
+            return False
+
+        # Malformed request
+        meeting_time  = values[u"meeting_time"]
+        meeting_message = values[u"meeting_message"]
+        group_id = values[u"group_id"]
+        if not meeting_time or not meeting_message or not group_id:
+            return False
+
+        return True
+
+    def _perform_request(self, user, name, values):
+        meeting_time  = values[u"meeting_time"]
+        meeting_message = values[u"meeting_message"]
+        group_id = values[u"group_id"]
+        curr_user = self.get_current_user()
+
+        ur = UserRepository()
+        users = ur.get_members_of_group(group_id)        
+        ur.close()
+
+        gr = GroupRepository()
+        group = gr.fetch(group_id)
+        gr.close()
+
+        cm = CukeMail()
+        cm.subject(group.name + " meeting @ " + meeting_time)
+        cm.message(meeting_message)
+        cm.send([user.email for user in users])
+
+        self._persist_user(curr_user)
+
 
 # - Get members of parent group (for 'Add member' auto-complete)
 #   - Data: Parent Group ID
@@ -492,8 +672,6 @@ class ScheduleHandler(AsyncRequestHandler):
 
             group_members[email] = events
         
-        #print str(schedule_meeting(group_members, deadline, duration, off_limits_start, off_limits_end)[:15])
-
         meets = schedule_meeting(group_members, deadline, duration, off_limits_start, off_limits_end)
 
         result = []
@@ -504,6 +682,256 @@ class ScheduleHandler(AsyncRequestHandler):
         self.flush
         self.finish
     
+
+class EditMetadataNotesHandler(AsyncRequestHandler):
+    @tornado.web.authenticated
+    def post(self):
+        user = self.get_current_user()
+        name = self.get_arguments("name", None)
+        deadline_id = self.get_arguments("pk", None)
+        values = self.get_arguments("value", None)
+
+        # 'Logged-in' user must be defined
+        if not user:
+            print "no user"
+            return
+
+        # Name list must not be empty
+        if not name:
+            print "no name"
+            return
+
+        # PK list must not be empty
+        if not deadline_id:
+            print "no deadline_id"
+            return
+        deadline_id = int(deadline_id[0].decode("utf-8"))
+
+        # Value list must be defined
+        if not values:
+            print "no values"
+            return
+
+        name = name[0].decode("utf-8")
+        if not self._valid_request(user, name, deadline_id, values):
+            return
+
+        self._perform_request(user, name, deadline_id, values)
+
+
+    def _valid_request(self, user, attr, deadline_id, value):
+        # User parameters must be defined
+        if not user or not attr or not value or not deadline_id:
+            print "Invalid Request. Parameters Missing"
+            return False
+
+        notes = value[0].decode("utf-8")
+        if not notes:
+            print "Missing notes"
+            return False
+
+        # The deadline associated with the deadline_id must exist
+        deadline_repo = DeadlineRepository()
+        dead = deadline_repo.deadline_for_user(user.id, deadline_id)
+        deadline_repo.close()
+
+        if not dead or not dead.meta or not dead.group_id:
+            print "Something is wrong with the deadline object."
+            return False
+
+        group_repo = GroupRepository()
+        group = group_repo.fetch(dead.group_id)
+        group_repo.close()
+
+        if not group:
+            print "Associated group doesn't exist."
+            return False
+
+        if not (dead.type == "PER" or
+                (group.maintainerId == dead.group_id and dead.type == "END")):
+            print "User cannot modify this deadline"
+            return False
+
+        return True
+    
+    def _perform_request(self, user, attr, deadline_id, value):
+        notes = value[0].decode("utf-8")
+
+        deadline_repo = DeadlineRepository()
+        dead = deadline_repo.deadline_for_user(user.id, deadline_id)
+        dead.meta.notes = notes
+        deadline_repo.persist(dead)
+        deadline_repo.close()
+
+class EditMetadataNameHandler(AsyncRequestHandler):
+    @tornado.web.authenticated
+    def post(self):
+        user = self.get_current_user()
+        name = self.get_arguments("name", None)
+        deadline_id = self.get_arguments("pk", None)
+        values = self.get_arguments("value", None)
+
+        # 'Logged-in' user must be defined
+        if not user:
+            print "no user"
+            return
+
+        # Name list must not be empty
+        if not name:
+            print "no name"
+            return
+
+        # PK list must not be empty
+        if not deadline_id:
+            print "no deadline_id"
+            return
+        deadline_id = int(deadline_id[0].decode("utf-8"))
+
+        # Value list must be defined
+        if not values:
+            print "no values"
+            return
+
+        name = name[0].decode("utf-8")
+        if not self._valid_request(user, name, deadline_id, values):
+            return
+
+        self._perform_request(user, name, deadline_id, values)
+
+
+    def _valid_request(self, user, attr, deadline_id, value):
+        # User parameters must be defined
+        if not user or not attr or not value or not deadline_id:
+            print "Invalid Request. Parameters Missing"
+            return False
+
+        new_name = value[0].decode("utf-8")
+        if not new_name:
+            print "Missing notes"
+            return False
+
+        # The deadline associated with the deadline_id must exist
+        deadline_repo = DeadlineRepository()
+        dead = deadline_repo.deadline_for_user(user.id, deadline_id)
+        deadline_repo.close()
+
+        if not dead or not dead.name or not dead.group_id:
+            print "Something is wrong with the deadline object."
+            return False
+
+        group_repo = GroupRepository()
+        group = group_repo.fetch(dead.group_id)
+        group_repo.close()
+        if not group:
+            print "Associated group doesn't exist."
+            return False
+
+        if not (dead.type == "PER" or
+                (group.maintainerId == dead.group_id and dead.type == "END")):
+            print "User cannot modify this deadline"
+            return False
+
+        return True
+    
+    def _perform_request(self, user, attr, deadline_id, value):
+        new_name = value[0].decode("utf-8")
+
+        deadline_repo = DeadlineRepository()
+        dd = deadline_repo.deadline_for_user(user.id, deadline_id)
+        dd.name = new_name
+        deadline_repo.persist(dd)
+        deadline_repo.close()
+
+class EditMetadataTimeHandler(AsyncRequestHandler):
+    @tornado.web.authenticated
+    def post(self):
+        user = self.get_current_user()
+        name = self.get_arguments("name", None)
+        deadline_id = self.get_arguments("pk", None)
+        values = self.get_arguments("value", None)
+
+        # 'Logged-in' user must be defined
+        if not user:
+            print "no user"
+            return
+
+        # Name list must not be empty
+        if not name:
+            print "no name"
+            return
+
+        # PK list must not be empty
+        if not deadline_id:
+            print "no deadline_id"
+            return
+        deadline_id = int(deadline_id[0].decode("utf-8"))
+
+        # Value list must be defined
+        if not values:
+            print "no values"
+            return
+
+        if not self._valid_request(user, "time", deadline_id, values):
+            return
+
+        self._perform_request(user, "time", deadline_id, values)
+
+
+    def _valid_request(self, user, attr, deadline_id, value):
+        # User parameters must be defined
+        if not user or not attr or not value or not deadline_id:
+            print "Invalid Request. Parameters Missing"
+            return False
+
+        new_time = value[0].decode("utf-8")
+        if not new_time:
+            print "Missing time"
+            return False
+
+        # Strip the 0000- year off the time.
+        new_time = datetime.strptime(new_time[5:], "%m-%d %H:%M")
+        # Add the correct year
+        new_time = new_time + (date(datetime.now().year, 1, 1) - date(new_time.year, 1, 1))
+        if new_time < datetime.now():
+            print "Invalid time"
+            return False
+
+        # The deadline associated with the deadline_id must exist
+        deadline_repo = DeadlineRepository()
+        dead = deadline_repo.deadline_for_user(user.id, deadline_id)
+        deadline_repo.close()
+
+        if not dead or not dead.name or not dead.group_id:
+            print "Something is wrong with the deadline object."
+            return False
+
+        group_repo = GroupRepository()
+        group = group_repo.fetch(dead.group_id)
+        group_repo.close()
+        if not group:
+            print "Associated group doesn't exist."
+            return False
+
+        if not (dead.type == "PER" or
+                (group.maintainerId == dead.group_id and dead.type == "END")):
+            print "User cannot modify this deadline"
+            return False
+
+        return True
+    
+    def _perform_request(self, user, attr, deadline_id, value):
+        new_time = value[0].decode("utf-8")
+        # Strip the 0000- year off the time.
+        new_time = datetime.strptime(new_time[5:], "%m-%d %H:%M")
+        # Add the correct year
+        new_time = new_time + (date(datetime.now().year, 1, 1) - date(new_time.year, 1, 1))
+
+        deadline_repo = DeadlineRepository()
+        dead = deadline_repo.deadline_for_user(user.id, deadline_id)
+        dead.deadline = new_time
+        deadline_repo.persist(dead)
+        deadline_repo.close()
+
 
 
 # /profile Request Handlers
@@ -547,17 +975,14 @@ class UpdateEmailHandler(AsyncRequestHandler):
     # Assumptions: User is authenticated. attr is string (decoded to utf-8).
     def _valid_request(self, user, attr, value):
         """Verify that the 'update email' request is valid"""
-        print "vr attr: " + str(attr)
         if not hasattr(user, attr):
             print "attr not found"
             return False
 
-        print "value attr: " + str(value)
         if len(value) != 1:
             print "value not found"
             return False
 
-        print "Valid request received"
         return True
 
     # Assumption: User is authenticated. attr exists. Value is list of length 1
