@@ -20,6 +20,7 @@ import ConfigParser
 import tornado.httpclient
 from datetime import datetime
 
+from datbigcuke.scheduler import *
 from datbigcuke.handlers.BaseHandlers import WebResource
 from datbigcuke.handlers.BaseHandlers import WebModule
 from datbigcuke.handlers.BaseHandlers import AsyncRequestHandler
@@ -549,21 +550,34 @@ class ScheduleHandler(AsyncRequestHandler):
         off_limits_start = values[u"off_limits_start"]
         off_limits_end = values[u"off_limits_end"]
 
-        group_members = []
+        #real deadline
+        dr = DeadlineRepository()
+        deadline = dr.fetch(deadline).deadline
+        dr.close()
+
+        duration = timedelta(minutes=int(duration))
+
+        off_limits_start = datetime.strptime(off_limits_start, u'%I:%M %p').time()
+        off_limits_end = datetime.strptime(off_limits_end, u'%I:%M %p').time()
+
+        print str(deadline)
+        print str(duration)
+        print str(off_limits_start)
+        print str(off_limits_end)
+
+        group_members = {}
 
         for email in group_emails:
             new_user_repo = UserRepository()
             new_user = new_user_repo.get_user_by_email(email)
             new_user_repo.close()
 
-            #must refresh token
-            #if not new_user.refreshTok:
-            #    print email + "has not given google permission to view calandar information"
-            #    return error response
+            #must have refresh token
+            if not new_user.refreshTok:
+                print email + "has not given google permission to view calendar information"
+                return error response
 
-            #ref_tok = new_user.refreshTok
-            #@TODO: remove test test
-            ref_tok = "1/Y8j4yqLc8gPA5TDE2pTOVGOuPYxYb0w2V5mNhlhbQck"
+            ref_tok = new_user.refreshTok
 
             #get access token
             url = "https://accounts.google.com/o/oauth2/token"
@@ -572,33 +586,72 @@ class ScheduleHandler(AsyncRequestHandler):
                       "client_secret=" + client_secret + "&" +\
                       "grant_type=refresh_token"\
 
-            sys.stderr.write("access_token request = " + access_token_request + '\n')
+            sys.stderr.write("access_token request = " + access_token_request + '\n\n')
 
-            def handle_access_token(response):
-                sys.stderr.write("response = " + str(response) + '\n')
-
-                data = json.loads(response.body)
-                a_token = data['access_token']
-                sys.stderr.write("access_token = " + a_token + '\n')
-
-
-                #get google calandars
-                def handle_cal_list(response2):
-                    sys.stderr.write("calandar list response = " + str(response2) + '\n')
-                    sys.stderr.write(str(json.loads(response2.body))+ '\n')
-
-                cal_list_http_client = tornado.httpclient.AsyncHTTPClient()
-                cal_list_http_client.fetch("https://www.googleapis.com/calendar/v3/users/me/calendarList?access_token=" + a_token, handle_cal_list)
-  
-
-            http_client = tornado.httpclient.AsyncHTTPClient()
+            http_client = tornado.httpclient.HTTPClient()
             http_request = tornado.httpclient.HTTPRequest(url, 'POST', body=access_token_request)
-            http_client.fetch(http_request, handle_access_token)
+            response = http_client.fetch(http_request)
 
+            #handle the access token response
+            #sys.stderr.write("response = " + str(response) + '\n\n')
 
+            data = json.loads(response.body)
+            a_token = data['access_token']
+            sys.stderr.write("access_token = " + a_token + '\n\n')
 
-            
-        pass
+            events = []
+
+            cal_list_http_client = tornado.httpclient.HTTPClient()
+            response2 = cal_list_http_client.fetch("https://www.googleapis.com/calendar/v3/users/me/calendarList?access_token=" + a_token)
+
+            #handle google calendar list
+            #sys.stderr.write("calendar list response = " + str(response2) + '\n\n')
+
+            data2 = json.loads(response2.body)
+            #sys.stderr.write(str(data2) + '\n\n')
+
+            for calendar in data2['items']:
+
+                calendar_id = calendar['id']
+
+                #calendars without the 'selected' attribute appear to be invalid
+                if 'selected' not in calendar:
+                    continue
+
+                #sys.stderr.write("Reading calendar: " + str(calendar_id) + '\n')
+
+                event_list_http_client = tornado.httpclient.HTTPClient()
+                response3 = event_list_http_client.fetch("https://www.googleapis.com/calendar/v3/calendars/" + calendar_id + "/events?singleEvents=true&access_token=" + a_token)
+
+                #handle event list
+                #sys.stderr.write("event list response = " + str(response3) + '\n\n')
+
+                data3 = json.loads(response3.body)
+                #sys.stderr.write(str(data3) + '\n\n')
+
+                #add each event
+                for event in data3['items']:
+                    #I have many doubts this will work for arbitrary calendars
+                    #and I am certain it will error for other timezones.....
+                    start = datetime.strptime(event['start']['dateTime'], u'%Y-%m-%dT%H:%M:%S-05:00')
+                    end = datetime.strptime(event['end']['dateTime'], u'%Y-%m-%dT%H:%M:%S-05:00')
+                    events.append((start, end))
+                    #sys.stderr.write("Event found: " + str(start) + " - " + str(end) + '\n')
+                sys.stderr.write('\n')
+
+            group_members[email] = events
+        
+        print str(schedule_meeting(group_members, deadline, duration, off_limits_start, off_limits_end)[:15])
+
+        meets = schedule_meeting(group_members, deadline, duration, off_limits_start, off_limits_end)
+
+        result = []
+        for meet in meets:
+            result.append((str(meet[0]), meet[1]))
+
+        self.write(str(result[:15]))
+        self.flush
+        self.finish
     
 
 

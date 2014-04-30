@@ -194,7 +194,7 @@ function main()
 			});
             data1['group_members'] = members;
             data1['deadline'] = $('#meeting_deadlines option:selected').attr('data-id');
-            data1['duration'] = $('#meeting_duration').val();
+            data1['duration'] = $('#meeting_duration option:selected').attr('data-mins');
             data1['off_limits_start'] = $('#meeting_offlimits_start').val();
             data1['off_limits_end'] = $('#meeting_offlimits_end').val();
             alert(JSON.stringify(data1) );
@@ -205,7 +205,7 @@ function main()
                 success: function(msg) {
                     //$('#add-deadline-modal').modal('hide');
                     //@TODO yeah remove this
-                    alert("SUCESSSSS!");
+                    alert(msg);
                 },
                 error: function(data, text) {
                     alert("Failed to schedule." + text);
