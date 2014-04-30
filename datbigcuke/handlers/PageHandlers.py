@@ -343,6 +343,8 @@ class SimpleModalModule( WebModule ):
             modal_title = "Add a Group Member"
         elif modal_id == "add-subgroup":
             modal_title = "Add a Group Subgroup"
+        elif modal_id == "add-course":
+            modal_title = "Add a Course"
         elif modal_id == "add-deadline":
             modal_title = "Add a Group Deadline"
 

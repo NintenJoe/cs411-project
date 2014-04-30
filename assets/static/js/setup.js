@@ -26,7 +26,9 @@ function getGroupID()
  */
 function getBloodhoundForURL( _url )
 {
-	var replacefun = function( u, q ) { return u + "?query=" + q; };
+	var replacefun = function( u, q ) { 
+		return u + "?query=" + q + "&" + "group=" + getGroupID();
+	};
 
 	var bhFinder = new Bloodhound( {
 		datumTokenizer: Bloodhound.tokenizers.obj.whitespace( "value" ),
@@ -87,7 +89,7 @@ function main()
 		$( "#new_user_email" ).typeahead( typeahead_options,
 			{ name: "emails", displaykey: "value", 
 			source: getBloodhoundForURL("../get-users").ttAdapter() } );
-		$( "#group_name" ).typeahead( typeahead_options,
+		$( "#course_name" ).typeahead( typeahead_options,
 			{ name: "groups", displaykey: "value", 
 			source: getBloodhoundForURL("../get-courses").ttAdapter() } );
 		$( "#deadline_name" ).typeahead( typeahead_options,
@@ -147,7 +149,7 @@ function main()
                 }
             });
         });
-        
+
         $( "#add-deadline-submit" ).click( function () {
             var data1 = {};
             data1['group_id'] = getGroupID();

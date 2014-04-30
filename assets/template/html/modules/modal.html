@@ -20,6 +20,11 @@
          	<label for="group_description">New Subgroup Description</label>
 					<input type="textfield" class="form-control" id="group_description" placeholder="Group Description">
 				</div>
+				{% elif modal_id == 'add-course' %}
+				<div class="col-md-6 form-group">
+					<label for="course_name">Course Name</label>
+					<input type="text" class="form-control" id="course_name" placeholder="CS 411">
+				</div>
 				{% elif modal_id == 'add-deadline' %}
 				<div class="col-md-6 form-group">
 					<label for="deadline_name">New Deadline Name</label>
