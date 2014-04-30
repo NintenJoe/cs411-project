@@ -169,6 +169,41 @@ function main()
             });
         });
 
+        $( "#add-course-submit" ).click( function () {
+            var data1 = {};
+            data1['course_name'] = $('#course_name').val();
+            $.ajax({
+                type: 'POST',
+                url: '/add-course',
+                data: {'data': JSON.stringify(data1) },
+                success: function(msg) {
+                    $('#add-course-modal').modal('hide');
+                },
+                error: function(data, text) {
+                    alert("Failed to add course." + text);
+                }
+            });
+        });
+
+        $( "#schedule-send-submit" ).click( function () {
+            var data1 = {};
+            data1['meeting_time'] = $('#meeting_times option:selected').attr('data-datetime');
+            data1['meeting_message'] = $('#meeting_message').val();
+            data1['group_id'] = getGroupID();
+
+            $.ajax({
+                type: 'POST',
+                url: '/send-email',
+                data: {'data': JSON.stringify(data1) },
+                success: function(msg) {
+                    $('#schedule-send-modal').modal('hide');
+                },
+                error: function(data, text) {
+                    alert("Failed to send email." + text);
+                }
+            });
+        });
+
         $( "#schedule-query-submit" ).click( function () {
             var data1 = {};
             var members = [];

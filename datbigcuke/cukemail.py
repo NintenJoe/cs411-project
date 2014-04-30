@@ -42,7 +42,13 @@ class CukeMail():
         if self.logged_in:
             message = "subject: " + self.subject + "\n"
             message = message + "from: " + self.parser.get(self.section, 'address') + "\n"
-            message = message + "To: " + address + "\n\n"
+            if type(address) == list:
+                message = message + "To: "
+                for addr in address:
+                    message = message + addr + "; "
+                message = message + "\n\n"
+            else:
+                message = message + "To: " + address + "\n\n"
             message = message + self.message
             self.smtp_server.sendmail(self.parser.get(self.section, 'address'), address, message)
 

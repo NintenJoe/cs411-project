@@ -298,6 +298,196 @@ class AddDeadlineHandler(AsyncRequestHandler):
 
         pass
 
+
+
+
+# - Send email after meeting has been scheduled
+# - Data: Group ID, Email Message, Time
+class AddDeadlineHandler(AsyncRequestHandler):
+    @tornado.web.authenticated
+    # @TODO(halstea2) We chould create a 'complex' async handler base that
+    # is aware of a dictionary of values
+    def post(self):
+        curr_user = self.get_current_user()
+        values = self.get_argument("data", default=None)
+
+        if not curr_user or not values:
+            return
+
+        # We don't need the 'name' field. It's encoded in the data dictionary
+        # Keys are unicode after json.loads conversion
+        values = json.loads(values)
+        if not self._valid_request(curr_user, "", values):
+            return
+
+        self._perform_request(curr_user, "", values)
+
+    def _valid_request(self, curr_user, name, values):
+        # Malformed request
+        if u"group_id" not in values or u"name" not in values or u"deadline" not in values or u"notes" not in values:
+            return False
+
+        # Malformed request
+        group_id = values[u"group_id"]
+        name = values[u"name"]
+        deadline = values[u"deadline"]
+        notes = values[u"notes"]
+        if not group_id or not name or not deadline or not notes:
+            return False
+
+        return True
+
+    def _perform_request(self, user, name, values):
+        group_id = values[u"group_id"]
+        name = values[u"name"]
+        deadline = values[u"deadline"]
+        notes = values[u"notes"]
+        curr_user = self.get_current_user()
+
+
+        dr = DeadlineRepository()
+        gr = GroupRepository()
+        group = gr.fetch(group_id)
+        gr.get_group_maintainer(group)
+
+        new_deadline = Deadline()
+        new_deadline.meta = DeadlineMetadata()
+
+        new_deadline.name = name
+        new_deadline.group_id = group_id
+        new_deadline.deadline = datetime.strptime(deadline, u'%m/%d/%Y %I:%M %p') # private group
+        if(group.maintainer and group.maintainer.id == user.id):
+            new_deadline.type = 'END'
+        else:
+            new_deadline.type = 'PER'
+        new_deadline.meta.user_id = user.id
+        new_deadline.meta.notes = notes
+        new_deadline = dr.persist(new_deadline)
+
+        dr.close()
+
+        pass
+
+
+
+
+# - Add course for user
+# - Data: Course Name
+class AddCourseHandler(AsyncRequestHandler):
+    @tornado.web.authenticated
+    # @TODO(halstea2) We chould create a 'complex' async handler base that
+    # is aware of a dictionary of values
+    def post(self):
+        curr_user = self.get_current_user()
+        values = self.get_argument("data", default=None)
+
+        if not curr_user or not values:
+            print "Invalid Request. Parameters Missing"
+            return
+
+        # We don't need the 'name' field. It's encoded in the data dictionary
+        # Keys are unicode after json.loads conversion
+        values = json.loads(values)
+        if not self._valid_request(curr_user, "", values):
+            print "Invalid Request. Parameters Empty"
+            return
+
+        self._perform_request(curr_user, "", values)
+        pass
+
+    def _valid_request(self, curr_user, name, values):
+        # Malformed request
+        if u"course_name" not in values:
+            return False
+
+        # Malformed request
+        course_name = values[u"course_name"]
+        if not course_name:
+            return False
+
+        return True
+
+    def _perform_request(self, user, name, values):
+        print "performing request"
+        course_name = values[u"course_name"]
+        curr_user = self.get_current_user()
+
+        gr = GroupRepository()
+        group = gr.fetch_by_name(course_name)
+        gr.close()
+
+        # assign the user as a member of the subgroup
+        user_repo = UserRepository()
+        user_repo.add_user_to_group(curr_user, group[0])
+        user_repo.close()
+
+        self._persist_user(curr_user)
+
+# - Send email for meeting
+# - Data: Meeting Time, Meeting Message
+class SendEmailHandler(AsyncRequestHandler):
+    @tornado.web.authenticated
+    # @TODO(halstea2) We chould create a 'complex' async handler base that
+    # is aware of a dictionary of values
+    def post(self):
+        curr_user = self.get_current_user()
+        values = self.get_argument("data", default=None)
+
+        if not curr_user or not values:
+            print "Invalid Request. Parameters Missing"
+            return
+
+        # We don't need the 'name' field. It's encoded in the data dictionary
+        # Keys are unicode after json.loads conversion
+        values = json.loads(values)
+        if not self._valid_request(curr_user, "", values):
+            print "Invalid Request. Parameters Empty"
+            return
+
+        self._perform_request(curr_user, "", values)
+        pass
+
+    def _valid_request(self, curr_user, name, values):
+        # Malformed request
+        if u"course_name" not in values:
+            return False
+
+        # Malformed request
+        meeting_time  = values[u"meeting_time"]
+        meeting_message = values[u"meeting_message"]
+        group_id = values[u"group_id"]
+        if not meeting_time or not meeting_message or not group_id:
+            return False
+
+        return True
+
+    def _perform_request(self, user, name, values):
+        print "performing request"
+        meeting_time  = values[u"meeting_time"]
+        meeting_message = values[u"meeting_message"]
+        group_id = values[u"group_id"]
+        curr_user = self.get_current_user()
+
+        ur = UserRepository()
+        users = ur.get_members_of_group(group_id)        
+        ur.close()
+
+        gr = GroupRepository()
+        group = gr.fetch(group_id)
+        gr.close()
+
+        cm = CukeMail()
+        cm.subject(group.name + " meeting @ " + meeting_time)
+        cm.message(meeting_message)
+        for user in users:
+            cm.send(user.email)
+
+        # assign the user as a member of the subgroup
+        
+
+        self._persist_user(curr_user)
+
+
 # - Get members of parent group (for 'Add member' auto-complete)
 #   - Data: Parent Group ID
 class GetMembersOfParentHandler(AsyncRequestHandler):
