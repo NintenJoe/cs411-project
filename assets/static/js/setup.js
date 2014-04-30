@@ -81,10 +81,6 @@ function main()
 		/*$( "#group_name" ).typeahead( { hint: true, highlight: true, minLength: 2 },
 			{ name: "states", displaykey: "value", source: substringMatcher(states) } );*/
 	}
-	
-	//addUserEntry( "name", "email", "iconurl" );
-	//addGroupEntry( "1", "name", "maintainer" );
-	addDeadlineEntry( "1", "name", "CS411: HARD", "PER", "time", "notes", false );
 
 	// Bind AJAX Requests to Fields //
 	{
