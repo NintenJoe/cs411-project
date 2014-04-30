@@ -104,6 +104,7 @@ class UserRepository(AbstractRepository):
 
     def get_members_of_group(self, group_id):
         member_list = []
+        print "Group id: ", group_id
         with self._conn.cursor() as cursor:
             cursor.execute('SELECT `u`.`id`, `u`.`email`, `u`.`name`, `u`.`password`, `u`.`salt`, `u`.`confirmed` , `u`.`refreshTok`'
                            'FROM `group` AS `gr`'
@@ -157,5 +158,5 @@ class UserRepository(AbstractRepository):
         user_list = []
         for result in self._fetch_all_dict(cursor):
             result['groups'] = self._fetch_user_groups(cursor, result['id'])
-            user = self._create_entity(data=result)
+            user_list.append(self._create_entity(data=result))
         return user_list
