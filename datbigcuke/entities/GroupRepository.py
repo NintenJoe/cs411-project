@@ -146,7 +146,7 @@ class GroupRepository(AbstractRepository):
         return group_list
 
     # TODO(ciurej2): Modify base group ID to be the ID of the UIUC group.
-    def get_user_group_tree(self, user_id, base_group_id=1L):
+    def get_user_group_tree(self, user_id, base_group_id):
         user_group_list = self.get_groups_of_user(user_id)
         user_group_ids = { group.id : group for group in user_group_list }
 
