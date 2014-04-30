@@ -40,11 +40,20 @@
 			</div>
 
 			<div class="col-md-6">
+				{% if not group_is_public %}
 				<input class="btn btn-default btn-md btn-block goption-button" 
 				data-toggle="modal" data-target="#schedule-query-modal" value="Schedule Meeting">
+				{% end %}
 
-				<input id="leave_group" class="btn btn-default btn-md btn-block goption-button"
-				value="Leave Group">
+				<form action="/group-leave/{{ group.id }}" method="POST">
+					{% if not user_is_maintainer and len(supergroups) > 0 %}
+					<input id="leave_group" type="submit" value="Leave Group"
+					class="btn btn-default btn-md btn-block goption-button">
+					{% elif len(members) == 0 %}
+					<input id="delete_group" type="submit" value="Delete Group"
+					class="btn btn-default btn-md btn-block goption-button">
+					{% end %}
+				</form>
 			</div>
 		</div>
 
@@ -52,14 +61,14 @@
 
 		<h3><strong>Group Information:</strong></h3>
 
-		<div class="cropped-content-container col-md-5 well well-sm">
+		<div class="cropped-content-container col-md-6 well well-sm">
 			<h3 class="inner-heading pull-left">Member List:</h3>
 			<input class="btn btn-default btn-sm pull-right"
 			data-toggle="modal" data-target="#add-member-modal" value="Add Member">
 			{% module RenderTemplate( 'member-list', members = members ) %}
 		</div>
 
-		<div class="cropped-content-container col-md-7 well well-sm">
+		<div class="cropped-content-container col-md-6 well well-sm">
 			<h3 class="inner-heading pull-left">Subgroup List:</h3>
 			<input class="btn btn-default btn-sm pull-right"
 			data-toggle="modal" data-target="#add-subgroup-modal" value="Add Subgroup">

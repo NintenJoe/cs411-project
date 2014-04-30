@@ -45,7 +45,7 @@ class GroupRepository(AbstractRepository):
                                'VALUES (?, ?, ?, ?, ?);',
                                (cursor.lastrowid, delta['name'],
                                 group.description, group.type, group.maintainerId))
-                
+
                 cursor.execute('SELECT `id`, `name`, `description`, `type`, `maintainerId` '
                                'FROM `group` '
                                'WHERE `id`=LAST_INSERT_ID()')
@@ -65,13 +65,13 @@ class GroupRepository(AbstractRepository):
                                    args)
 
         return group
- 
+
     def remove(self, group):
         with self._conn.cursor() as cursor:
             cursor.execute('DELETE FROM `membership_entity` WHERE `id`=?',
                            (group.id,))
             group.invalidate()
-           
+
     def fetch(self, group_id):
         with self._conn.cursor() as cursor:
             cursor.execute('SELECT `id`, `name`, `description`, `type`, `maintainerId` '
@@ -111,25 +111,23 @@ class GroupRepository(AbstractRepository):
                            'WHERE `m`.`member_id`=?', (user_id,))
             for result in self._fetch_all_dict(cursor):
                 group_list.append(self._create_entity(data=result))
-                
+
         return group_list
 
-    # TODO(ciurej2): Improve this function to be less hacky.
-    def get_groups_of_user_rec(self, user_id):
+    # TODO(ciurej2): Modify base group ID to be the ID of the UIUC group.
+    def get_user_group_tree(self, user_id, base_group_id=1L):
         user_group_list = self.get_groups_of_user(user_id)
         user_group_ids = { group.id : group for group in user_group_list }
-        nonroot_group_ids = {}
+
         for user_group in user_group_list:
-            user_group.subgroups = [ user_group_ids[ subgroup.id ] for subgroup in self.get_subgroups_of_group(user_group.id) if subgroup.id in user_group_ids ]
+            group_subgroups = self.get_subgroups_of_group(user_group.id)
+            user_group.subgroups = [ user_group_ids[ subgroup.id ] for \
+                subgroup in group_subgroups if subgroup.id in user_group_ids ]
 
-            for subgroup in user_group.subgroups:
-                nonroot_group_ids[ subgroup.id ] = True
-
-        for group in user_group_list:
-            if not group.id in nonroot_group_ids:
-                return [ group ]
-
-        return []
+        if base_group_id in user_group_ids:
+            return user_group_ids[base_group_id]
+        else:
+            return None
 
     def get_supergroup_of_group(self, group_id):
         supergroup = None
@@ -144,14 +142,14 @@ class GroupRepository(AbstractRepository):
                            'WHERE `gr`.`id` =?', (group_id,))
             for result in self._fetch_all_dict(cursor):
                 supergroup = self._create_entity(data=result)
-                
+
         return supergroup
-    
+
     def get_supergroup_list(self, group_id):
         supergroup = self.get_supergroup_of_group(group_id)
         if supergroup is None:
             return []
-            
+
         suplist = self.get_supergroup_list(supergroup.id)
         suplist.append(supergroup)
         return suplist

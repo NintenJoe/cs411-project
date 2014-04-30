@@ -44,8 +44,6 @@ class Application( tornado.web.Application ):
             ( r"/group/([0-9]+)", UserGroupHandler ),
 
             # Asynchronous Request Handlers #
-            ( r"/leave-group", LeaveGroupHandler ),
-            ( r"/delete-group", DeleteGroupHandler ),
             ( r"/update-user-name", UpdateNameHandler ),
             ( r"/update-user-email", UpdateEmailHandler ),
             ( r"/add-member", AddMemberHandler ),
@@ -61,7 +59,8 @@ class Application( tornado.web.Application ):
             ( r"/oauth2callback", GoogleResponseHandler),
 
             # Miscellaneous Handlers #
-            ( r"/logout", LogoutHandler )
+            ( r"/logout", LogoutHandler ),
+            ( r"/group-leave/([0-9]+)", GroupLeaveHandler ),
         ]
 
         app_settings = {
