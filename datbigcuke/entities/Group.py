@@ -72,7 +72,8 @@ class Group(AbstractEntity):
     def academic_entity_id(self):
         return self._academic_entity_id
 
-    @academic_entity_id.setter(self, value):
+    @academic_entity_id.setter
+    def academic_entity_id(self, value):
         self._academic_entity_id = value
 
     @property
