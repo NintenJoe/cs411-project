@@ -238,6 +238,7 @@ class UserGroupHandler( PageRequestHandler ):
         # TODO: Add functionality to integrate the groups with the deadlines
         # to allow for front-end maintainer validation when modifying deadlines.
         deadline_list = dr.deadlines_for_user_for_group(user.id, group.id)
+        print "Deadline List: ", deadline_list
         for deadline in deadline_list:
             deadline.group = group
 

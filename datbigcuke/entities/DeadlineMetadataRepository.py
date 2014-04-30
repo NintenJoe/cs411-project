@@ -23,7 +23,8 @@ class DeadlineMetadataRepository(AbstractRepository):
         super(DeadlineMetadataRepository, self).persist(deadlineMeta)
 
         delta = deadlineMeta.get_delta()
-        if deadlineMeta.user_id is None or deadlineMeta.deadline_id is None:
+        if deadlineMeta.user_id is None or deadlineMeta.deadline_id is None or getattr(deadlineMeta, 'insert', False) == True:
+            delta.pop('insert', None)
             with self._conn.cursor() as cursor:
                 cursor.execute('INSERT INTO `deadline_metadata` '
                                '(`user_id`, `deadline_id`, `notes`)'
