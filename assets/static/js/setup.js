@@ -109,39 +109,6 @@ function main()
 		} );
 
 	    // Setup Group Page Modal Submission Buttons //
-        $( "#leave_group" ).click( function () {
-            var data1 = {};
-            data1['group_id'] = getGroupID();
-            $.ajax({
-                type: 'POST',
-                url: '/leave-group',
-                data: {'data': JSON.stringify(data1)},
-                success: function(msg) {
-                    window.location.reload();
-                },
-                error: function(data) {
-                    alert("Failed to leave group.");
-                }
-            });
-        });
-        
-		$( "#delete_group" ).click( function() {
-				var data1 = {};
-				data1['group_id'] = getGroupID();
-				
-				$.ajax({
-					type: 'POST',
-					url: '/delete-group',
-					data: {'data': JSON.stringify(data1)},
-					success: function(msg) {
-						window.location.reload();
-					},
-					error: function(data) {
-						alert("Failed to delete group.");
-					}
-				}); 
-		});
-        
         $( "#add-member-submit" ).click( function () {
             var data1 = {};
             data1['group_id'] = getGroupID();
@@ -160,7 +127,6 @@ function main()
                 }
             });
         });
-        
         
         $( "#add-subgroup-submit" ).click( function () {
             var data1 = {};

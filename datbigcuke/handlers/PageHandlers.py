@@ -48,7 +48,7 @@ class LoginHandler( PageRequestHandler ):
         if self.get_argument('unconfirmed', default=None) != None:
             errors['email'] = "You must validate your email."
         if self.get_argument('baduser', default=None) != None:
-            errors['email'] = "Bad Email." 
+            errors['email'] = "Bad Email."
 
         if self.get_argument('badpass', default=None) != None:
             errors['badpass'] = "Bad Password"
@@ -272,6 +272,38 @@ class UserGroupHandler( PageRequestHandler ):
 
 
 ### Miscellaneous Handlers ###
+
+##  Page handler for the "/group-leave" (user group leaving/deleting) web page.
+class GroupLeaveHandler( PageRequestHandler ):
+    ##  @override
+    @tornado.web.authenticated
+    def post( self, group_id ):
+        ur = UserRepository()
+        gr = GroupRepository()
+
+        user = self.get_current_user()
+        group = gr.fetch(group_id)
+        gr.get_group_maintainer(group)
+        supergroups = gr.get_supergroup_list(group_id)
+
+        # The group must be a non-root group to consider removal.
+        if len(supergroups) != 0:
+            supergroup = supergroups[-1]
+
+            # Case 1: User requested group deletion (user is maintainer + empty).
+            if group.maintainerId == user.id and gr.get_group_size(group.id) == 1:
+                gr.remove(group)
+                self.redirect( "/group/" + str(supergroup.id) )
+                return
+            # Case 2: User requested to leave the group (user is in group).
+            if group.id in [ g.id for g in gr.get_groups_of_user(user.id) ]:
+                # TODO: Remove the user from the group.
+                print "Removing " + user.name + " from " + group.name
+                self.redirect( "/group/" + str(supergroup.id) )
+                return
+
+        self.redirect( "/group/" + str(group_id) )
+
 
 ##  Page handler for the "/logout" (user logout) web page.
 class LogoutHandler( PageRequestHandler ):
