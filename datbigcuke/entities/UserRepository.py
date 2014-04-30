@@ -119,11 +119,12 @@ class UserRepository(AbstractRepository):
         
         return member_list
 
+    # TODO(ciurej2): Why was this necessary to have a groups field here?
     def add_user_to_group(self, user, group):
         with self._conn.cursor() as cursor:
             cursor.execute('INSERT INTO `group_membership` (`group_id`, `member_id`) '
                            'VALUES (?,?)', (group.id, user.id))
-            user.groups.append(user.id)
+            #user.groups.append(user.id)
 
     def mark_verified(self, unique):
         with self._conn.cursor() as cursor:

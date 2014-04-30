@@ -167,25 +167,25 @@ class GroupRepository(AbstractRepository):
                            'WHERE `gr`.`id` =?', (group_id,))
             for result in self._fetch_all_dict(cursor):
                 group_list.append(self._create_entity(data=result))
-        
+
         return group_list
 
     def get_subgroups_of_group_rec(self, group_id):
         group_list = self.get_subgroups_of_group(group_id)
         for group in group_list:
             group.subgroups = self.get_subgroups_of_group_rec(group.id)
-            
+
         return group_list
 
     def add_group_as_subgroup(self, group_id, subgroup_id):
         with self._conn.cursor() as cursor:
             cursor.execute('INSERT INTO `group_membership` (`group_id`, `member_id`)'
                            'VALUES (?,?)', (group_id, subgroup_id))
-        
+
     def get_group_maintainer(self, group):
         group.maintainer = UserRepository().fetch(group.maintainerId)
         return group
-        
+
     def get_group_maintainer_rec(self, group):
         group.maintainer = UserRepository().fetch(group.maintainerId)
         for subgroup in group.subgroups:

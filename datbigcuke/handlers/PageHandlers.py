@@ -125,8 +125,8 @@ class RegistrationHandler( PageRequestHandler ):
         uiuc = gr.fetch_by_name("UIUC")
 
         repo = UserRepository()
-        repo.persist(user)
-        user = repo.get_user_by_email(user_email)
+        user = repo.persist(user)
+        user.groups = []
         repo.add_user_to_group(user, uiuc[0])
         repo.close()
 
@@ -170,15 +170,17 @@ class UserMainHandler( PageRequestHandler ):
     ##  @override
     @tornado.web.authenticated
     def get( self ):
-        user = self.get_current_user()
         gr = GroupRepository()
         dr = DeadlineRepository()
 
         # TODO: Add functionality to integrate the groups with the deadlines
         # to allow for front-end maintainer validation when modifying deadlines.
-        deadline_list = dr.deadlines_for_user(user.id)
+        user = self.get_current_user()
+
         root_group = gr.get_user_group_tree(user.id)
         gr.get_group_maintainer_rec(root_group)
+
+        deadline_list = dr.deadlines_for_user(user.id)
 
         self.render( self.get_url(),
             user = user,

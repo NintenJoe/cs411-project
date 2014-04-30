@@ -219,8 +219,6 @@ class AddSubgroupHandler(AsyncRequestHandler):
         new_group.maintainerId = curr_user.id
         new_group = gr.persist(new_group)
 
-        print "Group: " + str(new_group)
-
         # assign the subgroup as a child of the parent group
         gr.add_group_as_subgroup(group_id, new_group.id)
         gr.close()
@@ -231,9 +229,7 @@ class AddSubgroupHandler(AsyncRequestHandler):
         user_repo.close()
 
         self._persist_user(curr_user)
-        
 
-        pass
 
 # - Add deadline to group
 # - Data: Group ID, New Deadline Name, New Deadline Time, New Deadline Notes
@@ -255,8 +251,6 @@ class AddDeadlineHandler(AsyncRequestHandler):
             return
 
         self._perform_request(curr_user, "", values)
-        
-        pass
 
     def _valid_request(self, curr_user, name, values):
         # Malformed request
@@ -298,7 +292,7 @@ class AddDeadlineHandler(AsyncRequestHandler):
             new_deadline.type = 'PER'
         new_deadline.meta.user_id = user.id
         new_deadline.meta.notes = notes
-        new_deadline = dr.persist(new_deadline)        
+        new_deadline = dr.persist(new_deadline)
 
         dr.close()
 
