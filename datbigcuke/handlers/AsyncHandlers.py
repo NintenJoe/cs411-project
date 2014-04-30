@@ -217,7 +217,9 @@ class AddSubgroupHandler(AsyncRequestHandler):
         new_group.description = new_group_desc
         new_group.type = 0 # private group
         new_group.maintainerId = curr_user.id
+        print new_group
         new_group = gr.persist(new_group)
+        print new_group
 
         # assign the subgroup as a child of the parent group
         gr.add_group_as_subgroup(group_id, new_group.id)

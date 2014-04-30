@@ -242,8 +242,6 @@ class UserGroupHandler( PageRequestHandler ):
         user_is_maintainer = group.maintainerId == user.id
         member_list = ur.get_members_of_group(group_id)
 
-        # TODO: Add functionality to integrate the groups with the deadlines
-        # to allow for front-end maintainer validation when modifying deadlines.
         deadline_list = dr.deadlines_for_user_for_group(user.id, group.id)
         for deadline in deadline_list:
             deadline.group = group
@@ -287,8 +285,13 @@ class GroupLeaveHandler( PageRequestHandler ):
         user_group_ids = [ g.id for g in gr.get_groups_of_user(user.id) ]
         supergroups = gr.get_supergroup_list(group_id)
 
-        # The group must be a non-root group to consider removal.
-        if len(supergroups) != 0:
+        # TODO: Add logic to prevent user from leaving if they're in a subgroup
+        # of the current group.
+        group_root = gr.get_user_group_tree(user.id, long(group_id))
+
+        # The group must be a non-root group to consider removal.  Also, the user
+        # cannot be in any of the subgroups.
+        if len(supergroups) != 0 and len(group_root.subgroups) == 0:
             supergroup = supergroups[-1]
 
             # Case 1: User requested group deletion (user is maintainer + empty).

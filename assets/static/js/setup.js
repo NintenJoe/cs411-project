@@ -40,17 +40,6 @@ function getBloodhoundForURL( _url )
 	return bhFinder;
 }
 
-/**
- * The validation function for all basic fields using bootstrap editable.
- *
- * @see http://vitalets.github.io/x-editable/demo-bs3.html
- */
-function validateFieldForm( _value )
-{
-	if( $.trim(_value) == "" )
-		return "Field Required"
-}
-
 // Primary Entry Point //
 
 /**
@@ -61,17 +50,10 @@ function main()
 	// Set Up Libraries //
 	{
 		// Setup the Editable Fields //
-		$.fn.editable.defaults.mode = "popup";
-		$( ".editable-field" ).editable( { placement: "bottom", validate: validateFieldForm } );
-		$( ".editable-date" ).editable( { placement: "bottom", firstitem: "name" } );
-		$( ".editable-notes" ).editable( { placement: "right", validate: validateFieldForm } );
+		addEditableToForms( "" )
 
 		// Setup the Deadline List Modules //
-		$( ".deadline-notes" ).hide();
-		$( ".deadline-expand-icon" ).click( function() {
-			var deadlineID = $( this ).data( "id" );
-			$( "#deadline-" + deadlineID ).find( ".deadline-notes" ).slideToggle( "slow" );
-		} );
+		bindAsyncToDeadlines( "" )
 
 		// Setup the Datetime Picker Modules //
 		$( ".datetimepicker-form" ).datetimepicker( {minDate: Date.now()} );
@@ -79,7 +61,6 @@ function main()
 
 		// Setup the Select Modules //
 		$( "select" ).selectpicker();
-		// TODO: Select all members by default in schedule modal select.
 	}
 
 	// Set up Autocomplete Fields ///
@@ -100,6 +81,10 @@ function main()
 		/*$( "#group_name" ).typeahead( { hint: true, highlight: true, minLength: 2 },
 			{ name: "states", displaykey: "value", source: substringMatcher(states) } );*/
 	}
+	
+	//addUserEntry( "name", "email", "iconurl" );
+	//addGroupEntry( "1", "name", "maintainer" );
+	addDeadlineEntry( "1", "name", "CS411: HARD", "PER", "time", "notes", true );
 
 	// Bind AJAX Requests to Fields //
 	{
@@ -122,7 +107,11 @@ function main()
                 url: '/add-member',
                 data: {'data': JSON.stringify(data1)},
                 success: function(msg) {
+					console.log( msg );
                     $('#add-member-modal').modal('hide');
+
+					// TODO: Update this functionality.
+					addUserEntry( "name", "email", "iconurl" );
                 },
                 error: function(data) {
                     alert("Failed to add user to group.");
@@ -143,6 +132,9 @@ function main()
                 data: {'data': JSON.stringify(data1)},
                 success: function(msg) {
                     $('#add-subgroup-modal').modal('hide');
+
+					// TODO: Update this functionality.
+					addGroupEntry( "1", "name", "maintainer" );
                 },
                 error: function(data) {
                     alert("Failed to add subgroup.");
@@ -162,12 +154,17 @@ function main()
                 data: {'data': JSON.stringify(data1) },
                 success: function(msg) {
                     $('#add-deadline-modal').modal('hide');
+
+					// TODO: Update this functionality.
+					addDeadlineEntry( "1", "name", "CS411: HARD", "PER", 
+						"time", "notes", true );
                 },
                 error: function(data, text) {
                     alert("Failed to add deadline." + text);
                 }
             });
         });
+
 
         $( "#schedule-query-submit" ).click( function () {
             var data1 = {};
