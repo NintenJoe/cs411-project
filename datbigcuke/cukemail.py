@@ -16,6 +16,7 @@ class CukeMail():
 
     def __init__(self):
         self.logged_in = threading.Event()
+        self.logged_in.clear()
         thread.start_new_thread(self.setup_self, ())
 
     def setup_self(self):
