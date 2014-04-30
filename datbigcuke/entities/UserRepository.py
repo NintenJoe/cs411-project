@@ -156,4 +156,5 @@ class UserRepository(AbstractRepository):
         for result in self._fetch_all_dict(cursor):
             result['groups'] = self._fetch_user_groups(cursor, result['id'])
             user = self._create_entity(data=result)
+            user_list.append(user)
         return user_list
