@@ -40,17 +40,18 @@ class GroupRepository(AbstractRepository):
                 #print type(delta['type'])
 
                 assert cursor.lastrowid != 0
+                group_id = cursor.lastrowid
                 cursor.execute('INSERT INTO `group`'
                                '(`id`, `name`, `description`, `type`,'
                                ' `maintainerId`, `academic_entity_id`) '
                                'VALUES (?, ?, ?, ?, ?, ?);',
-                               (cursor.lastrowid,
+                               (group_id,
                                 group.name,
                                 group.description,
                                 group.type,
                                 group.maintainerId,
                                 group.academic_entity_id))
-                group = self._fetch(cursor, cursor.lastrowid)
+                group = self._fetch(cursor, group_id)
 
         else:
             # old user object
