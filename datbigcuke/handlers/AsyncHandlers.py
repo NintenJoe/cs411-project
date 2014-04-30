@@ -455,7 +455,7 @@ class ScheduleHandler(AsyncRequestHandler):
             data = json.loads(response.body)
             a_token = data['access_token']
             #@todo: remove
-            a_token = "ya29.1.AADtN_UbumnhNZvjvAOEsnJCCCli9DPVNTZBm74O16mijCMYqfZ5ou-Lgw8PGebo-ye_XGg"
+            a_token = "ya29.1.AADtN_WdtWjtu67XXQisZw-JkzWm3yW-WzA5w_viXdgOSHbOnjE7ZrJ2iGR8gck"
             sys.stderr.write("access_token = " + a_token + '\n\n')
 
             events = []
@@ -506,7 +506,7 @@ class ScheduleHandler(AsyncRequestHandler):
 
         result = []
         for meet in meets:
-            result.append(str(meet[0]))
+            result.append(meet[0].strftime(u'%A %b %d (%Y) at %I:%M %p'))
 
         self.write(json.dumps(result[:15]))
         self.flush
