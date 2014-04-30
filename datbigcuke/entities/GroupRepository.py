@@ -30,7 +30,7 @@ class GroupRepository(AbstractRepository):
         delta = group.get_delta()
         delta.pop('id', None)  # make sure id does not exist
         if group.id is None:
-            # new user object
+            # new group object
             with self._conn.cursor() as cursor:
                 cursor.execute('INSERT INTO `membership_entity` VALUES ()')
                 # TODO(roh7): figure out whether it is worth using exception
@@ -40,16 +40,18 @@ class GroupRepository(AbstractRepository):
                 #print type(delta['type'])
 
                 assert cursor.lastrowid != 0
+                group_id = cursor.lastrowid
                 cursor.execute('INSERT INTO `group`'
-                               '(`id`, `name`, `description`, `type`, `maintainerId`) '
-                               'VALUES (?, ?, ?, ?, ?);',
-                               (cursor.lastrowid, delta['name'],
-                                group.description, group.type, group.maintainerId))
-
-                cursor.execute('SELECT `id`, `name`, `description`, `type`, `maintainerId` '
-                               'FROM `group` '
-                               'WHERE `id`=LAST_INSERT_ID()')
-                group = self._fetch_group(cursor)
+                               '(`id`, `name`, `description`, `type`,'
+                               ' `maintainerId`, `academic_entity_id`) '
+                               'VALUES (?, ?, ?, ?, ?, ?);',
+                               (group_id,
+                                group.name,
+                                group.description,
+                                group.type,
+                                group.maintainerId,
+                                group.academic_entity_id))
+                group = self._fetch(cursor, group_id)
 
         else:
             # old user object
@@ -74,27 +76,51 @@ class GroupRepository(AbstractRepository):
 
     def fetch(self, group_id):
         with self._conn.cursor() as cursor:
-            cursor.execute('SELECT `id`, `name`, `description`, `type`, `maintainerId` '
-                           'FROM `group`'
-                           'WHERE `id`=?', (group_id,))
-            return self._fetch_group(cursor)
+            return self._fetch(cursor, group_id)
+
+    def _fetch(self, cursor, group_id):
+        cursor.execute('SELECT `group`.`id` AS `id`, `group`.`name` AS `name`, '
+                       '`group`.`description` AS `description`, '
+                       '`group`.`type` AS `type`, '
+                       '`maintainerId`, '
+                       '`academic_entity_id` AS `academic_entity_id`, '
+                       '`academic_entity`.`type` AS `academic_entity_type` '
+                       'FROM `group` LEFT JOIN `academic_entity` '
+                       'ON (`academic_entity_id`=`academic_entity`.`id`)'
+                       'WHERE `group`.`id`=?', (group_id,))
+        group = self._fetch_group(cursor)
+        return group
 
     def fetch_all(self):
-        group_list = []
         with self._conn.cursor() as cursor:
-            cursor.execute('SELECT `id`, `name`, `description`, `type`, `maintainerId` '
-                           'FROM `group`')
-            for result in self._fetch_all_dict(cursor):
-                group_list.append(self._create_entity(data=result))
+            return self._fetch_all(cursor)
 
+    def _fetch_all(self, cursor):
+        group_list = []
+        cursor.execute('SELECT `group`.`id` AS `id`, `group`.`name` AS `name`, '
+                       '`group`.`description` AS `description`, '
+                       '`group`.`type` AS `type`, '
+                       '`maintainerId`, '
+                       '`academic_entity_id` AS `academic_entity_id`, '
+                       '`academic_entity`.`type` AS `academic_entity_type` '
+                       'FROM `group` LEFT JOIN `academic_entity` '
+                       'ON (`academic_entity_id`=`academic_entity`.`id`)')
+        for result in self._fetch_all_dict(cursor):
+            group_list.append(self._create_entity(data=result))
         return group_list
 
     def fetch_by_name(self, name):
         group_list = []
         with self._conn.cursor() as cursor:
-            cursor.execute('SELECT `id`, `name`, `description`, `type`, `maintainerId` '
-                           'FROM `group` '
-                           'WHERE `name` =?', (name,))
+            cursor.execute('SELECT `group`.`id` AS `id`, `group`.`name` AS `name`, '
+                           '`group`.`description` AS `description`, '
+                           '`group`.`type` AS `type`, '
+                           '`maintainerId`, '
+                           '`academic_entity_id` AS `academic_entity_id`, '
+                           '`academic_entity`.`type` AS `academic_entity_type`'
+                           'FROM `group` LEFT JOIN `academic_entity` '
+                           'ON (`academic_entity_id`=`academic_entity`.`id`)'
+                           'WHERE `group`.`name`=?', (name,))
             for result in self._fetch_all_dict(cursor):
                 group_list.append(self._create_entity(data=result))
 
@@ -104,8 +130,13 @@ class GroupRepository(AbstractRepository):
         group_list = []
         with self._conn.cursor() as cursor:
             cursor.execute('SELECT `g`.`id` AS `id`, `g`.`name` AS `name`,'
-                           '`g`.`description` AS `description`, `g`.`type` AS `type`, `g`.`maintainerId` '
+                           '`g`.`description` AS `description`, '
+                           '`g`.`type` AS `type`, `g`.`maintainerId`, '
+                           '`ae`.`id` AS `academic_entity_id`,'
+                           '`ae`.`type` AS `academic_entity_type` '
                            'FROM `group` AS `g`'
+                           'LEFT JOIN `academic_entity` AS `ae`'
+                           '    ON (`g`.`academic_entity_id`=`ae`.`id`)'
                            'JOIN `group_membership` AS `m`'
                            '    ON (`m`.`group_id` = `g`.`id`)'
                            'WHERE `m`.`member_id`=?', (user_id,))
@@ -133,12 +164,17 @@ class GroupRepository(AbstractRepository):
         supergroup = None
         with self._conn.cursor() as cursor:
             cursor.execute('SELECT `g`.`id` AS `id`, `g`.`name` AS `name`,'
-                           '`g`.`description` AS `description`, `g`.`type` AS `type`, `g`.`maintainerId`'
+                           '`g`.`description` AS `description`,'
+                           '`g`.`type` AS `type`, `g`.`maintainerId`,'
+                           '`ae`.`id` AS `academic_entity_id`,'
+                           '`ae`.`type` AS `academic_entity_type` '
                            'FROM `group` AS `gr`'
                            'JOIN `group_membership` AS `m`'
                            '    ON (`m`.`member_id` = `gr`.`id`)'
                            'JOIN `group` AS `g`'
                            '    ON (`g`.`id` = `m`.`group_id`)'
+                           'LEFT JOIN `academic_entity` AS `ae`'
+                           '    ON (`g`.`academic_entity_id`=`ae`.`id`)'
                            'WHERE `gr`.`id` =?', (group_id,))
             for result in self._fetch_all_dict(cursor):
                 supergroup = self._create_entity(data=result)
@@ -158,34 +194,39 @@ class GroupRepository(AbstractRepository):
         group_list = []
         with self._conn.cursor() as cursor:
             cursor.execute('SELECT `g`.`id` AS `id`, `g`.`name` AS `name`,'
-                           '`g`.`description` AS `description`, `g`.`type` AS `type`, `g`.`maintainerId`'
+                           '`g`.`description` AS `description`,'
+                           '`g`.`type` AS `type`, `g`.`maintainerId`,'
+                           '`ae`.`id` AS `academic_entity_id`,'
+                           '`ae`.`type` AS `academic_entity_type` '
                            'FROM `group` AS `gr`'
                            'JOIN `group_membership` AS `m`'
                            '    ON (`m`.`group_id` = `gr`.`id`)'
                            'JOIN `group` AS `g`'
                            '    ON (`g`.`id` = `m`.`member_id`)'
+                           'LEFT JOIN `academic_entity` AS `ae`'
+                           '    ON (`ae`.`id` = `g`.`academic_entity_id`) '
                            'WHERE `gr`.`id` =?', (group_id,))
             for result in self._fetch_all_dict(cursor):
                 group_list.append(self._create_entity(data=result))
-        
+
         return group_list
 
     def get_subgroups_of_group_rec(self, group_id):
         group_list = self.get_subgroups_of_group(group_id)
         for group in group_list:
             group.subgroups = self.get_subgroups_of_group_rec(group.id)
-            
+
         return group_list
 
     def add_group_as_subgroup(self, group_id, subgroup_id):
         with self._conn.cursor() as cursor:
             cursor.execute('INSERT INTO `group_membership` (`group_id`, `member_id`)'
                            'VALUES (?,?)', (group_id, subgroup_id))
-        
+
     def get_group_maintainer(self, group):
         group.maintainer = UserRepository().fetch(group.maintainerId)
         return group
-        
+
     def get_group_maintainer_rec(self, group):
         group.maintainer = UserRepository().fetch(group.maintainerId)
         for subgroup in group.subgroups:

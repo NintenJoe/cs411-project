@@ -1,0 +1,36 @@
+#!/usr/bin/env python2.7
+"""Syncer script for UIUC courses.
+
+This script ensures consistent PYTHONPATH for the correct functioning of server,
+then passes control to the server entry point. Actual server entry point and its
+command line arguments can be found in datbigcuke/server.py.
+"""
+
+__author__ = 'Eunsoo Roh'
+__copyright__ = 'Copyright 2014 The Datbigcuke Project'
+__email__ = 'roh7@illinois.edu'
+
+
+import sys
+import tornado.options
+import os.path
+
+# sanity check!
+if __name__ != '__main__':
+  raise Exception('this code is not intended to be imported')
+
+# prepare python loader with proper PYTHONPATH
+project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(1, project_root)
+
+# chdir into the project root, so chain-loading works for default configurations
+os.chdir(project_root)
+# datbigcuke modules finally can be imported
+import datbigcuke.db
+import datbigcuke.syncers.uiuc
+tornado.options.parse_config_file(os.path.join(project_root, 'config/db.conf'))
+syncer = datbigcuke.syncers.uiuc.UiucSyncer()
+
+# run the syncer
+if len(sys.argv) > 1:
+    syncer.sync(int(sys.argv[1]))

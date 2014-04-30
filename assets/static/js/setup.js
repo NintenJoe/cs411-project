@@ -26,7 +26,9 @@ function getGroupID()
  */
 function getBloodhoundForURL( _url )
 {
-	var replacefun = function( u, q ) { return u + "?query=" + q; };
+	var replacefun = function( u, q ) { 
+		return u + "?query=" + q + "&" + "group=" + getGroupID();
+	};
 
 	var bhFinder = new Bloodhound( {
 		datumTokenizer: Bloodhound.tokenizers.obj.whitespace( "value" ),
@@ -87,7 +89,7 @@ function main()
 		$( "#new_user_email" ).typeahead( typeahead_options,
 			{ name: "emails", displaykey: "value", 
 			source: getBloodhoundForURL("../get-users").ttAdapter() } );
-		$( "#group_name" ).typeahead( typeahead_options,
+		$( "#course_name" ).typeahead( typeahead_options,
 			{ name: "groups", displaykey: "value", 
 			source: getBloodhoundForURL("../get-courses").ttAdapter() } );
 		$( "#deadline_name" ).typeahead( typeahead_options,
@@ -147,7 +149,7 @@ function main()
                 }
             });
         });
-        
+
         $( "#add-deadline-submit" ).click( function () {
             var data1 = {};
             data1['group_id'] = getGroupID();
@@ -163,6 +165,45 @@ function main()
                 },
                 error: function(data, text) {
                     alert("Failed to add deadline." + text);
+                }
+            });
+        });
+
+        $( "#add-course-submit" ).click( function () {
+            var data1 = {};
+            data1['course_name'] = $('#course_name').val();
+            $.ajax({
+                type: 'POST',
+                url: '/add-course',
+                data: {'data': JSON.stringify(data1) },
+                success: function(msg) {
+                    $('#add-course-modal').modal('hide');
+                },
+                error: function(data, text) {
+                    alert("Failed to add course." + text);
+                }
+            });
+        });
+
+        $( "#schedule-send-submit" ).click( function () {
+            var data1 = {};
+            if ($('#meeting_times option:selected').attr('data-datetime'))
+                data1['meeting_time'] = $('#meeting_times option:selected').attr('data-datetime');
+            else
+                data1['meeting_time'] = "Sometime, dude."
+
+            data1['meeting_message'] = $('#meeting_message').val();
+            data1['group_id'] = getGroupID();
+
+            $.ajax({
+                type: 'POST',
+                url: '/send-email',
+                data: {'data': JSON.stringify(data1) },
+                success: function(msg) {
+                    $('#schedule-send-modal').modal('hide');
+                },
+                error: function(data, text) {
+                    alert("Failed to send email." + text);
                 }
             });
         });

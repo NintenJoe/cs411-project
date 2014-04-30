@@ -30,6 +30,7 @@ from datbigcuke.entities import Group
 from datbigcuke.entities import GroupRepository
 from datbigcuke.entities import Deadline
 from datbigcuke.entities import DeadlineRepository
+from datbigcuke.entities import InstitutionRepository
 from datbigcuke.cukemail import CukeMail
 
 
@@ -113,21 +114,12 @@ class RegistrationHandler( PageRequestHandler ):
         user.password = self.get_argument("user_password")
         user.confirmUUID = unique
 
-        gr = GroupRepository()
-        uiuc = gr.fetch_by_name("UIUC")
-        if uiuc == []:
-            g = Group()
-            g.name = "UIUC"
-            g.description = "University of Illinois at Urbana/Champaign"
-            g.type = 0
-            gr.persist(g)
-            gr.close()
-        uiuc = gr.fetch_by_name("UIUC")
+        uiuc = self._get_uiuc_group()
 
         repo = UserRepository()
         repo.persist(user)
         user = repo.get_user_by_email(user_email)
-        repo.add_user_to_group(user, uiuc[0])
+        repo.add_user_to_group(user, uiuc)
         repo.close()
 
         ## Send a verification email to the user
@@ -135,6 +127,35 @@ class RegistrationHandler( PageRequestHandler ):
         m.send_verification(unique, user.email)
 
         self.redirect( "/" )
+
+    def _get_uiuc_group(self):
+        # TODO(roh7): this is a hack
+        uiuc_name = "University of Illinois at Urbana-Champaign"
+        ir = InstitutionRepository()
+        gr = GroupRepository()
+        institutions = ir.fetch_all()
+        uiuc = None
+        for inst in institutions:
+            if inst.name == uiuc_name:
+                if inst.group:
+                    uiuc = gr.fetch(inst.group)
+                else:
+                    # create UIUC group
+                    uiuc = Group()
+                    uiuc.name = "UIUC"
+                    uiuc.description = uiuc_name
+                    uiuc.type = 0
+                    # make sure bidirectional references work
+                    uiuc.academic_entity_id = inst.id
+                    uiuc = gr.persist(uiuc)
+                    inst.group = uiuc.id
+                    ir.persist(inst)
+                break
+
+        assert uiuc is not None, 'institution for UIUC group not found...'
+        ir.close()
+        gr.close()
+        return uiuc
 
     ##  @override
     @PageRequestHandler.page_title.getter
@@ -170,15 +191,16 @@ class UserMainHandler( PageRequestHandler ):
     ##  @override
     @tornado.web.authenticated
     def get( self ):
-        user = self.get_current_user()
         gr = GroupRepository()
         dr = DeadlineRepository()
 
-        # TODO: Add functionality to integrate the groups with the deadlines
-        # to allow for front-end maintainer validation when modifying deadlines.
-        deadline_list = dr.deadlines_for_user(user.id)
+        user = self.get_current_user()
         root_group = gr.get_user_group_tree(user.id)
         gr.get_group_maintainer_rec(root_group)
+
+        deadline_list = dr.deadlines_for_user(user.id)
+        for deadline in deadline_list:
+            deadline.group = gr.fetch(deadline.group_id)
 
         self.render( self.get_url(),
             user = user,
@@ -244,8 +266,11 @@ class UserGroupHandler( PageRequestHandler ):
         # TODO: Add functionality to integrate the groups with the deadlines
         # to allow for front-end maintainer validation when modifying deadlines.
         deadline_list = dr.deadlines_for_user_for_group(user.id, group.id)
+        for deadline in deadline_list:
+            deadline.group = group
 
         self.render( self.get_url(),
+            user = user,
             group = group,
             supergroups = supergroup_list,
             subgroups = group.subgroups,
@@ -279,6 +304,8 @@ class GroupLeaveHandler( PageRequestHandler ):
         user = self.get_current_user()
         group = gr.fetch(group_id)
         gr.get_group_maintainer(group)
+
+        user_group_ids = [ g.id for g in gr.get_groups_of_user(user.id) ]
         supergroups = gr.get_supergroup_list(group_id)
 
         # The group must be a non-root group to consider removal.
@@ -291,9 +318,9 @@ class GroupLeaveHandler( PageRequestHandler ):
                 self.redirect( "/group/" + str(supergroup.id) )
                 return
             # Case 2: User requested to leave the group (user is in group).
-            if group.id in [ g.id for g in gr.get_groups_of_user(user.id) ]:
-                # TODO: Remove the user from the group.
-                print "Removing " + user.name + " from " + group.name
+            if group.id in user_group_ids:
+                user.groups = [ gid for gid in user_group_ids if gid != group.id ]
+                ur.persist(user)
                 self.redirect( "/group/" + str(supergroup.id) )
                 return
 
@@ -337,6 +364,8 @@ class SimpleModalModule( WebModule ):
             modal_title = "Add a Group Member"
         elif modal_id == "add-subgroup":
             modal_title = "Add a Group Subgroup"
+        elif modal_id == "add-course":
+            modal_title = "Add a Course"
         elif modal_id == "add-deadline":
             modal_title = "Add a Group Deadline"
 

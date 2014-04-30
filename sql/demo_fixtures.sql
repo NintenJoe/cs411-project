@@ -60,15 +60,17 @@ INSERT INTO `group` (`id`, `name`, `description`, `type`)
 VALUES
 (LAST_INSERT_ID(), 'CS 473 Fundamental Algorithms', 'Fundamental techniques for algorithm design and analysis, including recursion, dynamic programming, randomization, dynamic data structures, fundamental graph algorithms, and NP-completeness. Intended for undergraduates in Computer Science and graduate students in other departments.', 1);
 
+SET @user_id = (SELECT id FROM user WHERE email = 'tom@bogue.com');
 INSERT INTO `membership_entity` VALUES ();
-INSERT INTO `group` (`id`, `name`, `description`, `type`)
+INSERT INTO `group` (`id`, `name`, `description`, `type`, `maintainerId`)
 VALUES
-(LAST_INSERT_ID(), 'CS 473 Study Team', 'Do Homework and learn to be smart!', 1);
+(LAST_INSERT_ID(), 'CS 473 Study Team', 'Do Homework and learn to be smart!', 1, @user_id);
 
+SET @user_id = (SELECT id FROM user WHERE email = 'josh@halstead.com');
 INSERT INTO `membership_entity` VALUES ();
-INSERT INTO `group` (`id`, `name`, `description`, `type`)
+INSERT INTO `group` (`id`, `name`, `description`, `type`, `maintainerId`)
 VALUES
-(LAST_INSERT_ID(), 'CS 411 Project Team', 'Work together on the CS 411 project!', 1);
+(LAST_INSERT_ID(), 'CS 411 Project Team', 'Work together on the CS 411 project!', 1, @user_id);
 
 
 SET @group_id = (SELECT id FROM `group` WHERE name = 'UIUC');
@@ -184,8 +186,6 @@ SET @user_id = (SELECT id FROM `group` WHERE name = 'CS 473 Study Team');
 INSERT INTO `group_membership` VALUES (@group_id, @user_id);
 
 SET @group_id = (SELECT id FROM `group` WHERE name = 'CS 473 Study Team');
-
-
 
 SET @user_id = (SELECT id FROM user WHERE email = 'josh@halstead.com');
 INSERT INTO `group_membership` VALUES (@group_id, @user_id);
