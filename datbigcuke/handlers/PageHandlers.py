@@ -177,14 +177,13 @@ class UserMainHandler( PageRequestHandler ):
         # TODO: Add functionality to integrate the groups with the deadlines
         # to allow for front-end maintainer validation when modifying deadlines.
         deadline_list = dr.deadlines_for_user(user.id)
-        group_list = gr.get_groups_of_user_rec(user.id)
-        for group in group_list:
-            gr.get_group_maintainer_rec(group)
+        root_group = gr.get_user_group_tree(user.id)
+        gr.get_group_maintainer_rec(root_group)
 
         self.render( self.get_url(),
             user = user,
             deadlines = deadline_list,
-            groups = group_list
+            groups = [ root_group ]
         )
 
     ##  @override
@@ -234,13 +233,9 @@ class UserGroupHandler( PageRequestHandler ):
         # TODO: 404 if the user is not a member of the group.
         user = self.get_current_user()
         # TODO: 404 if the page doesn not exist in the DB.
-        group = gr.fetch(group_id)
-
-        # TODO: Update this logic to display the subgroups only associated with
-        # the current user.
-        supergroup_list = gr.get_supergroup_list(group_id)
-        group.subgroups = gr.get_subgroups_of_group_rec(group_id)
+        group = gr.get_user_group_tree(user.id, long(group_id))
         gr.get_group_maintainer_rec(group)
+        supergroup_list = gr.get_supergroup_list(group_id)
 
         group_is_public = group.maintainerId == None
         user_is_maintainer = group.maintainerId == user.id
