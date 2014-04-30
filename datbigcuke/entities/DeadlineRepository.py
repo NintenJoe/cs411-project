@@ -27,7 +27,8 @@ class DeadlineRepository(AbstractRepository):
 
         delta = deadline.get_delta()
         delta.pop('id', None) # make sure id does not exist
-        
+        delta.pop('meta', None)
+
         if deadline.id is None:
             with self._conn.cursor() as cursor:
                 cursor.execute('INSERT INTO `deadline` (name, group_id, deadline, type) ' 
@@ -55,7 +56,7 @@ class DeadlineRepository(AbstractRepository):
                 assert 'id' not in delta
                 keys = delta.keys()
                 args = list(delta.values())
-                args.append(user.id)
+                args.append(deadline.id)
                 query = ','.join('`{}`=?'.format(k) for k in keys)
                 with self._conn.cursor() as cursor:
                     cursor.execute('UPDATE `deadline` '
@@ -180,7 +181,7 @@ class DeadlineRepository(AbstractRepository):
             if result['deadline_id']:
                 deadlineMeta = DeadlineMetadata()
                 deadlineMeta.user_id = result['user_id']
-                deadlineMeta.deadline_id = result['id']
+                deadlineMeta.deadline_id = result['deadline_id']
                 deadlineMeta.notes = result['notes']
             deadline.meta = deadlineMeta
             return deadline
