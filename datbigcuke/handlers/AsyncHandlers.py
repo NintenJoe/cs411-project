@@ -575,7 +575,7 @@ class ScheduleHandler(AsyncRequestHandler):
             #must have refresh token
             if not new_user.refreshTok:
                 print email + "has not given google permission to view calendar information"
-                return error response
+                return
 
             ref_tok = new_user.refreshTok
 
