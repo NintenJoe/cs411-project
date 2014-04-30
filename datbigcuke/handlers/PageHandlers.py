@@ -30,6 +30,7 @@ from datbigcuke.entities import Group
 from datbigcuke.entities import GroupRepository
 from datbigcuke.entities import Deadline
 from datbigcuke.entities import DeadlineRepository
+from datbigcuke.entities import InstitutionRepository
 from datbigcuke.cukemail import CukeMail
 
 
@@ -113,20 +114,12 @@ class RegistrationHandler( PageRequestHandler ):
         user.password = self.get_argument("user_password")
         user.confirmUUID = unique
 
-        gr = GroupRepository()
-        uiuc = gr.fetch_by_name("UIUC")
-        if uiuc == []:
-            g = Group()
-            g.name = "UIUC"
-            g.description = "University of Illinois at Urbana/Champaign"
-            g.type = 0
-            gr.persist(g)
-        uiuc = gr.fetch_by_name("UIUC")
+        uiuc = self._get_uiuc_group()
 
         repo = UserRepository()
         repo.persist(user)
         user = repo.get_user_by_email(user_email)
-        repo.add_user_to_group(user, uiuc[0])
+        repo.add_user_to_group(user, uiuc)
         repo.close()
 
         ## Send a verification email to the user
@@ -134,6 +127,35 @@ class RegistrationHandler( PageRequestHandler ):
         m.send_verification(unique, user.email)
 
         self.redirect( "/" )
+
+    def _get_uiuc_group(self):
+        # TODO(roh7): this is a hack
+        uiuc_name = "University of Illinois at Urbana-Champaign"
+        ir = InstitutionRepository()
+        gr = GroupRepository()
+        institutions = ir.fetch_all()
+        uiuc = None
+        for inst in institutions:
+            if inst.name == uiuc_name:
+                if inst.group:
+                    uiuc = gr.fetch(inst.group)
+                else:
+                    # create UIUC group
+                    uiuc = Group()
+                    uiuc.name = "UIUC"
+                    uiuc.description = uiuc_name
+                    uiuc.type = 0
+                    # make sure bidirectional references work
+                    uiuc.academic_entity_id = inst.id
+                    uiuc = gr.persist(uiuc)
+                    inst.group = uiuc.id
+                    ir.persist(inst)
+                break
+
+        assert uiuc is not None, 'institution for UIUC group not found...'
+        ir.close()
+        gr.close()
+        return uiuc
 
     ##  @override
     @PageRequestHandler.page_title.getter
