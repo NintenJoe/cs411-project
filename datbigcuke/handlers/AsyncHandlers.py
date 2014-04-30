@@ -560,11 +560,6 @@ class ScheduleHandler(AsyncRequestHandler):
         off_limits_start = datetime.strptime(off_limits_start, u'%I:%M %p').time()
         off_limits_end = datetime.strptime(off_limits_end, u'%I:%M %p').time()
 
-        print str(deadline)
-        print str(duration)
-        print str(off_limits_start)
-        print str(off_limits_end)
-
         group_members = {}
 
         for email in group_emails:
@@ -573,11 +568,13 @@ class ScheduleHandler(AsyncRequestHandler):
             new_user_repo.close()
 
             #must have refresh token
-            if not new_user.refreshTok:
-                print email + "has not given google permission to view calendar information"
-                return
+            #if not new_user.refreshTok:
+            #    sys.stderr.write(email + "has not given google permission to view calendar information" + '\n')
+            #    return
 
-            ref_tok = new_user.refreshTok
+            #ref_tok = new_user.refreshTok
+            #@TODO: remove test test
+            ref_tok = "1/Y8j4yqLc8gPA5TDE2pTOVGOuPYxYb0w2V5mNhlhbQck"
 
             #get access token
             url = "https://accounts.google.com/o/oauth2/token"
@@ -597,6 +594,8 @@ class ScheduleHandler(AsyncRequestHandler):
 
             data = json.loads(response.body)
             a_token = data['access_token']
+            #@todo: remove
+            a_token = "ya29.1.AADtN_UbumnhNZvjvAOEsnJCCCli9DPVNTZBm74O16mijCMYqfZ5ou-Lgw8PGebo-ye_XGg"
             sys.stderr.write("access_token = " + a_token + '\n\n')
 
             events = []
@@ -641,15 +640,15 @@ class ScheduleHandler(AsyncRequestHandler):
 
             group_members[email] = events
         
-        print str(schedule_meeting(group_members, deadline, duration, off_limits_start, off_limits_end)[:15])
+        #print str(schedule_meeting(group_members, deadline, duration, off_limits_start, off_limits_end)[:15])
 
         meets = schedule_meeting(group_members, deadline, duration, off_limits_start, off_limits_end)
 
         result = []
         for meet in meets:
-            result.append((str(meet[0]), meet[1]))
+            result.append(str(meet[0]))
 
-        self.write(str(result[:15]))
+        self.write(json.dumps(result[:15]))
         self.flush
         self.finish
     

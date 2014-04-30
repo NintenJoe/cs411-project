@@ -203,12 +203,20 @@ function main()
                 url: '/schedule',
                 data: {'data': JSON.stringify(data1) },
                 success: function(msg) {
-                    //$('#add-deadline-modal').modal('hide');
-                    //@TODO yeah remove this
-                    alert(msg);
+                	alert(msg);
+                	times = $.parseJSON( msg );
+                	alert(times[0]);
+                	times.map( function(time) {
+	                    $('#meeting_times')
+					        .append($("<option></option>")
+					        .attr("data-datetime",time)
+					        .text(time));
+					});
+					$('#meeting_message').text(times);
+					
                 },
                 error: function(data, text) {
-                    alert("Failed to schedule." + text);
+                    alert("Failed to schedule. Make sure everyone you want to schedule into the meeting has given access to their Google Calendars.");
                 }
             });
         });

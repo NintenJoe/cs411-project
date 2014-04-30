@@ -103,35 +103,3 @@ def schedule_meeting(group_members, deadline, duration, off_limits_start, off_li
         result.append((option[2], list(set(options[option[2]]))))
     
     return result
-    
-    
-    
-    
-#TESTING (note these won't work after today (April 17))
-t1 = datetime.now()
-t2 = (t1 + timedelta(minutes=7)).time()
-
-print t1
-print time_interval_start(t1, 5)
-print t2
-print time_interval_start(t2, 5)
-print ""
-
-group_members = {}
-bob = [(datetime(2014, 4, 17, 12), datetime(2014, 4, 17, 18)),
-       (datetime(2014, 4, 18, 12), datetime(2014, 4, 18, 18))]
-sue = [(datetime(2014, 4, 17, 19), datetime(2014, 4, 17, 23)),
-       (datetime(2014, 4, 18, 20), datetime(2014, 4, 18, 23))]
-joe = [(datetime(2014, 4, 17, 14), datetime(2014, 4, 17, 17)),
-       (datetime(2014, 4, 18, 14), datetime(2014, 4, 18, 18, 30))]
-group_members['bob'] = bob
-group_members['sue'] = sue
-group_members['joe'] = joe
-deadline = datetime(2014, 4, 18, 22)
-duration = timedelta(hours=1)
-off_limits_start = time(21)
-off_limits_end = time(12)
-
-schedule = schedule_meeting(group_members, deadline, duration, off_limits_start, off_limits_end)
-for s in schedule:
-    print s[0], s[1]
