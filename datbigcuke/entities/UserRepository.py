@@ -67,7 +67,7 @@ class UserRepository(AbstractRepository):
             user.invalidate()
 
     def _update_group_membership(self, user):
-        if user.groups is None:
+        if not user.groups:
             return
 
         # TODO(roh7): reconsider whether this is the right place
@@ -91,8 +91,7 @@ class UserRepository(AbstractRepository):
         with self._conn.cursor() as cursor:
             cursor.execute('SELECT `id`, `email`, `name`, `password`, `salt`, `refreshTok` '
                            'FROM `user`')
-            for result in self._fetch_all_dict(cursor):
-                user_list.append(self._create_entity(data=result))
+            user_list = self._fetch_all_users(cursor)
 
         return user_list
         
@@ -114,16 +113,17 @@ class UserRepository(AbstractRepository):
                            '    ON (`u`.`id` = `m`.`member_id`)'
                            'WHERE `gr`.`id` =? '
                            'ORDER BY `u`.`name`', (group_id,))
-            for result in self._fetch_all_dict(cursor):
-                member_list.append(self._create_entity(data=result))
+            member_list = self._fetch_all_users(cursor)
         
         return member_list
 
+    # TODO(ciurej2): Why was this necessary to have a groups field here?
     def add_user_to_group(self, user, group):
         with self._conn.cursor() as cursor:
             cursor.execute('INSERT INTO `group_membership` (`group_id`, `member_id`) '
                            'VALUES (?,?)', (group.id, user.id))
-            #user.groups.append(user.id)
+        if user.groups:
+            user.groups.append(group.id)
 
     def mark_verified(self, unique):
         with self._conn.cursor() as cursor:
@@ -131,7 +131,31 @@ class UserRepository(AbstractRepository):
                            'SET confirmed = true '
                            'WHERE `confirmUUID`=?', (unique,))
 
+    def _fetch_user_groups(self, cursor, user_id):
+        group_list = []
+        with self._conn.cursor() as cursor:
+            cursor.execute('SELECT `g`.`id` AS `id`'
+                           'FROM `group` AS `g`'
+                           'JOIN `group_membership` AS `m`'
+                           '    ON (`m`.`group_id` = `g`.`id`)'
+                           'WHERE `m`.`member_id`=?', (user_id,))
+            for result in self._fetch_all_dict(cursor):
+                group_list.append(result['id'])
+
+        return group_list
+
     def _fetch_user(self, cursor):
         result = self._fetch_dict(cursor)
-        if result is not None:
-            return self._create_entity(data=result)
+        if not result:
+            return None
+
+        result['groups'] = self._fetch_user_groups(cursor, result['id'])
+        user = self._create_entity(data=result)
+        return user
+
+    def _fetch_all_users(self, cursor):
+        user_list = []
+        for result in self._fetch_all_dict(cursor):
+            result['groups'] = self._fetch_user_groups(cursor, result['id'])
+            user = self._create_entity(data=result)
+        return user_list

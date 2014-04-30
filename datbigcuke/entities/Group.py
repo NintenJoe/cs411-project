@@ -17,6 +17,8 @@ class Group(AbstractEntity):
         '_description' : 'description',
         '_type' : 'type',
         '_maintainerId' : 'maintainerId',
+        '_academic_entity_id' : 'academic_entity_id',
+        '_academic_entity_type' : 'academic_entity_type',
     }
 
     @property
@@ -57,14 +59,25 @@ class Group(AbstractEntity):
 
     @property
     def subgroups(self):
-        if self._subgroups:
-            return self._subgroups
-        else:
-            return []
+        if self._subgroups is None:
+            self._subgroups = []
+        return self._subgroups
 
     @subgroups.setter
     def subgroups(self, value):
         self._subgroups = value
+
+    @property
+    def academic_entity_id(self):
+        return self._academic_entity_id
+
+    @academic_entity_id.setter
+    def academic_entity_id(self, value):
+        self._academic_entity_id = value
+
+    @property
+    def academic_entity_type(self):
+        return self._academic_entity_type
 
     def validate(self):
         # TODO(roh7): implement proper validation

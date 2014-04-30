@@ -18,7 +18,9 @@ import ConfigParser
 
 # For test async handler only
 import tornado.httpclient
+
 from datetime import datetime, date
+from tornado import gen
 
 from datbigcuke.scheduler import *
 from datbigcuke.handlers.BaseHandlers import WebResource
@@ -202,7 +204,6 @@ class AddSubgroupHandler(AsyncRequestHandler):
         return True
 
     def _perform_request(self, user, name, values):
-        print "performing request"
         group_id = values[u"group_id"]
         new_group_name = values[u"group_name"]
         new_group_desc = values[u"group_description"]
@@ -217,8 +218,6 @@ class AddSubgroupHandler(AsyncRequestHandler):
         new_group.maintainerId = curr_user.id
         new_group = gr.persist(new_group)
 
-        print "Group: " + str(new_group)
-
         # assign the subgroup as a child of the parent group
         gr.add_group_as_subgroup(group_id, new_group.id)
         gr.close()
@@ -229,9 +228,7 @@ class AddSubgroupHandler(AsyncRequestHandler):
         user_repo.close()
 
         self._persist_user(curr_user)
-        
 
-        pass
 
 # - Add deadline to group
 # - Data: Group ID, New Deadline Name, New Deadline Time, New Deadline Notes
@@ -253,8 +250,6 @@ class AddDeadlineHandler(AsyncRequestHandler):
             return
 
         self._perform_request(curr_user, "", values)
-        
-        pass
 
     def _valid_request(self, curr_user, name, values):
         # Malformed request
@@ -296,11 +291,192 @@ class AddDeadlineHandler(AsyncRequestHandler):
             new_deadline.type = 'PER'
         new_deadline.meta.user_id = user.id
         new_deadline.meta.notes = notes
-        new_deadline = dr.persist(new_deadline)        
+        new_deadline = dr.persist(new_deadline)
 
         dr.close()
 
         pass
+
+
+
+
+# - Send email after meeting has been scheduled
+# - Data: Group ID, Email Message, Time
+class AddDeadlineHandler(AsyncRequestHandler):
+    @tornado.web.authenticated
+    # @TODO(halstea2) We chould create a 'complex' async handler base that
+    # is aware of a dictionary of values
+    def post(self):
+        curr_user = self.get_current_user()
+        values = self.get_argument("data", default=None)
+
+        if not curr_user or not values:
+            return
+
+        # We don't need the 'name' field. It's encoded in the data dictionary
+        # Keys are unicode after json.loads conversion
+        values = json.loads(values)
+        if not self._valid_request(curr_user, "", values):
+            return
+
+        self._perform_request(curr_user, "", values)
+
+    def _valid_request(self, curr_user, name, values):
+        # Malformed request
+        if u"group_id" not in values or u"name" not in values or u"deadline" not in values or u"notes" not in values:
+            return False
+
+        # Malformed request
+        group_id = values[u"group_id"]
+        name = values[u"name"]
+        deadline = values[u"deadline"]
+        notes = values[u"notes"]
+        if not group_id or not name or not deadline or not notes:
+            return False
+
+        return True
+
+    def _perform_request(self, user, name, values):
+        group_id = values[u"group_id"]
+        name = values[u"name"]
+        deadline = values[u"deadline"]
+        notes = values[u"notes"]
+        curr_user = self.get_current_user()
+
+
+        dr = DeadlineRepository()
+        gr = GroupRepository()
+        group = gr.fetch(group_id)
+        gr.get_group_maintainer(group)
+
+        new_deadline = Deadline()
+        new_deadline.meta = DeadlineMetadata()
+
+        new_deadline.name = name
+        new_deadline.group_id = group_id
+        new_deadline.deadline = datetime.strptime(deadline, u'%m/%d/%Y %I:%M %p') # private group
+        if(group.maintainer and group.maintainer.id == user.id):
+            new_deadline.type = 'END'
+        else:
+            new_deadline.type = 'PER'
+        new_deadline.meta.user_id = user.id
+        new_deadline.meta.notes = notes
+        new_deadline = dr.persist(new_deadline)
+
+        dr.close()
+
+        pass
+
+# - Add course for user
+# - Data: Course Name
+class AddCourseHandler(AsyncRequestHandler):
+    @tornado.web.authenticated
+    # @TODO(halstea2) We chould create a 'complex' async handler base that
+    # is aware of a dictionary of values
+    def post(self):
+        curr_user = self.get_current_user()
+        values = self.get_argument("data", default=None)
+
+        if not curr_user or not values:
+            print "Invalid Request. Parameters Missing"
+            return
+
+        # We don't need the 'name' field. It's encoded in the data dictionary
+        # Keys are unicode after json.loads conversion
+        values = json.loads(values)
+        if not self._valid_request(curr_user, "", values):
+            print "Invalid Request. Parameters Empty"
+            return
+
+        self._perform_request(curr_user, "", values)
+        pass
+
+    def _valid_request(self, curr_user, name, values):
+        # Malformed request
+        if u"course_name" not in values:
+            return False
+
+        # Malformed request
+        course_name = values[u"course_name"]
+        if not course_name:
+            return False
+
+        return True
+
+    def _perform_request(self, user, name, values):
+        course_name = values[u"course_name"]
+        curr_user = self.get_current_user()
+
+        gr = GroupRepository()
+        group = gr.fetch_by_name(course_name)
+        gr.close()
+
+        # assign the user as a member of the subgroup
+        user_repo = UserRepository()
+        user_repo.add_user_to_group(curr_user, group[0])
+        user_repo.close()
+
+        self._persist_user(curr_user)
+
+# - Send email for meeting
+# - Data: Meeting Time, Meeting Message
+class SendEmailHandler(AsyncRequestHandler):
+    @tornado.web.authenticated
+    # @TODO(halstea2) We chould create a 'complex' async handler base that
+    # is aware of a dictionary of values
+    def post(self):
+        curr_user = self.get_current_user()
+        values = self.get_argument("data", default=None)
+
+        if not curr_user or not values:
+            print "Invalid Request. Parameters Missing"
+            return
+
+        # We don't need the 'name' field. It's encoded in the data dictionary
+        # Keys are unicode after json.loads conversion
+        values = json.loads(values)
+        if not self._valid_request(curr_user, "", values):
+            print "Invalid Request. Parameters Empty"
+            return
+
+        self._perform_request(curr_user, "", values)
+        pass
+
+    def _valid_request(self, curr_user, name, values):
+        # Malformed request
+        if u"meeting_time" not in values or "meeting_message" not in values or "group_id" not in values:
+            return False
+
+        # Malformed request
+        meeting_time  = values[u"meeting_time"]
+        meeting_message = values[u"meeting_message"]
+        group_id = values[u"group_id"]
+        if not meeting_time or not meeting_message or not group_id:
+            return False
+
+        return True
+
+    def _perform_request(self, user, name, values):
+        meeting_time  = values[u"meeting_time"]
+        meeting_message = values[u"meeting_message"]
+        group_id = values[u"group_id"]
+        curr_user = self.get_current_user()
+
+        ur = UserRepository()
+        users = ur.get_members_of_group(group_id)        
+        ur.close()
+
+        gr = GroupRepository()
+        group = gr.fetch(group_id)
+        gr.close()
+
+        cm = CukeMail()
+        cm.subject(group.name + " meeting @ " + meeting_time)
+        cm.message(meeting_message)
+        cm.send([user.email for user in users])
+
+        self._persist_user(curr_user)
+
 
 # - Get members of parent group (for 'Add member' auto-complete)
 #   - Data: Parent Group ID
@@ -418,11 +594,6 @@ class ScheduleHandler(AsyncRequestHandler):
         off_limits_start = datetime.strptime(off_limits_start, u'%I:%M %p').time()
         off_limits_end = datetime.strptime(off_limits_end, u'%I:%M %p').time()
 
-        print str(deadline)
-        print str(duration)
-        print str(off_limits_start)
-        print str(off_limits_end)
-
         group_members = {}
 
         for email in group_emails:
@@ -432,7 +603,7 @@ class ScheduleHandler(AsyncRequestHandler):
 
             #must have refresh token
             if not new_user.refreshTok:
-                print email + "has not given google permission to view calendar information"
+                sys.stderr.write(email + "has not given google permission to view calendar information" + '\n')
                 return
 
             ref_tok = new_user.refreshTok
@@ -499,15 +670,13 @@ class ScheduleHandler(AsyncRequestHandler):
 
             group_members[email] = events
         
-        print str(schedule_meeting(group_members, deadline, duration, off_limits_start, off_limits_end)[:15])
-
         meets = schedule_meeting(group_members, deadline, duration, off_limits_start, off_limits_end)
 
         result = []
         for meet in meets:
-            result.append((str(meet[0]), meet[1]))
+            result.append(meet[0].strftime(u'%A %b %d (%Y) at %I:%M %p'))
 
-        self.write(str(result[:15]))
+        self.write(json.dumps(result[:15]))
         self.flush
         self.finish
     
@@ -655,7 +824,6 @@ class EditMetadataNameHandler(AsyncRequestHandler):
             print "Associated group doesn't exist."
             return False
 
-        print "dd.type: ", dead.type, "group.maintainId", group.maintainerId, "dd.group_id", dead.group_id, "dd.type", dead.type
         if not (dead.type == "PER" or
                 (group.maintainerId == dead.group_id and dead.type == "END")):
             print "User cannot modify this deadline"
@@ -679,11 +847,6 @@ class EditMetadataTimeHandler(AsyncRequestHandler):
         name = self.get_arguments("name", None)
         deadline_id = self.get_arguments("pk", None)
         values = self.get_arguments("value", None)
-
-        print "user", user
-        print "name", name
-        print "deadline_id", deadline_id
-        print "values", values
 
         # 'Logged-in' user must be defined
         if not user:
@@ -714,10 +877,6 @@ class EditMetadataTimeHandler(AsyncRequestHandler):
 
     def _valid_request(self, user, attr, deadline_id, value):
         # User parameters must be defined
-        print "user", user
-        print "attr", attr
-        print "deadline_id", deadline_id
-        print "value", value
         if not user or not attr or not value or not deadline_id:
             print "Invalid Request. Parameters Missing"
             return False
@@ -751,7 +910,6 @@ class EditMetadataTimeHandler(AsyncRequestHandler):
             print "Associated group doesn't exist."
             return False
 
-        print "dd.type: ", dead.type, "group.maintainId", group.maintainerId, "dd.group_id", dead.group_id, "dd.type", dead.type
         if not (dead.type == "PER" or
                 (group.maintainerId == dead.group_id and dead.type == "END")):
             print "User cannot modify this deadline"
@@ -815,17 +973,14 @@ class UpdateEmailHandler(AsyncRequestHandler):
     # Assumptions: User is authenticated. attr is string (decoded to utf-8).
     def _valid_request(self, user, attr, value):
         """Verify that the 'update email' request is valid"""
-        print "vr attr: " + str(attr)
         if not hasattr(user, attr):
             print "attr not found"
             return False
 
-        print "value attr: " + str(value)
         if len(value) != 1:
             print "value not found"
             return False
 
-        print "Valid request received"
         return True
 
     # Assumption: User is authenticated. attr exists. Value is list of length 1

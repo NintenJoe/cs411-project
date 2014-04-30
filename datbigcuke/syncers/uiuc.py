@@ -93,8 +93,10 @@ class UiucSyncer(object):
                 # create classes from what we've scraped
                 self._sync_classes(cursor, t[0])
 
-    def _create_entity_id(self, cursor):
-        cursor.execute('INSERT INTO `academic_entity` VALUES()')
+    def _generate_entity_id(self, cursor, etype):
+        cursor.execute('INSERT INTO `academic_entity` (`type`)'
+                       'VALUES(?)',
+                       (etype,))
         return cursor.lastrowid
 
     def _sync_institution(self, cursor):
@@ -106,7 +108,7 @@ class UiucSyncer(object):
         if result is not None:
             return result['id']
         # create UIUC
-        instid = self._create_entity_id(cursor)
+        instid = self._generate_entity_id(cursor, 'institution')
         cursor.execute('INSERT INTO `institution`'
                        '(`id`, `name`) '
                        'VALUES(?,?)',
@@ -161,7 +163,7 @@ class UiucSyncer(object):
                                (d['sindex'], d['id']))
             else:
                 # new
-                term_id = self._create_entity_id(cursor)
+                term_id = self._generate_entity_id(cursor, 'term')
                 result.append((term_id, d['href']))
                 cursor.execute('INSERT INTO `term`'
                                '(`id`, `institution_id`, `year`,'
@@ -201,7 +203,7 @@ class UiucSyncer(object):
             course_url = []
             # check each course in the subject
             for course in coursesroot.iter('course'):
-                course_id = self._create_entity_id(cursor)
+                course_id = self._generate_entity_id(cursor, 'course')
                 item = (
                     course_id,
                     self._inst_id,
@@ -244,7 +246,7 @@ class UiucSyncer(object):
         for crn, cnumber, section_href in sections:
             details = self._fetch_section_details(cursor, crn, section_href)
             if details:
-                details['id'] = self._create_entity_id(cursor)
+                details['id'] = self._generate_entity_id(cursor, 'section')
                 section_details.append(details)
 
         cursor.executemany('INSERT INTO `section`'
@@ -284,7 +286,7 @@ class UiucSyncer(object):
                        (term_id,))
         # for each class, generate id then insert
         for cls in cursor.fetchall():
-            cls['id'] = self._create_entity_id(cursor)
+            cls['id'] = self._generate_entity_id(cursor, 'class')
             cursor.execute('INSERT INTO `class`'
                            '(`id`, `institution_id`, `term_id`,'
                            ' `course_id`, `name`, `title`, `class_name`)'

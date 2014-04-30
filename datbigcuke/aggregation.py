@@ -74,33 +74,5 @@ def should_aggregate(deadlines, threshold):
 def aggregate(deadlines):
     center = find_central_deadlines(deadlines)
     deadline = max(set(center), key=center.tolist().count)
+
     return transform_to_datetime(deadline)
-    
-    
-#TESTING
-deadlines1 = [datetime(2014, 4, 26, 16, 30, 0, 0),
-              datetime(2014, 4, 26, 16, 45, 0, 0),
-              datetime(2014, 4, 26, 16, 30, 0, 0),
-              datetime(2014, 4, 26, 16, 30, 0, 0),
-              datetime(2014, 4, 26, 16, 29, 0, 0),
-              datetime(2014, 4, 26, 16, 29, 0, 0),
-              datetime(2014, 4, 26, 16, 30, 0, 0),
-              datetime(2014, 4, 26, 16, 30, 0, 0),
-              datetime(2014, 4, 26, 17, 30, 0, 0),
-              datetime(2014, 4, 26, 16, 29, 0, 0),
-              datetime(2014, 4, 26, 16, 25, 0, 0),
-              datetime(2014, 4, 26, 16, 25, 0, 0),
-              datetime(2014, 4, 26, 16, 29, 0, 0),
-              datetime(2014, 4, 26, 16, 30, 0, 0),
-              datetime(2014, 4, 26, 16, 25, 0, 0),
-              datetime(2014, 4, 26, 16, 28, 0, 0),
-              datetime(2014, 4, 26, 16, 28, 0, 0),
-              datetime(2014, 4, 26, 16, 28, 0, 0)]
-             
-deadlines2 = [datetime(2014, 4, 26, 16, 30, 0, 0),
-              datetime(2014, 4, 26, 16, 29, 0, 0),
-              datetime(2014, 4, 26, 16, 28, 0, 0),
-              datetime(2014, 4, 26, 16, 27, 0, 0),
-              datetime(2014, 4, 26, 16, 31, 0, 0),
-              datetime(2014, 4, 26, 16, 32, 0, 0),
-              datetime(2014, 4, 26, 16, 33, 0, 0)]

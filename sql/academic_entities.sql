@@ -11,10 +11,11 @@ SET foreign_key_checks = 1;
 
 CREATE TABLE IF NOT EXISTS `academic_entity` (
   `id` INT PRIMARY KEY AUTO_INCREMENT,
+  `type` ENUM('institution', 'term', 'course', 'section', 'class') NOT NULL,
   `group_id` INT,
   FOREIGN KEY (`group_id`)
   REFERENCES `group`(`id`)
-  ON DELETE CASCADE
+  ON DELETE SET NULL
   ON UPDATE CASCADE
 );
 

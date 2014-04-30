@@ -3,7 +3,7 @@
 {% block content %}
 	<div class="content-container col-md-8 well well-sm">
 		<h2>Deadlines:</h2>
-		{% module RenderTemplate( 'deadline-list', deadlines = deadlines ) %}
+		{% module RenderTemplate( 'deadline-list', deadlines = deadlines, user = user ) %}
 	</div>
 
 	<div class="content-container col-md-4 well well-sm">
