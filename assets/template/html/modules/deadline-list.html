@@ -16,12 +16,16 @@
 					{% end %}
 
 					<small>
+						{% if deadline.type == "PER" or (deadline.group.maintainerId == user.id and deadline.type == "END") %}
 						<a href="#" class="editable-date" data-viewformat="dddd MMMM DD, hh:mm A" 
 						data-format="YYYY-MM-DD HH:mm" data-template="MMMM DD, hh:mm A"
 						data-type="combodate" data-pk="{{ deadline.id }}" 
 						data-url="/update-deadline-time" data-title="Enter New Time">
 							{{ deadline.deadline.strftime( "%A %B %m, %I:%M" ) }}
 						</a>
+						{% else %}
+							{{ deadline.deadline.strftime( "%A %B %m, %I:%M" ) }}
+						{% end %}
 					</small>
 				</h5>
 				<div class="deadline-icon-group pull-right">
