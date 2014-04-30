@@ -18,6 +18,7 @@ import ConfigParser
 
 # For test async handler only
 import tornado.httpclient
+from tornado import gen
 from datetime import datetime
 
 from datbigcuke.scheduler import *
@@ -439,6 +440,7 @@ class SendEmailHandler(AsyncRequestHandler):
 
         # We don't need the 'name' field. It's encoded in the data dictionary
         # Keys are unicode after json.loads conversion
+        print "Values: ", values
         values = json.loads(values)
         if not self._valid_request(curr_user, "", values):
             print "Invalid Request. Parameters Empty"
@@ -449,7 +451,7 @@ class SendEmailHandler(AsyncRequestHandler):
 
     def _valid_request(self, curr_user, name, values):
         # Malformed request
-        if u"course_name" not in values:
+        if u"meeting_time" not in values or "meeting_message" not in values or "group_id" not in values:
             return False
 
         # Malformed request
@@ -468,19 +470,24 @@ class SendEmailHandler(AsyncRequestHandler):
         group_id = values[u"group_id"]
         curr_user = self.get_current_user()
 
+        print "Got here 1"
         ur = UserRepository()
         users = ur.get_members_of_group(group_id)        
         ur.close()
 
+        print "Got here 2"
         gr = GroupRepository()
         group = gr.fetch(group_id)
         gr.close()
 
+        print "Got here 3"
         cm = CukeMail()
         cm.subject(group.name + " meeting @ " + meeting_time)
         cm.message(meeting_message)
-        for user in users:
-            cm.send(user.email)
+        cm.send([user.email for user in users])
+#        for user in users:
+#            print "Sending mail to: ", user.email
+#            cm.send(user.email)
 
         # assign the user as a member of the subgroup
         

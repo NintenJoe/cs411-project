@@ -187,7 +187,11 @@ function main()
 
         $( "#schedule-send-submit" ).click( function () {
             var data1 = {};
-            data1['meeting_time'] = $('#meeting_times option:selected').attr('data-datetime');
+            if ($('#meeting_times option:selected').attr('data-datetime'))
+                data1['meeting_time'] = $('#meeting_times option:selected').attr('data-datetime');
+            else
+                data1['meeting_time'] = "Sometime, dude."
+
             data1['meeting_message'] = $('#meeting_message').val();
             data1['group_id'] = getGroupID();
 
