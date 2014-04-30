@@ -15,7 +15,7 @@ CREATE TABLE IF NOT EXISTS `academic_entity` (
   `group_id` INT,
   FOREIGN KEY (`group_id`)
   REFERENCES `group`(`id`)
-  ON DELETE CASCADE
+  ON DELETE SET NULL
   ON UPDATE CASCADE
 );
 
@@ -24,7 +24,9 @@ DROP FOREIGN KEY `fk_academic_entity`;
 ALTER TABLE `group`
 ADD CONSTRAINT `fk_academic_entity`
 FOREIGN KEY (`academic_entity_id`)
-REFERENCES `academic_entity`(`id`);
+REFERENCES `academic_entity`(`id`)
+ON DELETE RESTRICT
+ON UPDATE CASCADE;
 
 CREATE TABLE IF NOT EXISTS `institution` (
   `id` INT PRIMARY KEY,
