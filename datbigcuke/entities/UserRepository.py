@@ -125,7 +125,8 @@ class UserRepository(AbstractRepository):
             cursor.execute('INSERT INTO `group_membership` (`group_id`, `member_id`) '
                            'VALUES (?,?)', (group.id, user.id))
         print "Passed here"
-    #user.groups.append(user.id)
+        if user.groups:
+            user.groups.append(group.id)
 
     def mark_verified(self, unique):
         with self._conn.cursor() as cursor:
@@ -160,5 +161,4 @@ class UserRepository(AbstractRepository):
         for result in self._fetch_all_dict(cursor):
             result['groups'] = self._fetch_user_groups(cursor, result['id'])
             user = self._create_entity(data=result)
-            user_list.append(user)
         return user_list
