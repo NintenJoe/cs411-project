@@ -63,15 +63,19 @@
 
 		<div class="cropped-content-container col-md-6 well well-sm">
 			<h3 class="inner-heading pull-left">Member List:</h3>
+			{% if not group_is_public %}
 			<input class="btn btn-default btn-sm pull-right"
 			data-toggle="modal" data-target="#add-member-modal" value="Add Member">
+			{% end %}
 			{% module RenderTemplate( 'member-list', members = members ) %}
 		</div>
 
 		<div class="cropped-content-container col-md-6 well well-sm">
 			<h3 class="inner-heading pull-left">Subgroup List:</h3>
+			{% if group_is_public %}
 			<input class="btn btn-default btn-sm pull-right"
 			data-toggle="modal" data-target="#add-subgroup-modal" value="Add Subgroup">
+			{% end %}
 			{% module RenderTemplate( 'group-tree', group_forest = subgroups ) %}
 		</div>
 
@@ -79,7 +83,7 @@
 			<h3 class="inner-heading pull-left">Deadline List:</h3>
 			<input class="btn btn-default btn-sm pull-right"
 			data-toggle="modal" data-target="#add-deadline-modal" value="Add Deadline">
-			{% module RenderTemplate( 'deadline-list', deadlines = deadlines ) %}
+			{% module RenderTemplate( 'deadline-list', deadlines = deadlines, user = user ) %}
 		</div>
 	</div>
 {% end %}

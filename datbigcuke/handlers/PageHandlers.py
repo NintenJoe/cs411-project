@@ -173,14 +173,13 @@ class UserMainHandler( PageRequestHandler ):
         gr = GroupRepository()
         dr = DeadlineRepository()
 
-        # TODO: Add functionality to integrate the groups with the deadlines
-        # to allow for front-end maintainer validation when modifying deadlines.
         user = self.get_current_user()
-
         root_group = gr.get_user_group_tree(user.id)
         gr.get_group_maintainer_rec(root_group)
 
         deadline_list = dr.deadlines_for_user(user.id)
+        for deadline in deadline_list:
+            deadline.group = gr.fetch(deadline.group_id)
 
         self.render( self.get_url(),
             user = user,
@@ -246,8 +245,11 @@ class UserGroupHandler( PageRequestHandler ):
         # TODO: Add functionality to integrate the groups with the deadlines
         # to allow for front-end maintainer validation when modifying deadlines.
         deadline_list = dr.deadlines_for_user_for_group(user.id, group.id)
+        for deadline in deadline_list:
+            deadline.group = group
 
         self.render( self.get_url(),
+            user = user,
             group = group,
             supergroups = supergroup_list,
             subgroups = group.subgroups,
@@ -281,6 +283,8 @@ class GroupLeaveHandler( PageRequestHandler ):
         user = self.get_current_user()
         group = gr.fetch(group_id)
         gr.get_group_maintainer(group)
+
+        user_group_ids = [ g.id for g in gr.get_groups_of_user(user.id) ]
         supergroups = gr.get_supergroup_list(group_id)
 
         # The group must be a non-root group to consider removal.
@@ -293,9 +297,9 @@ class GroupLeaveHandler( PageRequestHandler ):
                 self.redirect( "/group/" + str(supergroup.id) )
                 return
             # Case 2: User requested to leave the group (user is in group).
-            if group.id in [ g.id for g in gr.get_groups_of_user(user.id) ]:
-                # TODO: Remove the user from the group.
-                print "Removing " + user.name + " from " + group.name
+            if group.id in user_group_ids:
+                user.groups = [ gid for gid in user_group_ids if gid != group.id ]
+                ur.persist(user)
                 self.redirect( "/group/" + str(supergroup.id) )
                 return
 

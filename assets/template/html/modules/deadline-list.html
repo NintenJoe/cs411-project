@@ -4,9 +4,9 @@
 			{% for deadline in deadlines %}
 			<li id="deadline-{{ deadline.id }}" class="deadline-entry {{ deadline.type }}">
 				<h5 class="inner-heading">
-					<strong>{{ deadline.group }}:</strong>
+					<strong>{{ deadline.group.name }}:</strong>
 
-					{% if deadline.type == "PER" %}
+					{% if deadline.type == "PER" or (deadline.group.maintainerId == user.id and deadline.type == "END") %}
 					<a href="#" class="editable-field" data-name="name" data-type="text"
 					data-pk="{{ deadline.id }}" data-url="/update-deadline-name" data-title="Enter New Name">
 						{{ deadline.name }}
@@ -25,7 +25,7 @@
 					</small>
 				</h5>
 				<div class="deadline-icon-group pull-right">
-					{% if deadline.type == "PER" %}
+					{% if deadline.type == "PER" or (deadline.group.maintainerId == user.id and deadline.type == "END") %}
 					<span data-id="{{ deadline.id }}" 
 					class="glyphicon glyphicon-remove deadline-icon deadline-remove-icon"></span>
 					{% end %}
