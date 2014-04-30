@@ -168,12 +168,12 @@ class GroupRepository(AbstractRepository):
                            '`ae`.`id` AS `academic_entity_id`,'
                            '`ae`.`type` AS `academic_entity_type` '
                            'FROM `group` AS `gr`'
-                           'LEFT JOIN `academic_entity` AS `ae`'
-                           '    ON (`g`.`academic_entity_id`=`ae`.`id`)'
                            'JOIN `group_membership` AS `m`'
                            '    ON (`m`.`member_id` = `gr`.`id`)'
                            'JOIN `group` AS `g`'
                            '    ON (`g`.`id` = `m`.`group_id`)'
+                           'LEFT JOIN `academic_entity` AS `ae`'
+                           '    ON (`g`.`academic_entity_id`=`ae`.`id`)'
                            'WHERE `gr`.`id` =?', (group_id,))
             for result in self._fetch_all_dict(cursor):
                 supergroup = self._create_entity(data=result)
