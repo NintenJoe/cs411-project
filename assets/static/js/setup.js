@@ -162,7 +162,7 @@ function main()
                     $('#add-deadline-modal').modal('hide');
                 },
                 error: function(data, text) {
-                    alert("Failed to add subgroup." + text);
+                    alert("Failed to add deadline." + text);
                 }
             });
         });
@@ -178,18 +178,26 @@ function main()
             data1['duration'] = $('#meeting_duration option:selected').attr('data-mins');
             data1['off_limits_start'] = $('#meeting_offlimits_start').val();
             data1['off_limits_end'] = $('#meeting_offlimits_end').val();
-            alert(JSON.stringify(data1) );
+            //alert(JSON.stringify(data1) );
             $.ajax({
                 type: 'POST',
                 url: '/schedule',
                 data: {'data': JSON.stringify(data1) },
                 success: function(msg) {
-                    //$('#add-deadline-modal').modal('hide');
-                    //@TODO yeah remove this
-                    alert(msg);
+                	//alert(msg);
+                	times = $.parseJSON( msg );
+                	//alert(times[0]);
+                	times.map( function(time) {
+	                    $('#meeting_times')
+					        .append($("<option></option>")
+					        .attr("data-datetime",time)
+					        .text(time));
+					});
+					$('#meeting_times').selectpicker('refresh');
+					
                 },
                 error: function(data, text) {
-                    alert("Failed to schedule." + text);
+                    alert("Failed to schedule. Make sure everyone you want to schedule into the meeting has given access to their Google Calendars.");
                 }
             });
         });

@@ -48,7 +48,7 @@ VALUES
 INSERT INTO `membership_entity` VALUES ();
 INSERT INTO `group` (`id`, `name`, `description`, `type`)
 VALUES
-(LAST_INSERT_ID(), 'CS 418 Interactive Computer Graphics', 'Basic mathematical tools and computational techniques for modeling, rendering, and animating 3-D scenes.database systems.', 1);
+(LAST_INSERT_ID(), 'CS 418 Interactive Computer Graphics', 'Basic mathematical tools and computational techniques for modeling, rendering, and animating 3-D scenes.', 1);
 
 INSERT INTO `membership_entity` VALUES ();
 INSERT INTO `group` (`id`, `name`, `description`, `type`)
