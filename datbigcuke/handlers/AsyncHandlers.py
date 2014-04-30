@@ -432,7 +432,7 @@ class ScheduleHandler(AsyncRequestHandler):
                 sys.stderr.write(email + "has not given google permission to view calendar information" + '\n')
                 return
 
-            #ref_tok = new_user.refreshTok
+            ref_tok = new_user.refreshTok
 
             #get access token
             url = "https://accounts.google.com/o/oauth2/token"
