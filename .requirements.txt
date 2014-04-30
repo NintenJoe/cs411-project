@@ -2,3 +2,4 @@ tornado>=3.1.1
 oursql
 futures>=2.1.6
 urllib3
+numpy
