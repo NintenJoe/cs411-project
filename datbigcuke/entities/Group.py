@@ -59,10 +59,9 @@ class Group(AbstractEntity):
 
     @property
     def subgroups(self):
-        if self._subgroups:
-            return self._subgroups
-        else:
-            return []
+        if self._subgroups is None:
+            self._subgroups = []
+        return self._subgroups
 
     @subgroups.setter
     def subgroups(self, value):

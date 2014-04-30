@@ -6,11 +6,6 @@ VALUES
 (1, 'Academic');
 
 INSERT INTO `membership_entity` VALUES ();
-INSERT INTO `group` (`id`, `name`, `description`, `type`)
-VALUES
-(LAST_INSERT_ID(), 'UIUC', 'Illinois', 1);
-
-INSERT INTO `membership_entity` VALUES ();
 INSERT INTO `user` (`id`, `email`, `name`, `password`, `salt`, `confirmUUID`)
 VALUES
 (LAST_INSERT_ID(), 'josh@halstead.com', 'Josh Halstead', SHA1(CONCAT('b347c0caea913fcf2b7a868387295e390e649d01', 'unsecure')), 'b347c0caea913fcf2b7a868387295e390e649d01', 'a');
@@ -73,7 +68,19 @@ VALUES
 (LAST_INSERT_ID(), 'CS 411 Project Team', 'Work together on the CS 411 project!', 1, @user_id);
 
 
-SET @group_id = (SELECT id FROM `group` WHERE name = 'UIUC');
+SET @uiuc_id = (SELECT `id` FROM `institution` WHERE `name`='University of Illinois at Urbana-Champaign');
+SET @term_id = (SELECT `id` FROM `term` WHERE `institution_id`=@uiuc_id AND `year`=2014 AND `sindex`=0);
+
+-- insert root node
+INSERT INTO `membership_entity` VALUES();
+SET @group_id=LAST_INSERT_ID();
+INSERT INTO `group` (`id`, `name`, `description`, `type`, `academic_entity_id`)
+VALUES
+(@group_id, 'UIUC Spring 2014', 'University of Illinois at Urbana-Champaign', 0, @term_id);
+-- make sure to update the cross reference
+UPDATE `academic_entity`
+SET `group_id`=@group_id
+WHERE `id`=@term_id;
 
 SET @user_id = (SELECT id FROM user WHERE email = 'josh@halstead.com');
 INSERT INTO `group_membership` VALUES (@group_id, @user_id);
