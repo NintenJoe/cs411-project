@@ -30,7 +30,7 @@ class GroupRepository(AbstractRepository):
         delta = group.get_delta()
         delta.pop('id', None)  # make sure id does not exist
         if group.id is None:
-            # new user object
+            # new group object
             with self._conn.cursor() as cursor:
                 cursor.execute('INSERT INTO `membership_entity` VALUES ()')
                 # TODO(roh7): figure out whether it is worth using exception
@@ -40,17 +40,18 @@ class GroupRepository(AbstractRepository):
                 #print type(delta['type'])
 
                 assert cursor.lastrowid != 0
+                group_id = cursor.lastrowid
                 cursor.execute('INSERT INTO `group`'
                                '(`id`, `name`, `description`, `type`,'
                                ' `maintainerId`, `academic_entity_id`) '
                                'VALUES (?, ?, ?, ?, ?, ?);',
-                               (cursor.lastrowid,
+                               (group_id,
                                 group.name,
                                 group.description,
                                 group.type,
                                 group.maintainerId,
                                 group.academic_entity_id))
-                group = self._fetch(cursor, cursor.lastrowid)
+                group = self._fetch(cursor, group_id)
 
         else:
             # old user object
@@ -88,7 +89,7 @@ class GroupRepository(AbstractRepository):
                        'ON (`academic_entity_id`=`academic_entity`.`id`)'
                        'WHERE `group`.`id`=?', (group_id,))
         group = self._fetch_group(cursor)
-        return self._fetch_group(cursor)
+        return group
 
     def fetch_all(self):
         with self._conn.cursor() as cursor:
