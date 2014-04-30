@@ -16,6 +16,7 @@ class CukeMail():
 
     def __init__(self):
         self.logged_in = threading.Event()
+        self.logged_in.clear()
         thread.start_new_thread(self.setup_self, ())
 
     def setup_self(self):
@@ -66,6 +67,7 @@ class CukeMail():
 
     ## Setup and send a verification email
     def send_verification(self, unique, email):
+        self.logged_in.wait()
         self.subject("Verify your email")
         self.message("Please follow this link to verify your email address:\n" + self.parser.get('General', 'site_host') + "/verify/" + unique)
         self.send(email)

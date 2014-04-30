@@ -114,7 +114,7 @@ class RegistrationHandler( PageRequestHandler ):
         user.password = self.get_argument("user_password")
         user.confirmUUID = unique
 
-        uiuc = self._get_uiuc_group()
+        uiuc = self.get_root_group()
 
         repo = UserRepository()
         repo.persist(user)
@@ -127,35 +127,6 @@ class RegistrationHandler( PageRequestHandler ):
         m.send_verification(unique, user.email)
 
         self.redirect( "/" )
-
-    def _get_uiuc_group(self):
-        # TODO(roh7): this is a hack
-        uiuc_name = "University of Illinois at Urbana-Champaign"
-        ir = InstitutionRepository()
-        gr = GroupRepository()
-        institutions = ir.fetch_all()
-        uiuc = None
-        for inst in institutions:
-            if inst.name == uiuc_name:
-                if inst.group:
-                    uiuc = gr.fetch(inst.group)
-                else:
-                    # create UIUC group
-                    uiuc = Group()
-                    uiuc.name = "UIUC"
-                    uiuc.description = uiuc_name
-                    uiuc.type = 0
-                    # make sure bidirectional references work
-                    uiuc.academic_entity_id = inst.id
-                    uiuc = gr.persist(uiuc)
-                    inst.group = uiuc.id
-                    ir.persist(inst)
-                break
-
-        assert uiuc is not None, 'institution for UIUC group not found...'
-        ir.close()
-        gr.close()
-        return uiuc
 
     ##  @override
     @PageRequestHandler.page_title.getter
@@ -194,9 +165,10 @@ class UserMainHandler( PageRequestHandler ):
         gr = GroupRepository()
         dr = DeadlineRepository()
 
+        root_group = self.get_root_group()
         user = self.get_current_user()
-        root_group = gr.get_user_group_tree(user.id)
-        gr.get_group_maintainer_rec(root_group)
+        root_group_tree = gr.get_user_group_tree(user.id, root_group.id)
+        gr.get_group_maintainer_rec(root_group_tree)
 
         deadline_list = dr.deadlines_for_user(user.id)
         for deadline in deadline_list:
@@ -205,7 +177,7 @@ class UserMainHandler( PageRequestHandler ):
         self.render( self.get_url(),
             user = user,
             deadlines = deadline_list,
-            groups = [ root_group ]
+            groups = [ root_group_tree ]
         )
 
     ##  @override

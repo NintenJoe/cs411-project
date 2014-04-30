@@ -63,8 +63,8 @@ class ClassRepository(AbstractRepository):
         with self._conn.cursor() as cursor:
             cursor.execute('SELECT `id`, `institution_id`, `term_id`, `name`,'
                            '`title`, `class_name`, `group_id` '
-                           'FROM `class` NATURAL JOIN `academic_entity`
-                           WHERE `term_id`=? AND `class_name` LIKE ?',
+                           'FROM `class` NATURAL JOIN `academic_entity`'
+                           'WHERE `term_id`=? AND `class_name` LIKE ?',
                            (term.id, '{!s}%'.format(prefix)))
             for result in self._fetch_all_dict(cursor):
                 class_list.append(self._create_entity(data=result))

@@ -15,6 +15,7 @@ class Term(AbstractEntity):
         '_year': 'year',
         '_seq_index': 'sindex',
         '_name': 'name',
+        '_group': 'group_id',
     }
 
     def __init__(self, data=None):
@@ -39,6 +40,14 @@ class Term(AbstractEntity):
     @property
     def seq_index(self):
         return self._gseq_index
+
+    @property
+    def group(self):
+        return self._group
+
+    @group.setter
+    def group(self, value):
+        self._group = value
 
     def validate(self):
         return True
