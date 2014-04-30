@@ -428,13 +428,11 @@ class ScheduleHandler(AsyncRequestHandler):
             new_user_repo.close()
 
             #must have refresh token
-            #if not new_user.refreshTok:
-            #    sys.stderr.write(email + "has not given google permission to view calendar information" + '\n')
-            #    return
+            if not new_user.refreshTok:
+                sys.stderr.write(email + "has not given google permission to view calendar information" + '\n')
+                return
 
             #ref_tok = new_user.refreshTok
-            #@TODO: remove test test
-            ref_tok = "1/Y8j4yqLc8gPA5TDE2pTOVGOuPYxYb0w2V5mNhlhbQck"
 
             #get access token
             url = "https://accounts.google.com/o/oauth2/token"
@@ -454,8 +452,6 @@ class ScheduleHandler(AsyncRequestHandler):
 
             data = json.loads(response.body)
             a_token = data['access_token']
-            #@todo: remove
-            a_token = "ya29.1.AADtN_WdtWjtu67XXQisZw-JkzWm3yW-WzA5w_viXdgOSHbOnjE7ZrJ2iGR8gck"
             sys.stderr.write("access_token = " + a_token + '\n\n')
 
             events = []
