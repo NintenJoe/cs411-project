@@ -414,11 +414,6 @@ class ScheduleHandler(AsyncRequestHandler):
         off_limits_start = datetime.strptime(off_limits_start, u'%I:%M %p').time()
         off_limits_end = datetime.strptime(off_limits_end, u'%I:%M %p').time()
 
-        print str(deadline)
-        print str(duration)
-        print str(off_limits_start)
-        print str(off_limits_end)
-
         group_members = {}
 
         for email in group_emails:
@@ -428,7 +423,7 @@ class ScheduleHandler(AsyncRequestHandler):
 
             #must have refresh token
             if not new_user.refreshTok:
-                print email + "has not given google permission to view calendar information"
+                sys.stderr.write(email + "has not given google permission to view calendar information" + '\n')
                 return
 
             ref_tok = new_user.refreshTok
@@ -495,15 +490,15 @@ class ScheduleHandler(AsyncRequestHandler):
 
             group_members[email] = events
         
-        print str(schedule_meeting(group_members, deadline, duration, off_limits_start, off_limits_end)[:15])
+        #print str(schedule_meeting(group_members, deadline, duration, off_limits_start, off_limits_end)[:15])
 
         meets = schedule_meeting(group_members, deadline, duration, off_limits_start, off_limits_end)
 
         result = []
         for meet in meets:
-            result.append((str(meet[0]), meet[1]))
+            result.append(meet[0].strftime(u'%A %b %d (%Y) at %I:%M %p'))
 
-        self.write(str(result[:15]))
+        self.write(json.dumps(result[:15]))
         self.flush
         self.finish
     
