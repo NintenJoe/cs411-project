@@ -213,7 +213,7 @@ class DeadlineRepository(AbstractRepository):
         candidates = self.deadlines_in_group_with_same_name(deadline)
         candidates_dates = [ deadline.deadline for deadline in candidates]
         gr = GroupRepository()
-        threshold = math.ceil(gr.get_group_size(deadline.group_id) / 3) 
+        threshold = math.ceil(gr.get_group_size(deadline.group_id) / 3)
         dmr = DeadlineMetadataRepository()
 
         print "Dates: " + str(candidates_dates)

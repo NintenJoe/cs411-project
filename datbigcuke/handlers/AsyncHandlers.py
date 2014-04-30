@@ -18,7 +18,7 @@ import ConfigParser
 
 # For test async handler only
 import tornado.httpclient
-from datetime import datetime
+from datetime import datetime, date
 
 from datbigcuke.scheduler import *
 from datbigcuke.handlers.BaseHandlers import WebResource
@@ -671,6 +671,107 @@ class EditMetadataNameHandler(AsyncRequestHandler):
         dd.name = new_name
         deadline_repo.persist(dd)
         deadline_repo.close()
+
+class EditMetadataTimeHandler(AsyncRequestHandler):
+    @tornado.web.authenticated
+    def post(self):
+        user = self.get_current_user()
+        name = self.get_arguments("name", None)
+        deadline_id = self.get_arguments("pk", None)
+        values = self.get_arguments("value", None)
+
+        print "user", user
+        print "name", name
+        print "deadline_id", deadline_id
+        print "values", values
+
+        # 'Logged-in' user must be defined
+        if not user:
+            print "no user"
+            return
+
+        # Name list must not be empty
+        if not name:
+            print "no name"
+            return
+
+        # PK list must not be empty
+        if not deadline_id:
+            print "no deadline_id"
+            return
+        deadline_id = int(deadline_id[0].decode("utf-8"))
+
+        # Value list must be defined
+        if not values:
+            print "no values"
+            return
+
+        if not self._valid_request(user, "time", deadline_id, values):
+            return
+
+        self._perform_request(user, "time", deadline_id, values)
+
+
+    def _valid_request(self, user, attr, deadline_id, value):
+        # User parameters must be defined
+        print "user", user
+        print "attr", attr
+        print "deadline_id", deadline_id
+        print "value", value
+        if not user or not attr or not value or not deadline_id:
+            print "Invalid Request. Parameters Missing"
+            return False
+
+        new_time = value[0].decode("utf-8")
+        if not new_time:
+            print "Missing time"
+            return False
+
+        # Strip the 0000- year off the time.
+        new_time = datetime.strptime(new_time[5:], "%m-%d %H:%M")
+        # Add the correct year
+        new_time = new_time + (date(datetime.now().year, 1, 1) - date(new_time.year, 1, 1))
+        if new_time < datetime.now():
+            print "Invalid time"
+            return False
+
+        # The deadline associated with the deadline_id must exist
+        deadline_repo = DeadlineRepository()
+        dead = deadline_repo.deadline_for_user(user.id, deadline_id)
+        deadline_repo.close()
+
+        if not dead or not dead.name or not dead.group_id:
+            print "Something is wrong with the deadline object."
+            return False
+
+        group_repo = GroupRepository()
+        group = group_repo.fetch(dead.group_id)
+        group_repo.close()
+        if not group:
+            print "Associated group doesn't exist."
+            return False
+
+        print "dd.type: ", dead.type, "group.maintainId", group.maintainerId, "dd.group_id", dead.group_id, "dd.type", dead.type
+        if not (dead.type == "PER" or
+                (group.maintainerId == dead.group_id and dead.type == "END")):
+            print "User cannot modify this deadline"
+            return False
+
+        return True
+    
+    def _perform_request(self, user, attr, deadline_id, value):
+        new_time = value[0].decode("utf-8")
+        # Strip the 0000- year off the time.
+        new_time = datetime.strptime(new_time[5:], "%m-%d %H:%M")
+        # Add the correct year
+        new_time = new_time + (date(datetime.now().year, 1, 1) - date(new_time.year, 1, 1))
+
+        deadline_repo = DeadlineRepository()
+        dead = deadline_repo.deadline_for_user(user.id, deadline_id)
+        dead.deadline = new_time
+        deadline_repo.persist(dead)
+        deadline_repo.close()
+
 
 
 # /profile Request Handlers

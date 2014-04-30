@@ -117,7 +117,6 @@ class AsyncRequestHandler( WebRequestHandler ):
             print "no values"
             return
 
-        print "Good job"
         name = name[0].decode("utf-8")
         if not self._valid_request(user, name, values):
             return
