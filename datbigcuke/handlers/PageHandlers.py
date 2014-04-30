@@ -121,7 +121,6 @@ class RegistrationHandler( PageRequestHandler ):
             g.description = "University of Illinois at Urbana/Champaign"
             g.type = 0
             gr.persist(g)
-            gr.close()
         uiuc = gr.fetch_by_name("UIUC")
 
         repo = UserRepository()
