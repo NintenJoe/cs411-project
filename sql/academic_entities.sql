@@ -18,6 +18,13 @@ CREATE TABLE IF NOT EXISTS `academic_entity` (
   ON UPDATE CASCADE
 );
 
+ALTER TABLE `group`
+DROP FOREIGN KEY `fk_academic_entity`;
+ALTER TABLE `group`
+ADD CONSTRAINT `fk_academic_entity`
+FOREIGN KEY (`academic_entity_id`)
+REFERENCES `academic_entity`(`id`);
+
 CREATE TABLE IF NOT EXISTS `institution` (
   `id` INT PRIMARY KEY,
   `name` CHAR(70) NOT NULL,

@@ -35,6 +35,8 @@ CREATE TABLE IF NOT EXISTS `group` (
   `description` TEXT,
   `type` INT NOT NULL,
   `maintainerId` INT,
+  `academic_entity_id` INT,
+  -- foreign key constraint added in academic_entities.sql
 
   FOREIGN KEY (`id`)
   REFERENCES `membership_entity`(`id`)
