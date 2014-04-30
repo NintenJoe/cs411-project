@@ -440,7 +440,6 @@ class SendEmailHandler(AsyncRequestHandler):
 
         # We don't need the 'name' field. It's encoded in the data dictionary
         # Keys are unicode after json.loads conversion
-        print "Values: ", values
         values = json.loads(values)
         if not self._valid_request(curr_user, "", values):
             print "Invalid Request. Parameters Empty"
@@ -470,17 +469,14 @@ class SendEmailHandler(AsyncRequestHandler):
         group_id = values[u"group_id"]
         curr_user = self.get_current_user()
 
-        print "Got here 1"
         ur = UserRepository()
         users = ur.get_members_of_group(group_id)        
         ur.close()
 
-        print "Got here 2"
         gr = GroupRepository()
         group = gr.fetch(group_id)
         gr.close()
 
-        print "Got here 3"
         cm = CukeMail()
         cm.subject(group.name + " meeting @ " + meeting_time)
         cm.message(meeting_message)
