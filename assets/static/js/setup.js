@@ -238,6 +238,18 @@ function main()
                 }
             });
         });
+        $(".deadline-remove-icon").click(function () {
+            var data1 = {}
+            data1["deadline_id"] = $(this).attr("data-id");
+            $.ajax({
+                type: 'POST',
+                url: '/delete-deadline',
+                data: {'data': JSON.stringify(data1) },
+                error: function(data, text) {
+                    alert("Failed to delete deadline course. " + text);
+                }
+            });
+        });
     }
 }
 

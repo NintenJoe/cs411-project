@@ -282,6 +282,58 @@ class AddSubgroupHandler(AsyncRequestHandler):
         self.finish
 
 
+# - Add subgroup to group
+# - Data: Group ID, New Group Name, New Group Description
+class DeleteDeadlineHandler(AsyncRequestHandler):
+    @tornado.web.authenticated
+    # @TODO(halstea2) We chould create a 'complex' async handler base that
+    # is aware of a dictionary of values
+    def post(self):
+        curr_user = self.get_current_user()
+        values = self.get_argument("data", default=None)
+
+        if not curr_user or not values:
+            print "Invalid Request. Parameters Missing"
+            return
+
+        # We don't need the 'name' field. It's encoded in the data dictionary
+        # Keys are unicode after json.loads conversion
+        values = json.loads(values)
+        if not self._valid_request(curr_user, "", values):
+            print "Invalid Request. Parameters Empty"
+            return
+
+        self._perform_request(curr_user, "", values)
+        pass
+
+    def _valid_request(self, curr_user, name, values):
+        # Malformed request
+        if u"deadline_id" not in values:
+            return False
+
+        # Malformed request
+        deadline_id = values["deadline_id"]
+        if not deadline_id:
+            return False
+
+        return True
+
+    def _perform_request(self, user, name, values):
+        print "Performing request"
+        deadline_id = values["deadline_id"]
+        curr_user = self.get_current_user()
+
+        dr = DeadlineRepository()
+        gr = GroupRepository()
+
+        deadline = dr.deadline_for_user(curr_user.id, deadline_id)
+        group = gr.fetch(deadline.group_id)
+        if(group.maintainerId == curr_user.id or group.type == 'PER'):
+            dr.delete(deadline.id)
+        else:
+            dr.drop_metadata(deadline)
+
+
 # - Send email after meeting has been scheduled
 # - Data: Group ID, Email Message, Time
 class AddDeadlineHandler(AsyncRequestHandler):
