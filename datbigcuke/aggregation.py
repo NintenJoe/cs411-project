@@ -74,4 +74,5 @@ def should_aggregate(deadlines, threshold):
 def aggregate(deadlines):
     center = find_central_deadlines(deadlines)
     deadline = max(set(center), key=center.tolist().count)
+
     return transform_to_datetime(deadline)

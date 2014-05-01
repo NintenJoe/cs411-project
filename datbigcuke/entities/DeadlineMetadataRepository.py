@@ -23,7 +23,8 @@ class DeadlineMetadataRepository(AbstractRepository):
         super(DeadlineMetadataRepository, self).persist(deadlineMeta)
 
         delta = deadlineMeta.get_delta()
-        if delta.get('user_id', None) or delta.get('deadline_id', None):
+        if deadlineMeta.user_id is None or deadlineMeta.deadline_id is None or getattr(deadlineMeta, 'insert', False) == True:
+            delta.pop('insert', None)
             with self._conn.cursor() as cursor:
                 cursor.execute('INSERT INTO `deadline_metadata` '
                                '(`user_id`, `deadline_id`, `notes`)'
@@ -32,11 +33,14 @@ class DeadlineMetadataRepository(AbstractRepository):
             if delta:
                 keys = delta.keys()
                 args = list(delta.values())
-                args.append(user.id)
+                print "args:", args
+                args.append(deadlineMeta.user_id)
+                args.append(deadlineMeta.deadline_id)
                 query = ','.join('`{}`=?'.format(k) for k in keys)
+                print "query:", query
                 with self._conn.cursor() as cursor:
-                    cursor.execute('UPDATE `deadline` '
-                                   'SET {} WHERE `id`=?'.format(query),
+                    cursor.execute('UPDATE `deadline_metadata` '
+                                   'SET {} WHERE `user_id`=? AND `deadline_id`=?'.format(query),
                                    args)
 
     def fetch(self, deadline_id):

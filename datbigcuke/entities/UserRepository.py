@@ -104,6 +104,7 @@ class UserRepository(AbstractRepository):
 
     def get_members_of_group(self, group_id):
         member_list = []
+        print "Group id: ", group_id
         with self._conn.cursor() as cursor:
             cursor.execute('SELECT `u`.`id`, `u`.`email`, `u`.`name`, `u`.`password`, `u`.`salt`, `u`.`confirmed` , `u`.`refreshTok`'
                            'FROM `group` AS `gr`'
@@ -119,12 +120,9 @@ class UserRepository(AbstractRepository):
 
     # TODO(ciurej2): Why was this necessary to have a groups field here?
     def add_user_to_group(self, user, group):
-        print "User: ", user.id
-        print "Group: ", group.id
         with self._conn.cursor() as cursor:
             cursor.execute('INSERT INTO `group_membership` (`group_id`, `member_id`) '
                            'VALUES (?,?)', (group.id, user.id))
-        print "Passed here"
         if user.groups:
             user.groups.append(group.id)
 
@@ -160,5 +158,5 @@ class UserRepository(AbstractRepository):
         user_list = []
         for result in self._fetch_all_dict(cursor):
             result['groups'] = self._fetch_user_groups(cursor, result['id'])
-            user = self._create_entity(data=result)
+            user_list.append(self._create_entity(data=result))
         return user_list

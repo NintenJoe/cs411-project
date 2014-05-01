@@ -21,7 +21,7 @@
 			<strong>{{ group.name }}</strong>
 			<small>
 			{% for supergroup in supergroups %}
-			{{ supergroup.name }} <i class="glyphicon glyphicon-arrow-right"></i>
+			<a href="/group/{{ supergroup.id }}">{{ supergroup.name }}</a> <i class="glyphicon glyphicon-arrow-right"></i>
 			{% end %}
 			{{ group.name }}
 			</small>
@@ -47,7 +47,7 @@
 				{% end %}
 
 				<form action="/group-leave/{{ group.id }}" method="POST">
-					{% if not user_is_maintainer and len(supergroups) > 0 %}
+					{% if not user_is_maintainer and len(supergroups) > 0 and len(subgroups) == 0 %}
 					<input id="leave_group" type="submit" value="Leave Group"
 					class="btn btn-default btn-md btn-block goption-button">
 					{% elif user_is_maintainer and len(members) == 1 %}

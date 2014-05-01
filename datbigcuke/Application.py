@@ -51,6 +51,13 @@ class Application( tornado.web.Application ):
             ( r"/add-deadline", AddDeadlineHandler),
             ( r"/add-course", AddCourseHandler),
             ( r"/schedule", ScheduleHandler),
+
+            ( r"/update-deadline-notes", EditMetadataNotesHandler),
+            ( r"/update-deadline-name", EditMetadataNameHandler),
+            ( r"/update-deadline-time", EditMetadataTimeHandler),
+
+           # ( r"/delete-deadline", DeleteMetadataHandler),
+
             ( r"/send-email", SendEmailHandler),
 
             # @TODO(halstea2) Remove test async handler
