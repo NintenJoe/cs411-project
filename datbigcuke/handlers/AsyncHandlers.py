@@ -355,8 +355,7 @@ class AddDeadlineHandler(AsyncRequestHandler):
         result['type'] = new_deadline.type
         result['time'] = new_deadline.deadline.strftime(u'%A %b %d, %I:%M')
         result['notes'] = new_deadline.meta.notes
-        #TODO: eventually change
-        result['can_edit'] = True
+        result['can_edit'] = (new_deadline.type == "PER" or (group.maintainerId == user.id and new_deadline.type == "END"))
 
         self.write(json.dumps(result))
         self.flush
@@ -417,6 +416,7 @@ class AddCourseHandler(AsyncRequestHandler):
 
         result['id'] = group[0].id
         result['name'] = group[0].name
+        result['maintainer'] = ""
 
         self.write(json.dumps(result))
         self.flush

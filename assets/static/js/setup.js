@@ -130,8 +130,8 @@ function main()
                 data: {'data': JSON.stringify(data1)},
                 success: function(msg) {
                     $('#add-subgroup-modal').modal('hide');
-                    //response = $.parseJSON( msg );
-                    //addGroupEntry(response["id"], response["name"], response["maintainer"]);
+                    response = $.parseJSON( msg );
+                    addGroupEntry(response["id"], response["name"], response["maintainer"]);
                 },
                 error: function(data) {
                     alert("Failed to add subgroup.");
