@@ -253,14 +253,14 @@ function main()
                 	var i;
                 	for(i = 0; i < 15; i++)
                 	{
-                		$('#meeting_times').('#' + i).remove();
+                		$('#meeting_times').find('#meeting_time_option' + i).remove();
                 	}
                 	i = 0
                 	times.map( function(time) {
 	                    $('#meeting_times')
 					        .append($("<option></option>")
 					        .attr("data-datetime",time)
-					        .attr("id",i)
+					        .attr("id","meeting_time_option" + i)
 					        .text(time));
 					    i++;
 					});
