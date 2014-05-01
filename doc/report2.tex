@@ -215,49 +215,30 @@
 
 
 	\section[Appendix]{Miscellaneous Project Information}
-	The core of the Jenkins chat plugin consists of the types used to
-	implement the server and client components of the client-server model.
-	For each of these primary components, the listing below describes the
-	major functionality encapsulated by that primary component and provides
-	a visual aid for its role in the project through a 
-	\href{http://www.csci.csusb.edu/dick/samples/uml0.html}{UML diagram}.
+	The following section contains extra information about the \appname
+	service, such as application dependencies and more in-depth database
+	information.
 
 		\subsection[Dependencies]{Sources and Dependencies}
-		Installation for the chat plugin has the following dependencies, which
-		must be installed before the plugin itself can be installed:
+		The following section details all the dependencies of the \appname
+		application.  The most important dependencies are given at the top
+		of the list while less vital dependencies are listed below.
 
-		\begin{description}
-			\item[\href{http://www.oracle.com/technetwork/java/javase/downloads/jdk7-downloads-1880260.html}{Java Development Kit}] (v1.7+) \hfill \\
-			A version of the standard Java development kit at least as recent 
-			as version 1.7 is needed primarily to import extended networking 
-			functionality only in later JDK versions.
+		\begin{itemize}
+			\item \href{https://www.python.org/download/releases/2.7.6/}{Python (v2.7.6)}
+			\item \href{http://www.tornadoweb.org/en/stable/}{Tornado (v3.1.1)}
+			\item \href{https://pythonhosted.org/oursql/}{OurSQL (v0.9.2)}
 
-			\item[\href{http://jenkins-ci.org/}{Jenkins}] (v1.509.3+) \hfill \\
-			A version of Jenkins more recent than version 1.509.3 is needed
-			to support the chat server plugin (older versions may work, but they
-			have not been tested).
+			\item \href{http://getbootstrap.com/}{Twitter Bootstrap (v3.1.1)}
 
-			\item[\href{https://github.com/mrniko/netty-socketio/releases}{Netty-SocketIO}] (v1.5.2+) \hfill \\ 
-			An open source Java library that facilitates network communication 
-			via websockets in Java.  This library is used by the chat plugin
-			to aid in the transferral of mesages to and from chat clients.
-		\end{description}
+			\item \href{http://jquery.com/}{jquery.js (v1.11.0)}
+			\item \href{http://momentjs.com/}{moment.js (v2.0.0)}
+			\item \href{https://github.com/twitter/typeahead.js}{typeahead.js (v0.10.2)}
 
-		After these dependencies are installed, installing the chat plugin itself
-		is relatively straightforward.  The steps for performing this installation
-		are as follows:
-
-		\begin{enumerate}
-			\item Navigate to the \textbf{plugin} subdirectory from the chat
-			plugin source base directory.
-
-			\item Run the script within this directory by the name of 
-			\textbf{export.sh}.
-		\end{enumerate}
-
-		After performing the second step, a sequence of installations should
-		follow.  After all these subsequent installations are complete, the
-		plugin should be fully installed and accessible through Jenkins.
+			\item \href{https://github.com/vitalets/x-editable}{x-editable.js (v2.0.0)}
+			\item \href{https://github.com/Eonasdan/bootstrap-datetimepicker}{bootstrap-datetimepicker.js (v2.0.0)}
+			\item \href{https://github.com/silviomoreto/bootstrap-select}{bootstrap-select.js (v2.0.0)}
+		\end{itemize}
 
 		\subsection[Other Information]{Other Relevant Information}
 		TODO
