@@ -171,7 +171,7 @@ WHERE gm.group_id="CS 411" AND u.email LIKE "jh%"
 		group member is based on their Google Calendars, so we had to work with the
 		Google API to get this information. Users our asked to give our app read
 		access to their Google Calendars, and this access is stored with the user.
-		
+
 		The scheduling itself uses an algorithm we wrote to determine times where
 		everyone is free, taking into account the meeting duration, everyone's
 		available times, and overnight ``off-limits times'' the user chooses (so
@@ -220,7 +220,7 @@ WHERE gm.group_id="CS 411" AND u.email LIKE "jh%"
 			a visual aid for its role in the project through a 
 			\href{http://www.csci.csusb.edu/dick/samples/uml0.html}{UML diagram}.
 
-			\subsubsection[Challenges]{Technical Challenges}
+			\subsubsection[Technical Challenges]{Technical Challenges}
 			Working with the Google API was very difficult.
 			Looking at the documentation, it seemed like it should have been more simple
 			than it turned out to be. The main stumbling point was that Google refuses to
@@ -238,6 +238,22 @@ WHERE gm.group_id="CS 411" AND u.email LIKE "jh%"
 			these difficulties would be to really take some time to work on figuring
 			out the Google API requests and authentication process before integrating
 			them into the app so that it can go much smoother.
+
+			\subsubsection[Other Challenges]{Other Challenges}
+			Our major challenge with this project was time. Due to large projects in
+			other courses that many of us had, we were quite pressed for time. Despite
+			this, however, we managed to create something we were all satisfied with.
+			In the end there were a few kinks and bugs, and a few minor features were
+			weakened in the process of development, but nothing specific stands out
+			in terms of failure to meet the original specifications.
+
+			The database
+			schema changed some: we decided early on not to store scheduled appointments
+			and instead to have the groups notify their members of the meeting (we helped
+			automate this by adding an option to send an email to the group.) The reason
+			for this was because deadlines and appointments differ in that an appointment
+			has a duration, and the heterogeneous mix of deadlines and appointments
+			did not seem like something that would be easily presentable or very worthwhile.
 
 
 	\section[Appendix]{Miscellaneous Project Information}
