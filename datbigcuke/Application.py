@@ -54,6 +54,7 @@ class Application( tornado.web.Application ):
             ( r"/get-courses", GetCoursesHandler),
             ( r"/get-deadlines", GetDeadlinesHandler),
             ( r"/get-users", GetUsersHandler),
+            ( r"/delete-deadline", DeleteDeadlineHandler),
 
             ( r"/update-deadline-notes", EditMetadataNotesHandler),
             ( r"/update-deadline-name", EditMetadataNameHandler),
