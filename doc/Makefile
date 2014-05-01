@@ -1,7 +1,7 @@
 COMPILER = rubber
 COMPILER_FLAGS = --pdf
 
-all : report2.pdf
+all : report.pdf
 
 %.pdf : %.tex
 	$(COMPILER) $(COMPILER_FLAGS) $<
