@@ -67,7 +67,7 @@ class UserRepository(AbstractRepository):
             user.invalidate()
 
     def _update_group_membership(self, user):
-        if not user.groups:
+        if user.groups is None:
             return
 
         # TODO(roh7): reconsider whether this is the right place

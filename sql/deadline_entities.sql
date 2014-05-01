@@ -34,6 +34,6 @@ CREATE TABLE IF NOT EXISTS `deadline_metadata` (
   
   FOREIGN KEY (`deadline_id`)
   REFERENCES `deadline`(`id`)
-  ON DELETE RESTRICT
+  ON DELETE CASCADE
   ON UPDATE CASCADE
 );

@@ -66,10 +66,11 @@ function main()
 	// Set up Autocomplete Fields ///
 	{
 		var typeahead_options = { hint: true, highlight: true, minLength: 2 };
-
+    // add user email
 		$( "#new_user_email" ).typeahead( typeahead_options,
 			{ name: "emails", displaykey: "value", 
 			source: getBloodhoundForURL("../get-users").ttAdapter() } );
+    // add course
 		$( "#course_name" ).typeahead( typeahead_options,
 			{ name: "groups", displaykey: "value", 
 			source: getBloodhoundForURL("../get-courses").ttAdapter() } );
@@ -77,6 +78,23 @@ function main()
 			{ name: "emails", displaykey: "value", 
 			source: getBloodhoundForURL("../get-deadlines").ttAdapter() } );
 
+    // custom typeahead event handlers to ensure proper values are sent
+    var courseNameTypeaheadSelected = function (eventObject,
+                                                suggestionObject,
+                                                suggestionDataset) {
+        // add hidden field when typeahead choice is selected
+        $( "#class_id" ).val(suggestionObject.class_id);
+        // reset handler on selected/autocompleted event; otherwise doesn't work
+        $( "#course_name" ).change(function (eventObject) {
+            $( "#class_id" ).val('');
+        });
+    };
+
+    $( "#course_name" ).change(function (eventObject) {
+        $( "#class_id" ).val('');
+    });
+    $( "#course_name" ).on('typeahead:selected typeahead:autocompleted',
+                           courseNameTypeaheadSelected);
 		// TODO: Remove this example code.
 		/*$( "#group_name" ).typeahead( { hint: true, highlight: true, minLength: 2 },
 			{ name: "states", displaykey: "value", source: substringMatcher(states) } );*/
@@ -164,12 +182,17 @@ function main()
 
         $( "#add-course-submit" ).click( function () {
             var data1 = {};
-            data1['course_name'] = $('#course_name').val();
+            data1['class_id'] = $('#class_id').val();
+            if ('' == data1['class_id']) {
+                alert('Please select the course from available options.');
+                return;
+            }
             $.ajax({
                 type: 'POST',
                 url: '/add-course',
                 data: {'data': JSON.stringify(data1) },
                 success: function(msg) {
+                    $('#course_name').typeahead('val', '');
                     $('#add-course-modal').modal('hide');
                     response = $.parseJSON( msg );
                     addGroupEntry(response["id"], response["name"], response["maintainer"]);
@@ -235,6 +258,18 @@ function main()
                 error: function(data, text) {
                     alert("Failed to schedule. Make sure everyone you want to schedule into the meeting has given access to their Google Calendars.");
                     $('#schedule-send-modal').modal('hide');
+                }
+            });
+        });
+        $(".deadline-remove-icon").click(function () {
+            var data1 = {}
+            data1["deadline_id"] = $(this).attr("data-id");
+            $.ajax({
+                type: 'POST',
+                url: '/delete-deadline',
+                data: {'data': JSON.stringify(data1) },
+                error: function(data, text) {
+                    alert("Failed to delete deadline course. " + text);
                 }
             });
         });

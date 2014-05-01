@@ -253,7 +253,7 @@ class GroupRepository(AbstractRepository):
                            '`group`.`academic_entity_id` AS `academic_entity_id` ' 
                            'FROM `group` '
                            
-                           'WHERE `group`.`name` LIKE ?', (query,))
+                           'WHERE `maintainerId` IS NULL AND `group`.`name` LIKE ?', (query,))
             for result in self._fetch_all_dict(cursor):
                 group_list.append(self._create_entity(data=result))
 
