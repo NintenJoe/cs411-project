@@ -70,7 +70,16 @@ class DeadlineRepository(AbstractRepository):
         if aggregate:
             return self.perform_aggregation(deadline)
                 
-            
+    def drop_metadata(self, deadline):
+        with self._conn.cursor() as cursor:
+            cursor.execute('DELETE FROM `deadline_metadata` '
+                           'WHERE `deadline_id` =? AND `user_id` =?', (deadline.meta.deadline_id,deadline.meta.user_id))
+
+    def delete(self, deadline_id):
+        with self._conn.cursor() as cursor:
+            cursor.execute('DELETE FROM `deadline` '
+                           'WHERE `id` =? ', (deadline_id,))
+
     def fetch(self, deadline_id):
         with self._conn.cursor() as cursor:
             cursor.execute('SELECT `d`.`id`, `d`.`name`, `d`.`group_id`, `d`.`deadline`, `d`.`type`, `g`.`name` as `group` '
@@ -174,11 +183,12 @@ class DeadlineRepository(AbstractRepository):
         with self._conn.cursor() as cursor:
             cursor.execute('SELECT `d`.`id`, `d`.`name`, `d`.`group_id`, `d`.`deadline`, `d`.`type`, `dm`.`user_id`, `dm`.`deadline_id`, `dm`.`notes`, `g`.`name` as `group` '
                            'FROM `deadline` AS `d` '
-                           'JOIN `deadline_metadata` as `dm` '
+                           'LEFT JOIN `deadline_metadata` as `dm` '
                            'ON `dm`.`deadline_id` = `d`.`id` '
+                           'AND `dm`.`user_id` =? '
                            'JOIN `group` as `g` '
                            'ON `g`.`id` = `d`.`group_id` '
-                           'WHERE `d`.`id` =?', (deadline_id,))
+                           'WHERE `d`.`id` =?', (user_id, deadline_id))
             
             result = self._fetch_dict(cursor)
             deadline = self._create_entity(data=result)

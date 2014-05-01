@@ -148,8 +148,8 @@ function main()
                 data: {'data': JSON.stringify(data1)},
                 success: function(msg) {
                     $('#add-subgroup-modal').modal('hide');
-                    //response = $.parseJSON( msg );
-                    //addGroupEntry(response["id"], response["name"], response["maintainer"]);
+                    response = $.parseJSON( msg );
+                    addGroupEntry(response["id"], response["name"], response["maintainer"]);
                 },
                 error: function(data) {
                     alert("Failed to add subgroup.");
@@ -262,6 +262,18 @@ function main()
                 error: function(data, text) {
                     alert("Failed to schedule. Make sure everyone you want to schedule into the meeting has given access to their Google Calendars.");
                     $('#schedule-send-modal').modal('hide');
+                }
+            });
+        });
+        $(".deadline-remove-icon").click(function () {
+            var data1 = {}
+            data1["deadline_id"] = $(this).attr("data-id");
+            $.ajax({
+                type: 'POST',
+                url: '/delete-deadline',
+                data: {'data': JSON.stringify(data1) },
+                error: function(data, text) {
+                    alert("Failed to delete deadline course. " + text);
                 }
             });
         });
