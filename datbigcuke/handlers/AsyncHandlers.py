@@ -399,7 +399,7 @@ class AddDeadlineHandler(AsyncRequestHandler):
         group_id = values[u"group_id"]
         name = values[u"name"]
         notes = values[u"notes"]
-        if not group_id or not name or not deadline:
+        if not group_id or not name:
             return False
 
         return True
@@ -583,20 +583,6 @@ class SendEmailHandler(AsyncRequestHandler):
         cm.send([user.email for user in users])
 
         self._persist_user(curr_user)
-
-
-# - Create subgroup (only if parent is public)
-#   - Data: Course ID, Section ID, name, desc, type (inferred), user id (from get_curr_user)
-#   - Server-Side Checks:
-#       - Current user is a member of the parent group of the new subgroup ID
-#   @TODO(halstea2) - Save for last
-#   
-class CreateSubgroupHandler(AsyncRequestHandler):
-    def _valid_request(self, user, name, values):
-        pass
-
-    def _perform_request(self, user, name, values):
-        pass
 
 class GetDeadlinesHandler(AsyncRequestHandler):
     @tornado.web.authenticated
