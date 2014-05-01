@@ -42,6 +42,8 @@ def schedule_meeting(group_members, deadline, duration, off_limits_start, off_li
         
     #m is the interval length, this must be 0 < m < 60
     m = 15
+
+    midnight = time(0)
     
     #convert the given times to the intervals they are in
     overall_start = time_interval_start(datetime.now() + timedelta(hours=1, minutes=m), m)
@@ -68,6 +70,9 @@ def schedule_meeting(group_members, deadline, duration, off_limits_start, off_li
             
         while(t < end):
             intervals[datetime.combine(day, t)] = []
+            if((datetime.combine(day + timedelta(days=1), midnight) - duration) < datetime.combine(day, t)):
+                t = (datetime.combine(day, t) + timedelta(minutes=m)).time()
+                continue
             if((datetime.combine(day, t) + duration).time() <= end):
                 options[datetime.combine(day, t)] = []
             t = (datetime.combine(day, t) + timedelta(minutes=m)).time()
