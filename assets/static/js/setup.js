@@ -106,8 +106,10 @@ function main()
 					console.log( msg );
                     $('#add-member-modal').modal('hide');
 
-					// TODO: Update this functionality.
-					addUserEntry( "name", "email", "iconurl" );
+                    response = $.parseJSON( msg );
+
+					// TODO: icon not updating
+					addUserEntry( response["name"], response["email"], response["iconurl"] );
                 },
                 error: function(data) {
                     alert("Failed to add user to group.");
@@ -128,9 +130,8 @@ function main()
                 data: {'data': JSON.stringify(data1)},
                 success: function(msg) {
                     $('#add-subgroup-modal').modal('hide');
-
-					// TODO: Update this functionality.
-					addGroupEntry( "1", "name", "maintainer" );
+                    //response = $.parseJSON( msg );
+                    //addGroupEntry(response["id"], response["name"], response["maintainer"]);
                 },
                 error: function(data) {
                     alert("Failed to add subgroup.");
@@ -150,10 +151,10 @@ function main()
                 data: {'data': JSON.stringify(data1) },
                 success: function(msg) {
                     $('#add-deadline-modal').modal('hide');
-
+					response = $.parseJSON( msg );
 					// TODO: Update this functionality.
-					addDeadlineEntry( "1", "name", "CS411: HARD", "PER", 
-						"time", "notes", true );
+					addDeadlineEntry( response["id"], response["name"], response["group"], response["type"], 
+						response["time"], response["notes"], response["can_edit"] );
                 },
                 error: function(data, text) {
                     alert("Failed to add deadline." + text);
@@ -170,6 +171,8 @@ function main()
                 data: {'data': JSON.stringify(data1) },
                 success: function(msg) {
                     $('#add-course-modal').modal('hide');
+                    response = $.parseJSON( msg );
+                    addGroupEntry(response["id"], response["name"], response["maintainer"]);
                 },
                 error: function(data, text) {
                     alert("Failed to add course." + text);

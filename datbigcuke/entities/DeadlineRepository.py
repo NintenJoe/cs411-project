@@ -23,6 +23,9 @@ class DeadlineRepository(AbstractRepository):
         super(DeadlineRepository, self).__init__(Deadline)
 
     def persist(self, deadline):
+        return self.raw_persist(deadline, True)
+
+    def raw_persist(self, deadline, aggregate):
         super(DeadlineRepository, self).persist(deadline)
 
         delta = deadline.get_delta()
@@ -64,8 +67,8 @@ class DeadlineRepository(AbstractRepository):
                                    'SET {} WHERE `id`=?'.format(query),
                                    args)
                     
-        
-        return self.perform_aggregation(deadline)
+        if aggregate:
+            return self.perform_aggregation(deadline)
                 
             
     def fetch(self, deadline_id):
@@ -247,7 +250,7 @@ class DeadlineRepository(AbstractRepository):
                     if candidate.meta:
                         candidate.meta.deadline_id = deadline.id
                         dmr.persist(candidate.meta)
-                self.persist(deadline)
+                self.raw_persist(deadline, False)
                 
             deadline = canonical
             

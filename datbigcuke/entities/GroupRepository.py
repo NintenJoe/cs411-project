@@ -242,6 +242,23 @@ class GroupRepository(AbstractRepository):
             result = self._fetch_dict(cursor)
         return result['count']
 
+    def get_groups_with_name_prefix(self, prefix):
+        group_list = []
+        with self._conn.cursor() as cursor:
+            query = '{}%'.format(prefix)
+            cursor.execute('SELECT `group`.`id` AS `id`, `group`.`name` AS `name`, '
+                           '`group`.`description` AS `description`, '
+                           '`group`.`type` AS `type`, '
+                           '`group`.`maintainerId`, '
+                           '`group`.`academic_entity_id` AS `academic_entity_id` ' 
+                           'FROM `group` '
+                           
+                           'WHERE `group`.`name` LIKE ?', (query,))
+            for result in self._fetch_all_dict(cursor):
+                group_list.append(self._create_entity(data=result))
+
+        return group_list
+
     def _fetch_group(self, cursor):
         result = self._fetch_dict(cursor)
         if result is not None:
