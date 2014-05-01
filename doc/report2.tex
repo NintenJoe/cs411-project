@@ -23,6 +23,7 @@
 
 % This command creates blue boxes around class names.
 % @see "http://tex.stackexchange.com/questions/36401/drawing-boxes-around-words"
+<<<<<<< HEAD:report/report2.tex
 %\newcommand\classname[2][]{\tikz[overlay]\node[fill=blue!20,inner sep=2pt, anchor=text, rectangle, rounded corners=1mm,#1] {#2};\phantom{#2}}
 <<<<<<< HEAD
 \newcommand\appname[1][]{\tikz[overlay]\node[fill=green!20,inner sep=2pt, anchor=text, rectangle, rounded corners=1mm,#1] { DatBigCuke };\phantom{ DatBigCuke}}
@@ -31,6 +32,12 @@
 =======
 \newcommand\appname[2][]{\tikz[overlay]\node[fill=green!20,inner sep=2pt, anchor=text, rectangle, rounded corners=1mm,#1] {#2};\phantom{#2}}
 >>>>>>> 4cf1dd19f2d944e3aeaa2dd8047f69eff38c1883
+=======
+\newcommand\appname[1][]{\tikz[overlay]\node[fill=green!20,inner sep=2pt, anchor=text, rectangle, rounded corners=1mm,#1] { DatBigCuke };\phantom{ DatBigCuke}}
+\newcommand\gcalendar[1][]{\href{https://www.google.com/calendar}{Google Calendar} }
+\newcommand\gravatar[1][]{\href{http://en.gravatar.com/}{Gravatar} }
+
+>>>>>>> e9d68bd76a91fedbf75567ad29cec85109ea051a:doc/report2.tex
 \newcommand{\insertdiagram}[2]
 {
 	\begin{figure}[H]
@@ -55,76 +62,112 @@
 
 	% Body %
 	\section[Project Overview]{Brief Project Overview}
-	The purpose of this project was to create an online service for college
-	students to help them schedule and manage their academic deadlines
-
-	The purpose of this project is to create an extension to the continuous 
-	integration server Jenkins that facilitates chat communication between
-	users of the server.  The main feature of this extension is an augmentation
-	to the standard Jenkins user web pages that allows for messages to be 
-	transferred between users connected to one or more of these pages through
-	a dynamically updating web interface.
+	The primary purpose of this project was to create an online service for college
+	students to help them manage their academic deadlines.  Our primary hope
+	is that the application can serve a centralized repository for college
+	students' deadlines and aid them in organizing these deadlines in a 
+	straightforward and digestable manner.  
+	
+	The application is meant to be used by many students in college courses to 
+	facilitate the crowdsourcing of deadline times for course homeworks and other 
+	various assignments.  Additionally, the application provides functionality to allow 
+	student groups to organize group meetings to work towards completing their related deadlines.
 
 		\subsection[Motiviation]{Project Motivation}
-		The primary purpose of this plugin is to enable quick and easy 
-		communication between Jenkins users through the provision of an 
-		integrated chat client as an augmentation to the Jenkins web interface.
-		While other chat clients exist in abundance, the Jenkins chat plugin
-		allows for easy integration into a familiar environment with minimal
-		installation difficulties.
-
-		\subsection[Goals]{Project Goals}
-		The main goal of this project is to provide an intuitive, feature-rich
-		chat client within the Jenkins web interface.  By integrating a chat client
-		into the Jenkins interface, we aim to remove the need for extraneous chat 
-		applications, thus providing a more seamless workflow.  Additionally,
-		eliminating the need for extra applications minimizes dependencies on
-		additional exterior applications, decreasing both maintenance and
-		integration costs for users.
-
-		In an attempt to enhance user satisfaction, we built the application with
-		a variety of features, including:
-
-		\begin{itemize}
-			\item Peer-to-peer communication between users via a familiar chat
-			interface.
-			\item Group chat support to allow users to communicate with multiple
-			team members simultaneously.
-			\item Identification system that allows for user-specified names by
-			both system administrators (via an admin file) and chat clients
-			(via a user interface in the chat client).
-			\item Persistence of chat logs to allow for users and management to 
-			cross-reference past communications.
-		\end{itemize}
+		The main motivation for creating this service was a common need among
+		the group members for a centralized deadline management system.  We all
+		found that the highly variate means by which courses and college groups
+		distribute deadlines made effective deadline management a near impossibility.
+		In creating the \appname web service, we aim to eliminate this problem by 
+		allowing users to congregate and collaborate on deadline data entry.  
 		
-		Our hope is that these features will serve to facilitate efficient
-		communication between users and provide near-complete coverage of desired
-		functionality.
+		Additionally, we've found that organizing group meetings with the purpose of 
+		working towards completing deadlines is an equally difficult task with the
+		large variability in group member schedules.  The need to efficiently find
+		potential times for such meetings was another primary motivator for the
+		features we implemented in the \appname service.
+
+		\subsection[Affordances]{Project Affordances}
+		The \appname service has the capacity to help users accomplish a number of
+		tasks, including more efficient deadline management, more effective
+		group scheduling, and more centralized group organization.
+		
+		Users can sign up for groups in \appname and enter deadlines associated 
+		with these groups. Once enough users of a group have entered a deadline
+		for a particular assignment, the official time for this deadline is
+		determined by aggregating these user-entered deadlines using statisical
+		analysis methods.
+
+		The integration of autocomplete makes the process of signing up for
+		academic groups seamless.  After seamlessly signing up for their
+		courses through the \appname interface, users can begin to create their
+		own user subgroups and begin scheduling meetings to accomplish the
+		tasks associated with their deadlines.  
+		
+		The means of finding appropriate scheduling times is made painless 
+		through integration with \gcalendar, which the application pulls scheduling 
+		data from to determine the availability times of each group member.  
+		The \appname service uses each users selected \gcalendar calendars in
+		addition to a few other user input values (e.g. off limits times, deadline 
+		for the meeting, et cetera) in order to determine optimal meeting times.  
+		Also, through the use of asynchronous email handlers, the \appname service 
+		allows users to quickly and easily propogate calculated meeting times, 
+		making the process of scheduling even easier.
 
 
 	\section[Functions and Features]{Project Functions and Features}
-	The overall architecture of the Jenkins chat plugin follows a traditional
-	\href{http://en.wikipedia.org/wiki/Client\%E2\%80\%93server\textunderscore model}{client-server model} 
-	where clients to the chat plugin send messages to
-	a back-end server and this back-end server forwards incoming messages 
-	based on provided recipient information.  The implementation for the server 
-	component of the model (and the implementation for supporting back-end
-	functionality) is programmed in Java while the client component is
-	programmed with a combinaion of Javascript and HTML.  These two components
-	communicate using websocket technology (provided by the 
-	\href{https://github.com/mrniko/netty-socketio/releases}{Netty-SocketIO} library), 
-	which allows for seamless and asynchronous client-server interaction.
-	The plugin extends Jenkins to closely integrate the start-up and shut-down
-	processes of the server component with the Jenkins server and to provide
-	server access to clients through the Jenkins web interface.
+	In order to more fully describe the affordances of the \appname application,
+	we'll now flesh out all the functions and features of the service in more
+	detail.  Specifically, we'll detail the primary features of the application 
+	in brief, then move to overview a few of the basic functions provided by the 
+	application before finally highlighting the two key features of the application
+	(i.e. deadline aggregation and group meeting scheduling with \gcalendar).
 
 		\subsection[Feature List]{Concise Functions and Features List}
-		The core of the Jenkins chat plugin consists of the types used to
-		implement the server and client components of the client-server model.
-		For each of these primary components, the listing below describes the
-		major functionality encapsulated by that primary component and provides
-		a visual aid for its role in the project through a 
-		\href{http://www.csci.csusb.edu/dick/samples/uml0.html}{UML diagram}.
+		\begin{itemize}
+			\item Users can sign up for the service by providing their email 
+			address and credentials.  Each user must verify their email address 
+			before being allowed to utilize the service.
+
+			\item Authenticated users may view and edit their personal information 
+			on their profile page (including the \gravatar icons associated with their
+			sign-in email).
+
+			\item Users can link their account to \gcalendar from their main
+			profile page by filling out the linked Google service verification form.
+
+			\item Authenticated users can view and modify the hierarchy of academic
+			groups that they're signed up for on the groups page.
+
+			\item Users can add courses through the root group page (i.e. the
+			user institution group page) with user entry assisted by autocomplete.
+			Users can also add private subgroups to courses through one of the groups page.
+
+			\item Users can add additional members to private subgroups with
+			user email entry assisted by autocomplete.
+
+			\item Users can freely leave groups that aren't dependent on their
+			presence.
+
+			\item Users can add deadlines for assignments associated with groups
+			through the group interface with assignment name entry assisted by
+			autocomplete.
+
+			\item Once enough users have added a deadline for an assignment,
+			these deadlines are aggregated using statistical analysis methods
+			and broadcast to all users (and listed as community-driven deadlines).
+
+			\item Users can request the scheduling of a group meeting for a
+			particular deadline through the group interface.  This interface 
+			allows the user to customize the meeting duration, off-limits
+			times, and the required attendees.  A list of good meeting times
+			will be returned based on this information and user \gcalendar data.
+			
+			\item Given a list of potential meeting times, the users are
+			provided an interface that allows them to choose a good meeting
+			time and to broadcast this time with a custom message to all group
+			members.
+		\end{itemize}
 
 		\subsection[Basic Functions]{Overview of A Few Basic Functions}
 		For our function to describe, we chose a nice piece involved in adding
@@ -134,13 +177,15 @@
 		are able to be a part of this private group. We send the characters
 		through ajax to a request handler on the back-end, which then forms
 		a SQL query that looks like this:
-\begin{verbatim}
-SELECT u.id, u.email, gm.group_id
-FROM user AS u
-JOIN group_membership AS gm
-ON u.id = gm.member_id
-WHERE gm.group_id="CS 411" AND u.email LIKE "jh%"
-\end{verbatim}
+
+			\begin{verbatim}
+			SELECT u.id, u.email, gm.group_id
+			FROM user AS u
+			JOIN group_membership AS gm
+			ON u.id = gm.member_id
+			WHERE gm.group_id="CS 411" AND u.email LIKE "jh%"
+			\end{verbatim}
+
 		(in this example the parent group to the private group the user is 
 		adding to would be ``CS 411'', and the user is trying to look up the
 		email ``jhalstead@gmail.com''.) The database would then return a list of
@@ -149,6 +194,7 @@ WHERE gm.group_id="CS 411" AND u.email LIKE "jh%"
 		populates a dropdown menu with these two emails. Of course after the
 		user chooses one and hits Submit, the email is inserted appropriately
 		into the database.
+
 
 		\subsection[Advanced Functions]{Overview of Advanced Features}
 		Our first advanced feature is what we call the deadline aggregation. The idea
@@ -185,6 +231,7 @@ WHERE gm.group_id="CS 411" AND u.email LIKE "jh%"
 		The available times are used to populate a modal, the user can choose one
 		and give an email message, and we craft and send the email to all the group
 		members in the meeting.
+
 
 	\section[Project Implementation]{Project Implementation and Design}
 	The core of the Jenkins chat plugin consists of the types used to
@@ -287,7 +334,10 @@ WHERE gm.group_id="CS 411" AND u.email LIKE "jh%"
         is general and performant enough so as to be adaptable to other university's
         schedules with minor tweaks.
 
+<<<<<<< HEAD:report/report2.tex
 
+=======
+>>>>>>> e9d68bd76a91fedbf75567ad29cec85109ea051a:doc/report2.tex
 		\subsection[Implementation Schedule]{Project Implementation Schedule and Tasks}
         The core of the \appname web service consists of a front-end,
         user-facing interface, a set of page request handlers for each individual
@@ -380,49 +430,30 @@ WHERE gm.group_id="CS 411" AND u.email LIKE "jh%"
 
 
 	\section[Appendix]{Miscellaneous Project Information}
-	The core of the Jenkins chat plugin consists of the types used to
-	implement the server and client components of the client-server model.
-	For each of these primary components, the listing below describes the
-	major functionality encapsulated by that primary component and provides
-	a visual aid for its role in the project through a 
-	\href{http://www.csci.csusb.edu/dick/samples/uml0.html}{UML diagram}.
+	The following section contains extra information about the \appname
+	service, such as application dependencies and more in-depth database
+	information.
 
 		\subsection[Dependencies]{Sources and Dependencies}
-		Installation for the chat plugin has the following dependencies, which
-		must be installed before the plugin itself can be installed:
+		The following section details all the dependencies of the \appname
+		application.  The most important dependencies are given at the top
+		of the list while less vital dependencies are listed below.
 
-		\begin{description}
-			\item[\href{http://www.oracle.com/technetwork/java/javase/downloads/jdk7-downloads-1880260.html}{Java Development Kit}] (v1.7+) \hfill \\
-			A version of the standard Java development kit at least as recent 
-			as version 1.7 is needed primarily to import extended networking 
-			functionality only in later JDK versions.
+		\begin{itemize}
+			\item \href{https://www.python.org/download/releases/2.7.6/}{Python (v2.7.6)}
+			\item \href{http://www.tornadoweb.org/en/stable/}{Tornado (v3.1.1)}
+			\item \href{https://pythonhosted.org/oursql/}{OurSQL (v0.9.2)}
 
-			\item[\href{http://jenkins-ci.org/}{Jenkins}] (v1.509.3+) \hfill \\
-			A version of Jenkins more recent than version 1.509.3 is needed
-			to support the chat server plugin (older versions may work, but they
-			have not been tested).
+			\item \href{http://getbootstrap.com/}{Twitter Bootstrap (v3.1.1)}
 
-			\item[\href{https://github.com/mrniko/netty-socketio/releases}{Netty-SocketIO}] (v1.5.2+) \hfill \\ 
-			An open source Java library that facilitates network communication 
-			via websockets in Java.  This library is used by the chat plugin
-			to aid in the transferral of mesages to and from chat clients.
-		\end{description}
+			\item \href{http://jquery.com/}{jquery.js (v1.11.0)}
+			\item \href{http://momentjs.com/}{moment.js (v2.0.0)}
+			\item \href{https://github.com/twitter/typeahead.js}{typeahead.js (v0.10.2)}
 
-		After these dependencies are installed, installing the chat plugin itself
-		is relatively straightforward.  The steps for performing this installation
-		are as follows:
-
-		\begin{enumerate}
-			\item Navigate to the \textbf{plugin} subdirectory from the chat
-			plugin source base directory.
-
-			\item Run the script within this directory by the name of 
-			\textbf{export.sh}.
-		\end{enumerate}
-
-		After performing the second step, a sequence of installations should
-		follow.  After all these subsequent installations are complete, the
-		plugin should be fully installed and accessible through Jenkins.
+			\item \href{https://github.com/vitalets/x-editable}{x-editable.js (v2.0.0)}
+			\item \href{https://github.com/Eonasdan/bootstrap-datetimepicker}{bootstrap-datetimepicker.js (v2.0.0)}
+			\item \href{https://github.com/silviomoreto/bootstrap-select}{bootstrap-select.js (v2.0.0)}
+		\end{itemize}
 
 		\subsection[Other Information]{Other Relevant Information}
 		TODO
