@@ -165,6 +165,34 @@ class AddMemberHandler(AsyncRequestHandler):
         pass
 
 
+
+
+# - Add subgroup to group
+# - Data: Group ID, New Group Name, New Group Description
+class GetCoursesHandler(AsyncRequestHandler):
+    @tornado.web.authenticated
+    # @TODO(halstea2) We chould create a 'complex' async handler base that
+    # is aware of a dictionary of values
+    def get(self):
+        values = self.get_argument("query", default=None)
+
+        if not values:
+            print "Invalid Request. Parameters Missing"
+            return
+
+        self._perform_request(None, "", values)
+        pass
+
+    def _perform_request(self, user, name, values):
+        
+
+        gr = GroupRepository()
+        group_list = gr.get_groups_with_name_prefix(values)
+        self.write(json.dumps([{"value":group.name} for group in group_list]))
+        
+
+
+
 # - Add subgroup to group
 # - Data: Group ID, New Group Name, New Group Description
 class AddSubgroupHandler(AsyncRequestHandler):
