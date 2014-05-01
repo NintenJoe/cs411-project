@@ -52,12 +52,13 @@ class Application( tornado.web.Application ):
             ( r"/add-course", AddCourseHandler),
             ( r"/schedule", ScheduleHandler),
             ( r"/get-courses", GetCoursesHandler),
+            ( r"/get-deadlines", GetDeadlinesHandler),
+            ( r"/get-users", GetUsersHandler),
 
             ( r"/update-deadline-notes", EditMetadataNotesHandler),
             ( r"/update-deadline-name", EditMetadataNameHandler),
             ( r"/update-deadline-time", EditMetadataTimeHandler),
 
-            ( r"/get-deadlines", GetDeadlinesHandler),
 
             #@TODO(halstea2)
            # ( r"/delete-deadline", DeleteMetadataHandler),
