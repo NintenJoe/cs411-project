@@ -62,7 +62,7 @@ function formDeadlineEntry( _id, _name, _groupName, _type, _time, _notes, _edita
 		entryName += '  ' + _name;
 		entryName += '</a>';
 
-		entryTime += '<a href="#" class="editable-date" data-viewformat="dddd MMMM DD, hh:mm A" data-format="YYYY-MM-DD HH:mm" data-template="MMMM DD, hh:mm A" data-type="combodate" data-pk="' + _id + '" data-url="/update-deadline-time" data-title="Enter New Time">';
+		entryTime += '<a href="#" class="editable-date" data-viewformat="dddd MMMM DD, HH:mm A" data-format="YYYY-MM-DD HH:mm" data-template="MMMM DD, HH:mm" data-type="combodate" data-pk="' + _id + '" data-url="/update-deadline-time" data-title="Enter New Time">';
 		entryTime += '  ' + _time;
 		entryTime += '</a>';
 
