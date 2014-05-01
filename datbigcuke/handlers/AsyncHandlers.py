@@ -886,7 +886,14 @@ class ScheduleHandler(AsyncRequestHandler):
         for meet in meets:
             result.append(meet[0].strftime(u'%A %b %d (%Y) at %I:%M %p'))
 
-        self.write(json.dumps(result[:15]))
+        i = 0
+        real = []
+        for r in result:
+            if i % 4 == 0:
+                real.append(r)
+            i+=1
+
+        self.write(json.dumps(real[:15]))
         self.flush
         self.finish
     
