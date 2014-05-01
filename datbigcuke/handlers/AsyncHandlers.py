@@ -697,7 +697,7 @@ class ScheduleHandler(AsyncRequestHandler):
                 None.hi()
 
             ref_tok = new_user.refreshTok
-            sys.stderr.write("refresh_token = " + r_token + '\n\n')
+            #sys.stderr.write("refresh_token = " + ref_token + '\n\n')
 
             #get access token
             url = "https://accounts.google.com/o/oauth2/token"
