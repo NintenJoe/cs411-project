@@ -863,7 +863,7 @@ class ScheduleHandler(AsyncRequestHandler):
                 if 'selected' not in calendar:
                     continue
 
-                #sys.stderr.write("Reading calendar: " + str(calendar_id) + '\n')
+                sys.stderr.write("Reading calendar: " + str(calendar_id) + '\n')
 
                 event_list_http_client = tornado.httpclient.HTTPClient()
                 response3 = event_list_http_client.fetch("https://www.googleapis.com/calendar/v3/calendars/" + calendar_id + "/events?singleEvents=true&access_token=" + a_token)
@@ -878,8 +878,16 @@ class ScheduleHandler(AsyncRequestHandler):
                 for event in data3['items']:
                     #I have many doubts this will work for arbitrary calendars
                     #and I am certain it will error for other timezones.....
-                    start = datetime.strptime(event['start']['dateTime'][:-6], u'%Y-%m-%dT%H:%M:%S')
-                    end = datetime.strptime(event['end']['dateTime'][:-6], u'%Y-%m-%dT%H:%M:%S')
+                    if 'start' not in event:
+                        continue
+                    if 'dateTime' not in event['start']:
+                        continue
+                    if 'end' not in event:
+                        continue
+                    if 'dateTime' not in event['end']:
+                        continue
+                    start = datetime.strptime(event['start']['dateTime'][:19], u'%Y-%m-%dT%H:%M:%S')
+                    end = datetime.strptime(event['end']['dateTime'][:19], u'%Y-%m-%dT%H:%M:%S')
                     events.append((start, end))
                     #sys.stderr.write("Event found: " + str(start) + " - " + str(end) + '\n')
                 sys.stderr.write('\n')
