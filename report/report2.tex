@@ -121,20 +121,64 @@
 		\href{http://www.csci.csusb.edu/dick/samples/uml0.html}{UML diagram}.
 
 		\subsection[Basic Functions]{Overview of A Few Basic Functions}
-		The core of the Jenkins chat plugin consists of the types used to
-		implement the server and client components of the client-server model.
-		For each of these primary components, the listing below describes the
-		major functionality encapsulated by that primary component and provides
-		a visual aid for its role in the project through a 
-		\href{http://www.csci.csusb.edu/dick/samples/uml0.html}{UML diagram}.
+		For our function to describe, we chose a nice piece involved in adding
+		a member to a private group. That is, the auto-completion of the email
+		of potential users to be added. After the user types the first two
+		characters of an email, we offer auto-completions of members who
+		are able to be a part of this private group. We send the characters
+		through ajax to a request handler on the back-end, which then forms
+		a SQL query that looks like this:
+\begin{verbatim}
+SELECT u.id, u.email, gm.group_id
+FROM user AS u
+JOIN group_membership AS gm
+ON u.id = gm.member_id
+WHERE gm.group_id="CS 411" AND u.email LIKE "jh%"
+\end{verbatim}
+		(in this example the parent group to the private group the user is 
+		adding to would be ``CS 411'', and the user is trying to look up the
+		email ``jhalstead@gmail.com''.) The database would then return a list of
+		potential emails, say it gives back [``jhalstead@gmail.com'',
+		``jhalla@gmail.com'']. This gets passed back to the front-end, and JQuery
+		populates a dropdown menu with these two emails. Of course after the
+		user chooses one and hits Submit, the email is inserted appropriately
+		into the database.
 
 		\subsection[Advanced Functions]{Overview of Advanced Features}
-		The core of the Jenkins chat plugin consists of the types used to
-		implement the server and client components of the client-server model.
-		For each of these primary components, the listing below describes the
-		major functionality encapsulated by that primary component and provides
-		a visual aid for its role in the project through a 
-		\href{http://www.csci.csusb.edu/dick/samples/uml0.html}{UML diagram}.
+		Our first advanced feature is what we call the deadline aggregation. The idea
+		behind the aggregation is that many people in a class will add canonical deadlines
+		such as the times a homework is due, or the time of an exam. It would be nice,
+		then, if these deadlines were pushed to all the other users in that class.
+		That is the goal of the aggregation algorithm. We implement by having
+		three levels of ``trust'' for a deadline. The lowest level is a Personal
+		deadline, the next level is a Communal deadline (one that many people have 
+		agreed on,) and an Endorsed deadline (one that is confirmed by a group leader
+		or professor.) The different levels are given different colors on the site.
+
+		The aggregation algorithm fits into this scheme by automatically deciding
+		on, and creating, the Communal deadlines. We use statistical analysis methods
+		to determine if a deadline should be made Communal, given all the entered
+		Personal deadlines, and taking into account the size of the group. Once a deadline
+		has been aggregated, all users in the course (even if they add the course after
+		the aggregation,) will be able to view this deadline.
+
+		Our second feature is the group meeting scheduling. The meeting scheduler
+		allows a private group to find a time to work together on a deadline by
+		giving a list of times when everyone that needs to make the meeting is free,
+		and allowing the user to choose from these times and send an email to each
+		group member informing of the meeting. This turned out to be very challenging,
+		involving many different components of the project. The availability of each
+		group member is based on their Google Calendars, so we had to work with the
+		Google API to get this information. Users our asked to give our app read
+		access to their Google Calendars, and this access is stored with the user.
+		
+		The scheduling itself uses an algorithm we wrote to determine times where
+		everyone is free, taking into account the meeting duration, everyone's
+		available times, and overnight ``off-limits times'' the user chooses (so
+		that meetings are not scheduled for silly times like three in the morning.)
+		The available times are used to populate a modal, the user can choose one
+		and give an email message, and we craft and send the email to all the group
+		members in the meeting.
 
 	\section[Project Implementation]{Project Implementation and Design}
 	The core of the Jenkins chat plugin consists of the types used to
