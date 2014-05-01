@@ -11,6 +11,7 @@
 import tornado.web
 
 import os
+import json
 from os.path import join as join_paths
 from os.path import exists as file_exists
 from datbigcuke.entities import User
@@ -161,6 +162,7 @@ class AsyncRequestHandler( WebRequestHandler ):
             return
 
         self._perform_request(user, name, values)
+        self.write(json.dumps({"msg":"role saved"}))
 
     def _valid_request(self, user, data):
         raise Exception("AsyncRequestHandler._valid_request must be overriden.")

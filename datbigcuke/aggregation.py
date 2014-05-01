@@ -35,28 +35,30 @@ def find_central_deadlines(deadlines):
     average = np.average(transformed_deadlines)
     deviation = np.std(transformed_deadlines)
     
-    #print sorted(transformed_deadlines.tolist())
+    print sorted(transformed_deadlines.tolist())
     
     #get a list of just those within one standard deviation
     close_deadlines = []
     for d in transformed_deadlines:
-        if d > average - deviation and d < average + deviation:
+        if d >= average - deviation and d <= average + deviation:
             close_deadlines.append(d)
     close_deadlines = np.array(close_deadlines)
     
-    #print sorted(close_deadlines.tolist())
+    print sorted(close_deadlines.tolist())
     
     #repeat the process again, getting very close deadlines
     close_average = np.average(close_deadlines)
     close_deviation = np.std(close_deadlines)
     very_close_deadlines = []
     for d in close_deadlines:
-        if d > close_average - close_deviation and d < close_average + close_deviation:
+        if d >= close_average - close_deviation and d <= close_average + close_deviation:
             very_close_deadlines.append(d)
     very_close_deadlines = np.array(very_close_deadlines)
     
-    #print sorted(very_close_deadlines.tolist())
-    
+    print sorted(very_close_deadlines.tolist())
+
+    #todo: remove after internal aggregation fix
+    return False
     return very_close_deadlines
     
 #Decides if a deadline should be aggregated
