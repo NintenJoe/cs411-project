@@ -239,6 +239,7 @@ function main()
                 },
                 error: function(data, text) {
                     alert("Failed to schedule. Make sure everyone you want to schedule into the meeting has given access to their Google Calendars.");
+                    $('#schedule-send-modal').modal('hide');
                 }
             });
         });
