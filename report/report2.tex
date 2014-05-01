@@ -1,0 +1,238 @@
+%	@file FinalDocumentation.tex
+%	@author Thomas Bogue, Joseph Ciurej
+%	@date Spring 2014
+%	
+%   LaTeX source file for the design document for the CS411 project.  More 
+%   information about the requirements for this documentation file can be found
+%   here: "https://wiki.cites.illinois.edu/wiki/display/cs411sp14/Final+Report+Instructions"
+
+\documentclass{article}
+\usepackage[parfill]{parskip}		% Package that improves paragraph formatting
+\usepackage[pdftex]{graphicx}		% Package that faciliates figure insertion
+\usepackage{float}					% Package that allows for arbitrary figure insertion
+\usepackage{hyperref}				% Package that allows for text hyperlinking
+\usepackage{tikz}					% Package that facilitates box rendering
+
+% The following code block changes a few parameters of the page to make the
+% text fill up more space on any given page.  For our liking, the default 'article'
+% template is too sparse.
+\addtolength{\voffset}{-2cm}
+\addtolength{\textheight}{4cm}
+\addtolength{\oddsidemargin}{-1.5cm}
+\addtolength{\textwidth}{2cm}
+
+% This command creates blue boxes around class names.
+% @see "http://tex.stackexchange.com/questions/36401/drawing-boxes-around-words"
+%\newcommand\classname[2][]{\tikz[overlay]\node[fill=blue!20,inner sep=2pt, anchor=text, rectangle, rounded corners=1mm,#1] {#2};\phantom{#2}}
+%\newcommand\methodname[2][]{\tikz[overlay]\node[fill=green!20,inner sep=2pt, anchor=text, rectangle, rounded corners=1mm,#1] {#2};\phantom{#2}}
+\newcommand{\classname}[1] {\texttt{#1}}
+\newcommand{\methodname}[1] {\texttt{#1}}
+\newcommand{\insertdiagram}[2]
+{
+	\begin{figure}[H]
+		\centering
+		\fbox{\includegraphics[height=#2]{figures/#1}}
+		\caption{UML Diagram for the #1 Class}
+	\end{figure}
+}
+
+\begin{document}
+
+	% Title Page %
+	\title{DatBigCuke: Final Project Report}
+	\author{Eunsoo Roh, Joshua Halstead, Kyle Nusbaum, Thomas Bogue, Joseph Ciurej \\
+		University of Illinois: Urbana-Champaign (CS411)}
+	\date{\today}
+	\maketitle
+
+	% Table of Contents %
+	\tableofcontents
+	\clearpage
+
+	% Body %
+	\section[Project Overview]{Brief Project Overview}
+	The purpose of this project was to create an online service for college
+	students to help them schedule and manage their academic deadlines
+
+	The purpose of this project is to create an extension to the continuous 
+	integration server Jenkins that facilitates chat communication between
+	users of the server.  The main feature of this extension is an augmentation
+	to the standard Jenkins user web pages that allows for messages to be 
+	transferred between users connected to one or more of these pages through
+	a dynamically updating web interface.
+
+		\subsection[Motiviation]{Project Motivation}
+		The primary purpose of this plugin is to enable quick and easy 
+		communication between Jenkins users through the provision of an 
+		integrated chat client as an augmentation to the Jenkins web interface.
+		While other chat clients exist in abundance, the Jenkins chat plugin
+		allows for easy integration into a familiar environment with minimal
+		installation difficulties.
+
+		\subsection[Goals]{Project Goals}
+		The main goal of this project is to provide an intuitive, feature-rich
+		chat client within the Jenkins web interface.  By integrating a chat client
+		into the Jenkins interface, we aim to remove the need for extraneous chat 
+		applications, thus providing a more seamless workflow.  Additionally,
+		eliminating the need for extra applications minimizes dependencies on
+		additional exterior applications, decreasing both maintenance and
+		integration costs for users.
+
+		In an attempt to enhance user satisfaction, we built the application with
+		a variety of features, including:
+
+		\begin{itemize}
+			\item Peer-to-peer communication between users via a familiar chat
+			interface.
+			\item Group chat support to allow users to communicate with multiple
+			team members simultaneously.
+			\item Identification system that allows for user-specified names by
+			both system administrators (via an admin file) and chat clients
+			(via a user interface in the chat client).
+			\item Persistence of chat logs to allow for users and management to 
+			cross-reference past communications.
+		\end{itemize}
+		
+		Our hope is that these features will serve to facilitate efficient
+		communication between users and provide near-complete coverage of desired
+		functionality.
+
+
+	\section[Functions and Features]{Project Functions and Features}
+	The overall architecture of the Jenkins chat plugin follows a traditional
+	\href{http://en.wikipedia.org/wiki/Client\%E2\%80\%93server\textunderscore model}{client-server model} 
+	where clients to the chat plugin send messages to
+	a back-end server and this back-end server forwards incoming messages 
+	based on provided recipient information.  The implementation for the server 
+	component of the model (and the implementation for supporting back-end
+	functionality) is programmed in Java while the client component is
+	programmed with a combinaion of Javascript and HTML.  These two components
+	communicate using websocket technology (provided by the 
+	\href{https://github.com/mrniko/netty-socketio/releases}{Netty-SocketIO} library), 
+	which allows for seamless and asynchronous client-server interaction.
+	The plugin extends Jenkins to closely integrate the start-up and shut-down
+	processes of the server component with the Jenkins server and to provide
+	server access to clients through the Jenkins web interface.
+
+		\subsection[Feature List]{Concise Functions and Features List}
+		The core of the Jenkins chat plugin consists of the types used to
+		implement the server and client components of the client-server model.
+		For each of these primary components, the listing below describes the
+		major functionality encapsulated by that primary component and provides
+		a visual aid for its role in the project through a 
+		\href{http://www.csci.csusb.edu/dick/samples/uml0.html}{UML diagram}.
+
+		\subsection[Basic Functions]{Overview of A Few Basic Functions}
+		The core of the Jenkins chat plugin consists of the types used to
+		implement the server and client components of the client-server model.
+		For each of these primary components, the listing below describes the
+		major functionality encapsulated by that primary component and provides
+		a visual aid for its role in the project through a 
+		\href{http://www.csci.csusb.edu/dick/samples/uml0.html}{UML diagram}.
+
+		\subsection[Advanced Functions]{Overview of Advanced Features}
+		The core of the Jenkins chat plugin consists of the types used to
+		implement the server and client components of the client-server model.
+		For each of these primary components, the listing below describes the
+		major functionality encapsulated by that primary component and provides
+		a visual aid for its role in the project through a 
+		\href{http://www.csci.csusb.edu/dick/samples/uml0.html}{UML diagram}.
+
+	\section[Project Implementation]{Project Implementation and Design}
+	The core of the Jenkins chat plugin consists of the types used to
+	implement the server and client components of the client-server model.
+	For each of these primary components, the listing below describes the
+	major functionality encapsulated by that primary component and provides
+	a visual aid for its role in the project through a 
+	\href{http://www.csci.csusb.edu/dick/samples/uml0.html}{UML diagram}.
+
+		\subsection[Database Design]{Data and Database Design}
+		The core of the Jenkins chat plugin consists of the types used to
+		implement the server and client components of the client-server model.
+		For each of these primary components, the listing below describes the
+		major functionality encapsulated by that primary component and provides
+		a visual aid for its role in the project through a 
+		\href{http://www.csci.csusb.edu/dick/samples/uml0.html}{UML diagram}.
+
+		\subsection[Server Implementation]{Implementation Details and Design}
+		The core of the Jenkins chat plugin consists of the types used to
+		implement the server and client components of the client-server model.
+		For each of these primary components, the listing below describes the
+		major functionality encapsulated by that primary component and provides
+		a visual aid for its role in the project through a 
+		\href{http://www.csci.csusb.edu/dick/samples/uml0.html}{UML diagram}.
+
+		\subsection[Implementation Schedule]{Project Implementation Schedule and Tasks}
+		The core of the Jenkins chat plugin consists of the types used to
+		implement the server and client components of the client-server model.
+		For each of these primary components, the listing below describes the
+		major functionality encapsulated by that primary component and provides
+		a visual aid for its role in the project through a 
+		\href{http://www.csci.csusb.edu/dick/samples/uml0.html}{UML diagram}.
+
+			\subsubsection[Task Delegation]{Delegation of Project Tasks}
+			The core of the Jenkins chat plugin consists of the types used to
+			implement the server and client components of the client-server model.
+			For each of these primary components, the listing below describes the
+			major functionality encapsulated by that primary component and provides
+			a visual aid for its role in the project through a 
+			\href{http://www.csci.csusb.edu/dick/samples/uml0.html}{UML diagram}.
+
+			\subsubsection[Challenges]{Technical Challenges}
+			The core of the Jenkins chat plugin consists of the types used to
+			implement the server and client components of the client-server model.
+			For each of these primary components, the listing below describes the
+			major functionality encapsulated by that primary component and provides
+			a visual aid for its role in the project through a 
+			\href{http://www.csci.csusb.edu/dick/samples/uml0.html}{UML diagram}.
+
+
+	\section[Appendix]{Miscellaneous Project Information}
+	The core of the Jenkins chat plugin consists of the types used to
+	implement the server and client components of the client-server model.
+	For each of these primary components, the listing below describes the
+	major functionality encapsulated by that primary component and provides
+	a visual aid for its role in the project through a 
+	\href{http://www.csci.csusb.edu/dick/samples/uml0.html}{UML diagram}.
+
+		\subsection[Dependencies]{Sources and Dependencies}
+		Installation for the chat plugin has the following dependencies, which
+		must be installed before the plugin itself can be installed:
+
+		\begin{description}
+			\item[\href{http://www.oracle.com/technetwork/java/javase/downloads/jdk7-downloads-1880260.html}{Java Development Kit}] (v1.7+) \hfill \\
+			A version of the standard Java development kit at least as recent 
+			as version 1.7 is needed primarily to import extended networking 
+			functionality only in later JDK versions.
+
+			\item[\href{http://jenkins-ci.org/}{Jenkins}] (v1.509.3+) \hfill \\
+			A version of Jenkins more recent than version 1.509.3 is needed
+			to support the chat server plugin (older versions may work, but they
+			have not been tested).
+
+			\item[\href{https://github.com/mrniko/netty-socketio/releases}{Netty-SocketIO}] (v1.5.2+) \hfill \\ 
+			An open source Java library that facilitates network communication 
+			via websockets in Java.  This library is used by the chat plugin
+			to aid in the transferral of mesages to and from chat clients.
+		\end{description}
+
+		After these dependencies are installed, installing the chat plugin itself
+		is relatively straightforward.  The steps for performing this installation
+		are as follows:
+
+		\begin{enumerate}
+			\item Navigate to the \textbf{plugin} subdirectory from the chat
+			plugin source base directory.
+
+			\item Run the script within this directory by the name of 
+			\textbf{export.sh}.
+		\end{enumerate}
+
+		After performing the second step, a sequence of installations should
+		follow.  After all these subsequent installations are complete, the
+		plugin should be fully installed and accessible through Jenkins.
+
+		\subsection[Other Information]{Other Relevant Information}
+		TODO
+
+\end{document}

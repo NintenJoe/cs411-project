@@ -1,11 +1,11 @@
 COMPILER = rubber
 COMPILER_FLAGS = --pdf
 
-all : report.pdf
+all : report2.pdf
 
-report.pdf : report.tex
-	$(COMPILER) $(COMPILER_FLAGS) report.tex
+%.pdf : %.tex
+	$(COMPILER) $(COMPILER_FLAGS) $<
 
 clean :
-	-rm -rf *.aux *.toc *.dvi *.log *.pdf
+	-rm -rf *.aux *.toc *.dvi *.log *.pdf *.out
 
