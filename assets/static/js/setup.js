@@ -250,12 +250,19 @@ function main()
                 	//alert(msg);
                 	times = $.parseJSON( msg );
                 	//alert(times[0]);
+                	var i;
+                	for(i = 0; i < 15; i++)
+                	{
+                		$('#meeting_times').find('[id=' + i + ']').remove();
+                	}
+                	i = 0
                 	times.map( function(time) {
-                		$('#meeting_times').html("");
 	                    $('#meeting_times')
 					        .append($("<option></option>")
 					        .attr("data-datetime",time)
+					        .attr("id",i)
 					        .text(time));
+					    i++;
 					});
 					$('#meeting_times').selectpicker('refresh');
 					
