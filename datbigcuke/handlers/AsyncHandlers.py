@@ -438,7 +438,7 @@ class AddDeadlineHandler(AsyncRequestHandler):
         result['name'] = new_deadline.name
         result['group'] = new_deadline.group
         result['type'] = new_deadline.type
-        result['time'] = new_deadline.deadline.strftime(u'%A %b %d, %I:%M')
+        result['time'] = new_deadline.deadline.strftime(u'%A %b %d, %H:%M')
         result['notes'] = new_deadline.meta.notes
         result['can_edit'] = (new_deadline.type == "PER" or (group.maintainerId == user.id and new_deadline.type == "END"))
 
