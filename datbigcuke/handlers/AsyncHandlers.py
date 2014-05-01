@@ -35,6 +35,8 @@ from datbigcuke.entities import DeadlineRepository
 from datbigcuke.entities import DeadlineMetadataRepository
 from datbigcuke.entities import Group
 from datbigcuke.entities import GroupRepository
+from datbigcuke.entities import TermRepository
+from datbigcuke.entities import ClassRepository
 from datbigcuke.cukemail import CukeMail
 
 
@@ -183,21 +185,35 @@ class GetCoursesHandler(AsyncRequestHandler):
     # @TODO(halstea2) We chould create a 'complex' async handler base that
     # is aware of a dictionary of values
     def get(self):
-        values = self.get_argument("query", default=None)
+        query = self.get_argument("query", default=None)
+        group = self.get_argument("group", default=None)
 
-        if not values:
+        if not query or not group:
             print "Invalid Request. Parameters Missing"
             return
 
+        values = {'query': query, 'group': group}
         self._perform_request(None, "", values)
         pass
 
     def _perform_request(self, user, name, values):
-        
-
         gr = GroupRepository()
-        group_list = gr.get_groups_with_name_prefix(values)
-        self.write(json.dumps([{"value":group.name} for group in group_list]))
+        group = gr.fetch(values['group'])
+        gr.close()
+        if group is None or group.academic_entity_type != 'term':
+            print "Invalid group id."
+            return
+        tr = TermRepository()
+        term = tr.fetch(group.academic_entity_id)
+        tr.close()
+        if term is None:
+            print "Requested term not found."
+            return
+        cr = ClassRepository()
+        classes = cr.find_classes_with_name_prefix(term, values['query'])
+        cr.close()
+        self.write(json.dumps([{"value":klass.name, "class_id":klass.id}
+                              for klass in classes]))
         
 
 
@@ -388,39 +404,57 @@ class AddCourseHandler(AsyncRequestHandler):
 
     def _valid_request(self, curr_user, name, values):
         # Malformed request
-        if u"course_name" not in values:
+        if u"class_id" not in values:
             return False
 
         # Malformed request
-        course_name = values[u"course_name"]
+        course_name = values[u"class_id"]
         if not course_name:
             return False
 
         return True
 
     def _perform_request(self, user, name, values):
-        course_name = values[u"course_name"]
-        curr_user = self.get_current_user()
+        class_id = values[u"class_id"]
 
+        # get the appropriate class
+        cr = ClassRepository()
+        klass = cr.fetch(class_id)
+        cr.close()
+
+        if not klass:
+            print "Invalid class id"
+            return
+
+        root_group = self.get_root_group()
         gr = GroupRepository()
-        group = gr.fetch_by_name(course_name)
+        if not klass.group:
+            # create the group
+            group = Group()
+            group.name = klass.name
+            group.type = 0
+            group.academic_entity_id = class_id
+            group = gr.persist(group)
+            gr.add_group_as_subgroup(root_group.id, group.id)
+            klass.group = group.id
+            # associate with the class
+            cr = ClassRepository()
+            cr.persist(klass)
+            cr.close()
+        else:
+            group = gr.fetch(klass.group)
         gr.close()
 
         # assign the user as a member of the subgroup
-        user_repo = UserRepository()
-        user_repo.add_user_to_group(curr_user, group[0])
-        user_repo.close()
-
-        self._persist_user(curr_user)
+        user.groups = user.groups + [group.id]
+        self._persist_user(user)
 
         result = {}
 
-        result['id'] = group[0].id
-        result['name'] = group[0].name
+        result['id'] = group.id
+        result['name'] = group.name
 
         self.write(json.dumps(result))
-        self.flush
-        self.finish
 
 # - Send email for meeting
 # - Data: Meeting Time, Meeting Message

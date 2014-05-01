@@ -38,7 +38,9 @@ function formGroupEntry( _id, _name, _maintainer )
 	entry += '    <a href="/group/' + _id + '">';
 	entry += '      <h5 class="inner-heading">';
 	entry += '        ' + _name;
-	entry += '        <small>' + _maintainer + '</small>';
+  if (undefined !== _maintainer) {
+	    entry += '        <small>' + _maintainer + '</small>';
+  }
 	entry += '      </h5>';
 	entry += '    </a>';
 	entry += '  </li>';

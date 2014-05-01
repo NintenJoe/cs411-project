@@ -39,7 +39,7 @@ class ClassRepository(AbstractRepository):
             cursor.execute('SELECT `id`, `institution_id`, `term_id`, `name`,'
                            '`title`, `class_name`, `group_id` '
                            'FROM `class` NATURAL JOIN `academic_entity`'
-                           'WHERE `id`=?', (inst_id,))
+                           'WHERE `id`=?', (class_id,))
             return self._fetch_class(cursor)
 
     def fetch_all(self):
