@@ -253,7 +253,7 @@ function main()
                 	var i;
                 	for(i = 0; i < 15; i++)
                 	{
-                		$('#meeting_times').find('[id=' + i + ']').remove();
+                		$('#meeting_times').('#' + i).remove();
                 	}
                 	i = 0
                 	times.map( function(time) {
