@@ -25,7 +25,7 @@ class DeadlineRepository(AbstractRepository):
     def persist(self, deadline):
         return self.raw_persist(deadline, True)
 
-    def raw_persist(self, deadline, aggregate)
+    def raw_persist(self, deadline, aggregate):
         super(DeadlineRepository, self).persist(deadline)
 
         delta = deadline.get_delta()
