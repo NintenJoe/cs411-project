@@ -353,7 +353,7 @@ class DeleteDeadlineHandler(AsyncRequestHandler):
 # - Send email after meeting has been scheduled
 # - Data: Group ID, Email Message, Time
 class AddDeadlineHandler(AsyncRequestHandler):
-    @tornadoCS 473 Fundamental Algorithms.web.authenticated
+    @tornado.web.authenticated
     # @TODO(halstea2) We chould create a 'complex' async handler base that
     # is aware of a dictionary of values
     def post(self):
@@ -805,8 +805,8 @@ class ScheduleHandler(AsyncRequestHandler):
                 for event in data3['items']:
                     #I have many doubts this will work for arbitrary calendars
                     #and I am certain it will error for other timezones.....
-                    start = datetime.strptime(event['start']['dateTime'], u'%Y-%m-%dT%H:%M:%S-05:00')
-                    end = datetime.strptime(event['end']['dateTime'], u'%Y-%m-%dT%H:%M:%S-05:00')
+                    start = datetime.strptime(event['start']['dateTime'][:-6], u'%Y-%m-%dT%H:%M:%S')
+                    end = datetime.strptime(event['end']['dateTime'][:-6], u'%Y-%m-%dT%H:%M:%S')
                     events.append((start, end))
                     #sys.stderr.write("Event found: " + str(start) + " - " + str(end) + '\n')
                 sys.stderr.write('\n')
