@@ -57,8 +57,6 @@ def find_central_deadlines(deadlines):
     
     print sorted(very_close_deadlines.tolist())
 
-    #todo: remove after internal aggregation fix
-    return False
     return very_close_deadlines
     
 #Decides if a deadline should be aggregated
