@@ -272,8 +272,7 @@ class AddSubgroupHandler(AsyncRequestHandler):
         # Malformed request
         group_id = values[u"group_id"]
         new_group = values[u"group_name"]
-        new_description = values[u"group_description"]
-        if not group_id or not new_group or not new_description:
+        if not group_id or not new_group:
             return False
 
         return True
@@ -291,9 +290,7 @@ class AddSubgroupHandler(AsyncRequestHandler):
         new_group.description = new_group_desc
         new_group.type = 0 # private group
         new_group.maintainerId = curr_user.id
-        print new_group
         new_group = gr.persist(new_group)
-        print new_group
 
         # assign the subgroup as a child of the parent group
         gr.add_group_as_subgroup(group_id, new_group.id)
@@ -401,9 +398,8 @@ class AddDeadlineHandler(AsyncRequestHandler):
         # Malformed request
         group_id = values[u"group_id"]
         name = values[u"name"]
-        deadline = values[u"deadline"]
         notes = values[u"notes"]
-        if not group_id or not name or not deadline or not notes:
+        if not group_id or not name or not deadline:
             return False
 
         return True
@@ -414,7 +410,6 @@ class AddDeadlineHandler(AsyncRequestHandler):
         deadline = values[u"deadline"]
         notes = values[u"notes"]
         curr_user = self.get_current_user()
-
 
         dr = DeadlineRepository()
         gr = GroupRepository()
@@ -590,13 +585,6 @@ class SendEmailHandler(AsyncRequestHandler):
         self._persist_user(curr_user)
 
 
-# - Get members of parent group (for 'Add member' auto-complete)
-#   - Data: Parent Group ID
-class GetMembersOfParentHandler(AsyncRequestHandler):
-    # @TODO(halstea2) - Extract user auth and data checking to base class
-    def get(self):
-        pass
-
 # - Create subgroup (only if parent is public)
 #   - Data: Course ID, Section ID, name, desc, type (inferred), user id (from get_curr_user)
 #   - Server-Side Checks:
@@ -608,14 +596,6 @@ class CreateSubgroupHandler(AsyncRequestHandler):
         pass
 
     def _perform_request(self, user, name, values):
-        pass
-
-# - Get course list (for 'Create subgroup' auto-complete)
-#   - Data: All courses?
-class GetCourseListHandler(AsyncRequestHandler):
-    # @TODO(halstea2) - Extract user auth and data checking to base class
-    @tornado.web.authenticated
-    def get(self):
         pass
 
 class GetDeadlinesHandler(AsyncRequestHandler):
@@ -960,9 +940,6 @@ class EditMetadataNotesHandler(AsyncRequestHandler):
             return False
 
         notes = value[0].decode("utf-8")
-        if not notes:
-            print "Missing notes"
-            return False
 
         # The deadline associated with the deadline_id must exist
         deadline_repo = DeadlineRepository()
@@ -1040,9 +1017,6 @@ class EditMetadataNameHandler(AsyncRequestHandler):
             return False
 
         new_name = value[0].decode("utf-8")
-        if not new_name:
-            print "Missing notes"
-            return False
 
         # The deadline associated with the deadline_id must exist
         deadline_repo = DeadlineRepository()
@@ -1118,9 +1092,6 @@ class EditMetadataTimeHandler(AsyncRequestHandler):
             return False
 
         new_time = value[0].decode("utf-8")
-        if not new_time:
-            print "Missing time"
-            return False
 
         # Strip the 0000- year off the time.
         new_time = datetime.strptime(new_time[5:], "%m-%d %H:%M")
