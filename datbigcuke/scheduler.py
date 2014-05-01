@@ -94,7 +94,8 @@ def schedule_meeting(group_members, deadline, duration, off_limits_start, off_li
         t = option
         end = time_interval_start(option + duration, m)
         while(t < end):
-            options[option] += intervals[t]
+            if t in intervals:
+                options[option] += intervals[t]
             t = t + timedelta(minutes=m)
         
     #zip the options into a sortable form
