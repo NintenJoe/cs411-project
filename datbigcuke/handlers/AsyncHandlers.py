@@ -891,6 +891,7 @@ class ScheduleHandler(AsyncRequestHandler):
         for r in result:
             if i % 4 == 0:
                 real.append(r)
+            i+=1
 
         self.write(json.dumps(real[:15]))
         self.flush

@@ -251,6 +251,7 @@ function main()
                 	times = $.parseJSON( msg );
                 	//alert(times[0]);
                 	times.map( function(time) {
+                		$('#meeting_times').html("");
 	                    $('#meeting_times')
 					        .append($("<option></option>")
 					        .attr("data-datetime",time)
