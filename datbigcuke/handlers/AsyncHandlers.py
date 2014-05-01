@@ -162,7 +162,16 @@ class AddMemberHandler(AsyncRequestHandler):
             new_user.groups = [group_id]
 
         self._persist_user(new_user)
-        pass
+
+        result = {}
+
+        result['name'] = new_user.name
+        result['email'] = new_user.email
+        result['iconURL'] = new_user.iconSmallURL
+        
+        self.write(json.dumps(result))
+        self.flush
+        self.finish
 
 
 # - Add subgroup to group
@@ -231,75 +240,18 @@ class AddSubgroupHandler(AsyncRequestHandler):
 
         self._persist_user(curr_user)
 
+        result = {}
 
-# - Add deadline to group
-# - Data: Group ID, New Deadline Name, New Deadline Time, New Deadline Notes
-class AddDeadlineHandler(AsyncRequestHandler):
-    @tornado.web.authenticated
-    # @TODO(halstea2) We chould create a 'complex' async handler base that
-    # is aware of a dictionary of values
-    def post(self):
-        curr_user = self.get_current_user()
-        values = self.get_argument("data", default=None)
-
-        if not curr_user or not values:
-            return
-
-        # We don't need the 'name' field. It's encoded in the data dictionary
-        # Keys are unicode after json.loads conversion
-        values = json.loads(values)
-        if not self._valid_request(curr_user, "", values):
-            return
-
-        self._perform_request(curr_user, "", values)
-
-    def _valid_request(self, curr_user, name, values):
-        # Malformed request
-        if u"group_id" not in values or u"name" not in values or u"deadline" not in values or u"notes" not in values:
-            return False
-
-        # Malformed request
-        group_id = values[u"group_id"]
-        name = values[u"name"]
-        deadline = values[u"deadline"]
-        notes = values[u"notes"]
-        if not group_id or not name or not deadline or not notes:
-            return False
-
-        return True
-
-    def _perform_request(self, user, name, values):
-        group_id = values[u"group_id"]
-        name = values[u"name"]
-        deadline = values[u"deadline"]
-        notes = values[u"notes"]
-        curr_user = self.get_current_user()
-
-
-        dr = DeadlineRepository()
-        gr = GroupRepository()
-        group = gr.fetch(group_id)
-        gr.get_group_maintainer(group)
-
-        new_deadline = Deadline()
-        new_deadline.meta = DeadlineMetadata()
-
-        new_deadline.name = name
-        new_deadline.group_id = group_id
-        new_deadline.deadline = datetime.strptime(deadline, u'%m/%d/%Y %I:%M %p') # private group
-        if(group.maintainer and group.maintainer.id == user.id):
-            new_deadline.type = 'END'
-        else:
-            new_deadline.type = 'PER'
-        new_deadline.meta.user_id = user.id
-        new_deadline.meta.notes = notes
-        new_deadline = dr.persist(new_deadline)
-
-        dr.close()
-
-        pass
-
-
+        result['id'] = new_group.id
+        result['name'] = new_group.name
+        user_repo2 = UserRepository()
+        user = user_repo2.fetch(new_group.maintainerId)
+        user_repo2.close()
+        result['maintainer'] = user.name
+        
+        self.write(json.dumps(result))
+        self.flush
+        self.finish
 
 
 # - Send email after meeting has been scheduled
@@ -367,7 +319,20 @@ class AddDeadlineHandler(AsyncRequestHandler):
 
         dr.close()
 
-        pass
+        result = {}
+
+        result['id'] = new_deadline.id
+        result['name'] = new_deadline.name
+        result['group'] = new_deadline.group
+        result['type'] = new_deadline.type
+        result['time'] = new_deadline.deadline.strftime(u'%A %b %d, %I:%M')
+        result['notes'] = new_deadline.meta.notes
+        #TODO: eventually change
+        result['can_edit'] = True
+
+        self.write(json.dumps(result))
+        self.flush
+        self.finish
 
 # - Add course for user
 # - Data: Course Name
@@ -419,6 +384,15 @@ class AddCourseHandler(AsyncRequestHandler):
         user_repo.close()
 
         self._persist_user(curr_user)
+
+        result = {}
+
+        result['id'] = group[0].id
+        result['name'] = group[0].name
+
+        self.write(json.dumps(result))
+        self.flush
+        self.finish
 
 # - Send email for meeting
 # - Data: Meeting Time, Meeting Message
