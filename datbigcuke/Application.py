@@ -58,6 +58,9 @@ class Application( tornado.web.Application ):
             ( r"/update-deadline-name", EditMetadataNameHandler),
             ( r"/update-deadline-time", EditMetadataTimeHandler),
 
+            ( r"/get-deadlines", GetDeadlinesHandler),
+
+            #@TODO(halstea2)
            # ( r"/delete-deadline", DeleteMetadataHandler),
 
             ( r"/send-email", SendEmailHandler),

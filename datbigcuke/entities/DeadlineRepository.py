@@ -273,6 +273,20 @@ class DeadlineRepository(AbstractRepository):
                            'WHERE `id` NOT IN '
                            '(SELECT `deadline_id` FROM `deadline_metadata`) ')
 
+    def find_deadlines_with_name_prefix(self, group_id, prefix):
+        deadline_list = []
+
+        with self._conn.cursor() as cursor:
+            cursor.execute('SELECT `id`, `name`'
+                           'FROM `deadline`'
+                           'WHERE `group_id`=? AND `name` LIKE ?',
+                           (group_id, '{!s}%'.format(prefix)))
+
+            for result in self._fetch_all_dict(cursor):
+                deadline_list.append(self._create_entity(data=result))
+
+        return deadline_list
+
     def _fetch_deadline(self, cursor):
         result = self._fetch_dict(cursor)
         if result is not None:

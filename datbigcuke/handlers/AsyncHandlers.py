@@ -35,6 +35,8 @@ from datbigcuke.entities import DeadlineRepository
 from datbigcuke.entities import DeadlineMetadataRepository
 from datbigcuke.entities import Group
 from datbigcuke.entities import GroupRepository
+from datbigcuke.entities import TermRepository
+from datbigcuke.entities import ClassRepository
 from datbigcuke.cukemail import CukeMail
 
 
@@ -183,21 +185,35 @@ class GetCoursesHandler(AsyncRequestHandler):
     # @TODO(halstea2) We chould create a 'complex' async handler base that
     # is aware of a dictionary of values
     def get(self):
-        values = self.get_argument("query", default=None)
+        query = self.get_argument("query", default=None)
+        group = self.get_argument("group", default=None)
 
-        if not values:
+        if not query or not group:
             print "Invalid Request. Parameters Missing"
             return
 
+        values = {'query': query, 'group': group}
         self._perform_request(None, "", values)
         pass
 
     def _perform_request(self, user, name, values):
-        
-
         gr = GroupRepository()
-        group_list = gr.get_groups_with_name_prefix(values)
-        self.write(json.dumps([{"value":group.name} for group in group_list]))
+        group = gr.fetch(values['group'])
+        gr.close()
+        if group is None or group.academic_entity_type != 'term':
+            print "Invalid group id."
+            return
+        tr = TermRepository()
+        term = tr.fetch(group.academic_entity_id)
+        tr.close()
+        if term is None:
+            print "Requested term not found."
+            return
+        cr = ClassRepository()
+        classes = cr.find_classes_with_name_prefix(term, values['query'])
+        cr.close()
+        self.write(json.dumps([{"value":klass.name, "class_id":klass.id}
+                              for klass in classes]))
         
 
 
@@ -440,39 +456,57 @@ class AddCourseHandler(AsyncRequestHandler):
 
     def _valid_request(self, curr_user, name, values):
         # Malformed request
-        if u"course_name" not in values:
+        if u"class_id" not in values:
             return False
 
         # Malformed request
-        course_name = values[u"course_name"]
+        course_name = values[u"class_id"]
         if not course_name:
             return False
 
         return True
 
     def _perform_request(self, user, name, values):
-        course_name = values[u"course_name"]
-        curr_user = self.get_current_user()
+        class_id = values[u"class_id"]
 
+        # get the appropriate class
+        cr = ClassRepository()
+        klass = cr.fetch(class_id)
+        cr.close()
+
+        if not klass:
+            print "Invalid class id"
+            return
+
+        root_group = self.get_root_group()
         gr = GroupRepository()
-        group = gr.fetch_by_name(course_name)
+        if not klass.group:
+            # create the group
+            group = Group()
+            group.name = klass.name
+            group.type = 0
+            group.academic_entity_id = class_id
+            group = gr.persist(group)
+            gr.add_group_as_subgroup(root_group.id, group.id)
+            klass.group = group.id
+            # associate with the class
+            cr = ClassRepository()
+            cr.persist(klass)
+            cr.close()
+        else:
+            group = gr.fetch(klass.group)
         gr.close()
 
         # assign the user as a member of the subgroup
-        user_repo = UserRepository()
-        user_repo.add_user_to_group(curr_user, group[0])
-        user_repo.close()
-
-        self._persist_user(curr_user)
+        user.groups = user.groups + [group.id]
+        self._persist_user(user)
 
         result = {}
 
-        result['id'] = group[0].id
-        result['name'] = group[0].name
+        result['id'] = group.id
+        result['name'] = group.name
 
         self.write(json.dumps(result))
-        self.flush
-        self.finish
 
 # - Send email for meeting
 # - Data: Meeting Time, Meeting Message
@@ -564,10 +598,62 @@ class GetCourseListHandler(AsyncRequestHandler):
 
 # - Get existing deadline names for the group (for 'Add deadline' auto-complete)
 #   - Data: Group ID
-class GetGroupDeadlinesHandler(AsyncRequestHandler):
+class GetDeadlinesHandler(AsyncRequestHandler):
     @tornado.web.authenticated
     def get(self):
-        pass
+        print "args:",self.request.arguments
+
+        user = self.get_current_user()
+        prefix = self.get_argument("query")
+        group_id = self.get_argument("group")
+
+        if not user or not prefix or not group_id:
+            print "Query is missing required data."
+            return
+
+        if not self._valid_request(user, prefix, group_id):
+            print "Invalid request made."
+            return
+
+        return_data = self._perform_request(user, prefix, group_id)
+
+        if return_data:
+            self.write(return_data)
+        else:
+            self.write({})
+
+
+    def _valid_request(self, user, prefix, group_id):
+        group_repo = GroupRepository()
+        group = group_repo.fetch(group_id)
+        group_repo.close()
+
+        if not group:
+            print "Group doesn't exist."
+            return False
+
+        user_repo = UserRepository()
+        member_list = user_repo.get_members_of_group(group_id)
+        user_repo.close()
+
+        if not any(member.id == user.id for member in member_list):
+            print "User is not a member of the associated group."
+            return False
+
+        return True
+
+    def _perform_request(self, user, prefix, group_id):
+        group_repo = GroupRepository()
+        group = group_repo.fetch(group_id)
+        group_repo.close()
+
+        deadline_repo = DeadlineRepository()
+        deadline_list = deadline_repo.find_deadlines_with_name_prefix(group_id, prefix)
+        deadline_repo.close()
+
+        formatted_names = [{"value": deadline.name} for deadline in deadline_list]
+
+        return json.dumps(formatted_names)
 
 ## - Schedule endpoint
 class ScheduleHandler(AsyncRequestHandler):
@@ -663,7 +749,7 @@ class ScheduleHandler(AsyncRequestHandler):
                 None.hi()
 
             ref_tok = new_user.refreshTok
-            sys.stderr.write("refresh_token = " + r_token + '\n\n')
+            #sys.stderr.write("refresh_token = " + ref_token + '\n\n')
 
             #get access token
             url = "https://accounts.google.com/o/oauth2/token"
