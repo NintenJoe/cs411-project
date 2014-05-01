@@ -353,7 +353,7 @@ class DeleteDeadlineHandler(AsyncRequestHandler):
 # - Send email after meeting has been scheduled
 # - Data: Group ID, Email Message, Time
 class AddDeadlineHandler(AsyncRequestHandler):
-    @tornadoCS 473 Fundamental Algorithms.web.authenticated
+    @tornado.web.authenticated
     # @TODO(halstea2) We chould create a 'complex' async handler base that
     # is aware of a dictionary of values
     def post(self):
