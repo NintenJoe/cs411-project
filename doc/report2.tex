@@ -1,0 +1,265 @@
+%	@file FinalDocumentation.tex
+%	@author Thomas Bogue, Joseph Ciurej
+%	@date Spring 2014
+%	
+%   LaTeX source file for the design document for the CS411 project.  More 
+%   information about the requirements for this documentation file can be found
+%   here: "https://wiki.cites.illinois.edu/wiki/display/cs411sp14/Final+Report+Instructions"
+
+\documentclass{article}
+\usepackage[parfill]{parskip}		% Package that improves paragraph formatting
+\usepackage[pdftex]{graphicx}		% Package that faciliates figure insertion
+\usepackage{float}					% Package that allows for arbitrary figure insertion
+\usepackage{hyperref}				% Package that allows for text hyperlinking
+\usepackage{tikz}					% Package that facilitates box rendering
+
+% The following code block changes a few parameters of the page to make the
+% text fill up more space on any given page.  For our liking, the default 'article'
+% template is too sparse.
+\addtolength{\voffset}{-2cm}
+\addtolength{\textheight}{4cm}
+\addtolength{\oddsidemargin}{-1.5cm}
+\addtolength{\textwidth}{2cm}
+
+% This command creates blue boxes around class names.
+% @see "http://tex.stackexchange.com/questions/36401/drawing-boxes-around-words"
+\newcommand\appname[1][]{\tikz[overlay]\node[fill=green!20,inner sep=2pt, anchor=text, rectangle, rounded corners=1mm,#1] { DatBigCuke };\phantom{ DatBigCuke}}
+\newcommand\gcalendar[1][]{\href{https://www.google.com/calendar}{Google Calendar} }
+\newcommand\gravatar[1][]{\href{http://en.gravatar.com/}{Gravatar} }
+
+\newcommand{\insertdiagram}[2]
+{
+	\begin{figure}[H]
+		\centering
+		\fbox{\includegraphics[height=#2]{figures/#1}}
+		\caption{UML Diagram for the #1 Class}
+	\end{figure}
+}
+
+\begin{document}
+
+	% Title Page %
+	\title{DatBigCuke: Final Project Report}
+	\author{Eunsoo Roh, Joshua Halstead, Kyle Nusbaum, Thomas Bogue, Joseph Ciurej \\
+		University of Illinois: Urbana-Champaign (CS411)}
+	\date{\today}
+	\maketitle
+
+	% Table of Contents %
+	\tableofcontents
+	\clearpage
+
+	% Body %
+	\section[Project Overview]{Brief Project Overview}
+	The primary purpose of this project was to create an online service for college
+	students to help them manage their academic deadlines.  Our primary hope
+	is that the application can serve a centralized repository for college
+	students' deadlines and aid them in organizing these deadlines in a 
+	straightforward and digestable manner.  
+	
+	The application is meant to be used by many students in college courses to 
+	facilitate the crowdsourcing of deadline times for course homeworks and other 
+	various assignments.  Additionally, the application provides functionality to allow 
+	student groups to organize group meetings to work towards completing their related deadlines.
+
+		\subsection[Motiviation]{Project Motivation}
+		The main motivation for creating this service was a common need among
+		the group members for a centralized deadline management system.  We all
+		found that the highly variate means by which courses and college groups
+		distribute deadlines made effective deadline management a near impossibility.
+		In creating the \appname web service, we aim to eliminate this problem by 
+		allowing users to congregate and collaborate on deadline data entry.  
+		
+		Additionally, we've found that organizing group meetings with the purpose of 
+		working towards completing deadlines is an equally difficult task with the
+		large variability in group member schedules.  The need to efficiently find
+		potential times for such meetings was another primary motivator for the
+		features we implemented in the \appname service.
+
+		\subsection[Affordances]{Project Affordances}
+		The \appname service has the capacity to help users accomplish a number of
+		tasks, including more efficient deadline management, more effective
+		group scheduling, and more centralized group organization.
+		
+		Users can sign up for groups in \appname and enter deadlines associated 
+		with these groups. Once enough users of a group have entered a deadline
+		for a particular assignment, the official time for this deadline is
+		determined by aggregating these user-entered deadlines using statisical
+		analysis methods.
+
+		The integration of autocomplete makes the process of signing up for
+		academic groups seamless.  After seamlessly signing up for their
+		courses through the \appname interface, users can begin to create their
+		own user subgroups and begin scheduling meetings to accomplish the
+		tasks associated with their deadlines.  
+		
+		The means of finding appropriate scheduling times is made painless 
+		through integration with \gcalendar, which the application pulls scheduling 
+		data from to determine the availability times of each group member.  
+		The \appname service uses each users selected \gcalendar calendars in
+		addition to a few other user input values (e.g. off limits times, deadline 
+		for the meeting, et cetera) in order to determine optimal meeting times.  
+		Also, through the use of asynchronous email handlers, the \appname service 
+		allows users to quickly and easily propogate calculated meeting times, 
+		making the process of scheduling even easier.
+
+	\section[Functions and Features]{Project Functions and Features}
+	In order to more fully describe the affordances of the \appname application,
+	we'll now flesh out all the functions and features of the service in more
+	detail.  Specifically, we'll detail the primary features of the application 
+	in brief, then move to overview a few of the basic functions provided by the 
+	application before finally highlighting the two key features of the application
+	(i.e. deadline aggregation and group meeting scheduling with \gcalendar).
+
+		\subsection[Feature List]{Concise Functions and Features List}
+		\begin{itemize}
+			\item Users can sign up for the service by providing their email 
+			address and credentials.  Each user must verify their email address 
+			before being allowed to utilize the service.
+
+			\item Authenticated users may view and edit their personal information 
+			on their profile page (including the \gravatar icons associated with their
+			sign-in email).
+
+			\item Users can link their account to \gcalendar from their main
+			profile page by filling out the linked Google service verification form.
+
+			\item Authenticated users can view and modify the hierarchy of academic
+			groups that they're signed up for on the groups page.
+
+			\item Users can add courses through the root group page (i.e. the
+			user institution group page) with user entry assisted by autocomplete.
+			Users can also add private subgroups to courses through one of the groups page.
+
+			\item Users can add additional members to private subgroups with
+			user email entry assisted by autocomplete.
+
+			\item Users can freely leave groups that aren't dependent on their
+			presence.
+
+			\item Users can add deadlines for assignments associated with groups
+			through the group interface with assignment name entry assisted by
+			autocomplete.
+
+			\item Once enough users have added a deadline for an assignment,
+			these deadlines are aggregated using statistical analysis methods
+			and broadcast to all users (and listed as community-driven deadlines).
+
+			\item Users can request the scheduling of a group meeting for a
+			particular deadline through the group interface.  This interface 
+			allows the user to customize the meeting duration, off-limits
+			times, and the required attendees.  A list of good meeting times
+			will be returned based on this information and user \gcalendar data.
+			
+			\item Given a list of potential meeting times, the users are
+			provided an interface that allows them to choose a good meeting
+			time and to broadcast this time with a custom message to all group
+			members.
+		\end{itemize}
+
+		\subsection[Basic Functions]{Overview of A Few Basic Functions}
+		The core of the Jenkins chat plugin consists of the types used to
+		implement the server and client components of the client-server model.
+		For each of these primary components, the listing below describes the
+		major functionality encapsulated by that primary component and provides
+		a visual aid for its role in the project through a 
+		\href{http://www.csci.csusb.edu/dick/samples/uml0.html}{UML diagram}.
+
+		\subsection[Advanced Functions]{Overview of Advanced Features}
+		The core of the Jenkins chat plugin consists of the types used to
+		implement the server and client components of the client-server model.
+		For each of these primary components, the listing below describes the
+		major functionality encapsulated by that primary component and provides
+		a visual aid for its role in the project through a 
+		\href{http://www.csci.csusb.edu/dick/samples/uml0.html}{UML diagram}.
+
+	\section[Project Implementation]{Project Implementation and Design}
+	The core of the Jenkins chat plugin consists of the types used to
+	implement the server and client components of the client-server model.
+	For each of these primary components, the listing below describes the
+	major functionality encapsulated by that primary component and provides
+	a visual aid for its role in the project through a 
+	\href{http://www.csci.csusb.edu/dick/samples/uml0.html}{UML diagram}.
+
+		\subsection[Database Design]{Data and Database Design}
+		The core of the Jenkins chat plugin consists of the types used to
+		implement the server and client components of the client-server model.
+		For each of these primary components, the listing below describes the
+		major functionality encapsulated by that primary component and provides
+		a visual aid for its role in the project through a 
+		\href{http://www.csci.csusb.edu/dick/samples/uml0.html}{UML diagram}.
+
+		\subsection[Implementation Schedule]{Project Implementation Schedule and Tasks}
+		The core of the Jenkins chat plugin consists of the types used to
+		implement the server and client components of the client-server model.
+		For each of these primary components, the listing below describes the
+		major functionality encapsulated by that primary component and provides
+		a visual aid for its role in the project through a 
+		\href{http://www.csci.csusb.edu/dick/samples/uml0.html}{UML diagram}.
+
+			\subsubsection[Task Delegation]{Delegation of Project Tasks}
+			The core of the Jenkins chat plugin consists of the types used to
+			implement the server and client components of the client-server model.
+			For each of these primary components, the listing below describes the
+			major functionality encapsulated by that primary component and provides
+			a visual aid for its role in the project through a 
+			\href{http://www.csci.csusb.edu/dick/samples/uml0.html}{UML diagram}.
+
+			\subsubsection[Challenges]{Technical Challenges}
+			The core of the Jenkins chat plugin consists of the types used to
+			implement the server and client components of the client-server model.
+			For each of these primary components, the listing below describes the
+			major functionality encapsulated by that primary component and provides
+			a visual aid for its role in the project through a 
+			\href{http://www.csci.csusb.edu/dick/samples/uml0.html}{UML diagram}.
+
+
+	\section[Appendix]{Miscellaneous Project Information}
+	The core of the Jenkins chat plugin consists of the types used to
+	implement the server and client components of the client-server model.
+	For each of these primary components, the listing below describes the
+	major functionality encapsulated by that primary component and provides
+	a visual aid for its role in the project through a 
+	\href{http://www.csci.csusb.edu/dick/samples/uml0.html}{UML diagram}.
+
+		\subsection[Dependencies]{Sources and Dependencies}
+		Installation for the chat plugin has the following dependencies, which
+		must be installed before the plugin itself can be installed:
+
+		\begin{description}
+			\item[\href{http://www.oracle.com/technetwork/java/javase/downloads/jdk7-downloads-1880260.html}{Java Development Kit}] (v1.7+) \hfill \\
+			A version of the standard Java development kit at least as recent 
+			as version 1.7 is needed primarily to import extended networking 
+			functionality only in later JDK versions.
+
+			\item[\href{http://jenkins-ci.org/}{Jenkins}] (v1.509.3+) \hfill \\
+			A version of Jenkins more recent than version 1.509.3 is needed
+			to support the chat server plugin (older versions may work, but they
+			have not been tested).
+
+			\item[\href{https://github.com/mrniko/netty-socketio/releases}{Netty-SocketIO}] (v1.5.2+) \hfill \\ 
+			An open source Java library that facilitates network communication 
+			via websockets in Java.  This library is used by the chat plugin
+			to aid in the transferral of mesages to and from chat clients.
+		\end{description}
+
+		After these dependencies are installed, installing the chat plugin itself
+		is relatively straightforward.  The steps for performing this installation
+		are as follows:
+
+		\begin{enumerate}
+			\item Navigate to the \textbf{plugin} subdirectory from the chat
+			plugin source base directory.
+
+			\item Run the script within this directory by the name of 
+			\textbf{export.sh}.
+		\end{enumerate}
+
+		After performing the second step, a sequence of installations should
+		follow.  After all these subsequent installations are complete, the
+		plugin should be fully installed and accessible through Jenkins.
+
+		\subsection[Other Information]{Other Relevant Information}
+		TODO
+
+\end{document}
