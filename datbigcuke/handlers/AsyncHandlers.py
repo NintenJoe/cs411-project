@@ -512,10 +512,62 @@ class GetCourseListHandler(AsyncRequestHandler):
 
 # - Get existing deadline names for the group (for 'Add deadline' auto-complete)
 #   - Data: Group ID
-class GetGroupDeadlinesHandler(AsyncRequestHandler):
+class GetDeadlinesHandler(AsyncRequestHandler):
     @tornado.web.authenticated
     def get(self):
-        pass
+        print "args:",self.request.arguments
+
+        user = self.get_current_user()
+        prefix = self.get_argument("query")
+        group_id = self.get_argument("group")
+
+        if not user or not prefix or not group_id:
+            print "Query is missing required data."
+            return
+
+        if not self._valid_request(user, prefix, group_id):
+            print "Invalid request made."
+            return
+
+        return_data = self._perform_request(user, prefix, group_id)
+
+        if return_data:
+            self.write(return_data)
+        else:
+            self.write({})
+
+
+    def _valid_request(self, user, prefix, group_id):
+        group_repo = GroupRepository()
+        group = group_repo.fetch(group_id)
+        group_repo.close()
+
+        if not group:
+            print "Group doesn't exist."
+            return False
+
+        user_repo = UserRepository()
+        member_list = user_repo.get_members_of_group(group_id)
+        user_repo.close()
+
+        if not any(member.id == user.id for member in member_list):
+            print "User is not a member of the associated group."
+            return False
+
+        return True
+
+    def _perform_request(self, user, prefix, group_id):
+        group_repo = GroupRepository()
+        group = group_repo.fetch(group_id)
+        group_repo.close()
+
+        deadline_repo = DeadlineRepository()
+        deadline_list = deadline_repo.find_deadlines_with_name_prefix(group_id, prefix)
+        deadline_repo.close()
+
+        formatted_names = [{"value": deadline.name} for deadline in deadline_list]
+
+        return json.dumps(formatted_names)
 
 ## - Schedule endpoint
 class ScheduleHandler(AsyncRequestHandler):
