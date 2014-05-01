@@ -192,7 +192,6 @@ function main()
                 url: '/add-course',
                 data: {'data': JSON.stringify(data1) },
                 success: function(msg) {
-                    $('#course_name').typeahead('val', '');
                     $('#add-course-modal').modal('hide');
                     response = $.parseJSON( msg );
                     addGroupEntry(response["id"], response["name"], response["maintainer"]);
@@ -201,6 +200,11 @@ function main()
                     alert("Failed to add course." + text);
                 }
             });
+        });
+
+        // clear query on hide
+        $( "#add-course-modal" ).on('hidden.bs.modal', function () {
+            $('#course_name').typeahead('val', '');
         });
 
         $( "#schedule-send-submit" ).click( function () {
