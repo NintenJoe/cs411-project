@@ -127,7 +127,7 @@ function main()
                     response = $.parseJSON( msg );
 
 					// TODO: icon not updating
-					addUserEntry( response["name"], response["email"], response["iconurl"] );
+					addUserEntry( response["name"], response["email"], response["iconURL"] );
                 },
                 error: function(data) {
                     alert("Failed to add user to group.");

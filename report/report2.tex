@@ -24,9 +24,7 @@
 % This command creates blue boxes around class names.
 % @see "http://tex.stackexchange.com/questions/36401/drawing-boxes-around-words"
 %\newcommand\classname[2][]{\tikz[overlay]\node[fill=blue!20,inner sep=2pt, anchor=text, rectangle, rounded corners=1mm,#1] {#2};\phantom{#2}}
-%\newcommand\methodname[2][]{\tikz[overlay]\node[fill=green!20,inner sep=2pt, anchor=text, rectangle, rounded corners=1mm,#1] {#2};\phantom{#2}}
-\newcommand{\classname}[1] {\texttt{#1}}
-\newcommand{\methodname}[1] {\texttt{#1}}
+\newcommand\appname[2][]{\tikz[overlay]\node[fill=green!20,inner sep=2pt, anchor=text, rectangle, rounded corners=1mm,#1] {#2};\phantom{#2}}
 \newcommand{\insertdiagram}[2]
 {
 	\begin{figure}[H]
@@ -179,12 +177,23 @@
 			\href{http://www.csci.csusb.edu/dick/samples/uml0.html}{UML diagram}.
 
 			\subsubsection[Challenges]{Technical Challenges}
-			The core of the Jenkins chat plugin consists of the types used to
-			implement the server and client components of the client-server model.
-			For each of these primary components, the listing below describes the
-			major functionality encapsulated by that primary component and provides
-			a visual aid for its role in the project through a 
-			\href{http://www.csci.csusb.edu/dick/samples/uml0.html}{UML diagram}.
+			Working with the Google API was very difficult.
+			Looking at the documentation, it seemed like it should have been more simple
+			than it turned out to be. The main stumbling point was that Google refuses to
+			send back data to anything other than an authenticated app, which can only be
+			that one running on the actually server. Thus, testing any of the Google API
+			usage locally was an impossibility. Since there were quite a few instances
+			where the server was down during development, testing the Google API integration
+			was often not something that could even be done. Unfortunately, the specifics
+			of the Google authentication also turned out to not be as clear as we could
+			have hoped, and many attempts failed in unhelpful ways.
+
+			The most helpful tool
+			was found a bit later, the OAuth 2.0 Playground, which cleared up a lot about
+			how exactly the API queries should be formed. Good advice to help mitigate
+			these difficulties would be to really take some time to work on figuring
+			out the Google API requests and authentication process before integrating
+			them into the app so that it can go much smoother.
 
 
 	\section[Appendix]{Miscellaneous Project Information}
