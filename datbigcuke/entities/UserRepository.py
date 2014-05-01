@@ -132,6 +132,22 @@ class UserRepository(AbstractRepository):
                            'SET confirmed = true '
                            'WHERE `confirmUUID`=?', (unique,))
 
+    def find_users_with_email_prefix(self, user_id, supergroup_id, prefix):
+        user_list = []
+
+        with self._conn.cursor() as cursor:
+            cursor.execute('SELECT `u`.`id`, `u`.`email`, `gm`.`group_id`'
+                           'FROM `user` AS `u`'
+                           'JOIN `group_membership` AS `gm`'
+                           'ON `u`.`id` = `gm`.`member_id`'
+                           'WHERE `gm`.`group_id`=? AND `u`.`email` LIKE ?',
+                           (supergroup_id, '{!s}%'.format(prefix)))
+
+            for result in self._fetch_all_dict(cursor):
+                user_list.append(self._create_entity(data=result))
+
+        return user_list
+
     def _fetch_user_groups(self, cursor, user_id):
         group_list = []
         with self._conn.cursor() as cursor:

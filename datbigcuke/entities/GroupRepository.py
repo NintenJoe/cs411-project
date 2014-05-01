@@ -259,6 +259,7 @@ class GroupRepository(AbstractRepository):
 
         return group_list
 
+
     def _fetch_group(self, cursor):
         result = self._fetch_dict(cursor)
         if result is not None:

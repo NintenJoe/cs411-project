@@ -95,6 +95,7 @@ class AddMemberHandler(AsyncRequestHandler):
     # @TODO(halstea2) We chould create a 'complex' async handler base that
     # is aware of a dictionary of values
     def post(self):
+        print "args:",self.request.arguments
         curr_user = self.get_current_user()
         values =  self.get_argument("data", default=None)
 
@@ -113,39 +114,64 @@ class AddMemberHandler(AsyncRequestHandler):
     def _valid_request(self, curr_user, name, values):
         # Malformed request
         if u"group_id" not in values or u"user_email" not in values:
+            print "Malformed request detected."
             return False
 
         # Malformed request
         group_id = values[u"group_id"]
         new_user_email = values[u"user_email"]
         if not group_id or not new_user_email:
+            print "Required data is missing."
             return False
 
-        #@TODO(halstea2) We need a mechanism in Group to retrieve the parent
-        # and then verify the curr_user and new_user are members of it.
+        user_repo = UserRepository()
+        member_list = user_repo.get_members_of_group(group_id)
+        user_repo.close()
+        if not any(member.id == curr_user.id for member in member_list):
+            print "User is not a member of the associated group."
+            return False
 
-        #@TODO(halstea2) Enable all of these fucking checks
-        #if not curr_user.groups:
-        #    return False
+        group_repo = GroupRepository()
+        parent_group = group_repo.get_supergroup_of_group(group_id)
+        group_repo.close()
+        if not group_repo:
+            print "Cannot add member to the root group."
+            return False
 
-        # Current user must be a member of the subgroup they're trying to add a
-        # member to
-        #if group_id not in curr_user.groups:
-        #    return False
+        user_repo = UserRepository()
+        parent_member_list = user_repo.get_members_of_group(parent_group.id)
+        user_repo.close()
+        if not any(member.id == curr_user.id for member in parent_member_list):
+            print "New user is not a member of the supergroup."
+            return False
 
         # New user is already a member of the group
         new_user_repo = UserRepository()
         new_user = new_user_repo.get_user_by_email(new_user_email)
         new_user_repo.close()
-        
-        #if not new_user:
-        #    return False
+        if not new_user:
+            print "New user doesn't exist."
+            return False
 
-        #if new_user.groups:
-        #    return False
+        if not new_user.groups:
+            print "New user isn't a member of any groups."
+            return False
 
-        #if group_id in new_user.groups:
-        #    return False
+        if group_id in new_user.groups:
+            print "New user is already already a member of the group."
+            return False
+
+        group_repo = GroupRepository()
+        group = group_repo.fetch(group_id)
+        group_repo.close()
+        if not group:
+            print "Group doesn't exist"
+            return False
+
+        # 1 => Public
+        if group.type == 1:
+            print "Cannot add members to public groups"
+            return False
 
         return True
 
@@ -153,15 +179,14 @@ class AddMemberHandler(AsyncRequestHandler):
         group_id = values[u"group_id"]
         new_user_email = values[u"user_email"]
 
+        group_repo = GroupRepository()
+        group = group_repo.fetch(group_id)
+        group_repo.close()
+
         new_user_repo = UserRepository()
         new_user = new_user_repo.get_user_by_email(new_user_email)
+        new_user_repo.add_user_to_group(new_user, group)
         new_user_repo.close()
-
-        # @TODO (halstea2) This might/should use the Group_repo function
-        if new_user.groups:
-            new_user.groups.append(group_id)
-        else:
-            new_user.groups = [group_id]
 
         self._persist_user(new_user)
 
@@ -170,13 +195,10 @@ class AddMemberHandler(AsyncRequestHandler):
         result['name'] = new_user.name
         result['email'] = new_user.email
         result['iconURL'] = new_user.iconSmallURL
-        
+ 
         self.write(json.dumps(result))
         self.flush
         self.finish
-
-
-
 
 # - Add subgroup to group
 # - Data: Group ID, New Group Name, New Group Description
@@ -596,8 +618,6 @@ class GetCourseListHandler(AsyncRequestHandler):
     def get(self):
         pass
 
-# - Get existing deadline names for the group (for 'Add deadline' auto-complete)
-#   - Data: Group ID
 class GetDeadlinesHandler(AsyncRequestHandler):
     @tornado.web.authenticated
     def get(self):
@@ -654,6 +674,79 @@ class GetDeadlinesHandler(AsyncRequestHandler):
         formatted_names = [{"value": deadline.name} for deadline in deadline_list]
 
         return json.dumps(formatted_names)
+
+class GetUsersHandler(AsyncRequestHandler):
+    @tornado.web.authenticated
+    def get(self):
+        print "args:",self.request.arguments
+
+        user = self.get_current_user()
+        prefix = self.get_argument("query")
+        group_id = self.get_argument("group")
+
+        if not user or not prefix or not group_id:
+            print "Query is missing required data."
+            return
+
+        if not self._valid_request(user, prefix, group_id):
+            print "Invalid request made."
+            return
+
+        return_data = self._perform_request(user, prefix, group_id)
+
+        if return_data:
+            self.write(return_data)
+        else:
+            self.write({})
+
+
+    def _valid_request(self, user, prefix, group_id):
+        group_repo = GroupRepository()
+        group = group_repo.fetch(group_id)
+        group_repo.close()
+
+        if not group:
+            print "Group doesn't exist."
+            return False
+
+        user_repo = UserRepository()
+        member_list = user_repo.get_members_of_group(group_id)
+        user_repo.close()
+
+        if not any(member.id == user.id for member in member_list):
+            print "User is not a member of the associated group."
+            return False
+
+        group_repo = GroupRepository()
+        parent_group = group_repo.get_supergroup_of_group(group_id)
+        group_repo.close()
+        if not group_repo:
+            print "Attempting to add membrer to the root."
+            return False
+
+        user_repo = UserRepository()
+        parent_member_list = user_repo.get_members_of_group(parent_group.id)
+        user_repo.close()
+        if not any(member.id == user.id for member in parent_member_list):
+            print "New user is not a member of the supergroup."
+            return False
+
+        return True
+
+    def _perform_request(self, user, prefix, group_id):
+        group_repo = GroupRepository()
+        parent = group_repo.get_supergroup_of_group(group_id)
+        group_repo.close()
+
+        user_repo = UserRepository()
+        user_list = user_repo.find_users_with_email_prefix(user.id, parent.id, prefix)
+        user_repo.close()
+
+        formatted_names = [{"value": u.email} for u in user_list]
+
+        return json.dumps(formatted_names)
+
+
 
 ## - Schedule endpoint
 class ScheduleHandler(AsyncRequestHandler):

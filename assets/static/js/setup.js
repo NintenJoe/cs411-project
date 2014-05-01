@@ -115,7 +115,7 @@ function main()
             data1['group_id'] = getGroupID();
 
             // Input element has no ID tag defined 
-            data1['user_email'] = $('#user_email').val();
+            data1['user_email'] = $('#new_user_email').val();
             $.ajax({
                 type: 'POST',
                 url: '/add-member',
